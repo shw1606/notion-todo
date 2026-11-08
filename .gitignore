@@ -7,3 +7,9 @@ node_modules/
 dist/
 build/
 cache/
+
+# Xcode
+xcuserdata/
+DerivedData/
+*.xcuserstate
+apps/Config/Local.xcconfig
