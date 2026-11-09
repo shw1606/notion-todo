@@ -102,6 +102,16 @@
         }
       }
     },
+    "Waiting to sync": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "동기화 대기 중"
+          }
+        }
+      }
+    },
     "Write down the next thing below.": {
       "localizations": {
         "ko": {

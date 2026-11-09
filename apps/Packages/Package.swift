@@ -16,6 +16,7 @@ let package = Package(
         .target(name: "DesignSystem", dependencies: ["TodoCore"], resources: [.process("Resources")]),
         .testTarget(name: "NotionKitTests", dependencies: ["NotionKit"]),
         .testTarget(name: "TodoCoreTests", dependencies: ["TodoCore"], resources: [.copy("Fixtures")]),
+        .testTarget(name: "DesignSystemTests", dependencies: ["DesignSystem"]),
     ],
     swiftLanguageModes: [.v6]
 )

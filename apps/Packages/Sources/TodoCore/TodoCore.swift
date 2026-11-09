@@ -35,12 +35,15 @@ public final class TodoServices: Sendable {
     public let auth: AuthSession
     public let repository: TodoRepository
 
-    public init(configuration: AppConfiguration, credentials: (any CredentialStore)? = nil, store: SharedStore? = nil) {
+    public init(
+        configuration: AppConfiguration, credentials: (any CredentialStore)? = nil, store: SharedStore? = nil,
+        session: URLSession = .shared
+    ) {
         self.configuration = configuration
         let credentialStore = credentials ?? KeychainCredentialStore(accessGroup: configuration.keychainGroup)
         auth = AuthSession(store: credentialStore, config: configuration.oauth)
         repository = TodoRepository(
-            client: NotionClient(tokens: auth),
+            client: NotionClient(tokens: auth, session: session),
             store: store ?? .appGroup(configuration.appGroupId),
             auth: auth)
     }
@@ -49,10 +52,13 @@ public final class TodoServices: Sendable {
         #if DEBUG
             // 개발·UI 테스트: NT_DEV_TOKEN이 있으면 Keychain을 건드리지 않는다.
             // (서명이 바뀐 개발 빌드가 로그인 키체인을 읽으면 macOS가 허용 창을 띄우고 멈춘다.)
-            if let token = ProcessInfo.processInfo.environment["NT_DEV_TOKEN"], !token.isEmpty {
+            // NT_DEV_OFFLINE=1이면 모든 요청이 "인터넷 연결 없음"으로 실패한다 (오프라인 UI 테스트).
+            let environment = ProcessInfo.processInfo.environment
+            if let token = environment["NT_DEV_TOKEN"], !token.isEmpty {
                 return TodoServices(
                     configuration: .fromBundle(),
-                    credentials: InMemoryCredentialStore(Credentials(kind: .internalToken, accessToken: token)))
+                    credentials: InMemoryCredentialStore(Credentials(kind: .internalToken, accessToken: token)),
+                    session: environment["NT_DEV_OFFLINE"] == "1" ? .offline : .shared)
             }
         #endif
         return TodoServices(configuration: .fromBundle())
@@ -62,3 +68,20 @@ public final class TodoServices: Sendable {
         get async { await auth.credentials != nil }
     }
 }
+
+#if DEBUG
+    extension URLSession {
+        static let offline: URLSession = {
+            let configuration = URLSessionConfiguration.ephemeral
+            configuration.protocolClasses = [OfflineURLProtocol.self]
+            return URLSession(configuration: configuration)
+        }()
+    }
+
+    final class OfflineURLProtocol: URLProtocol {
+        override class func canInit(with request: URLRequest) -> Bool { true }
+        override class func canonicalRequest(for request: URLRequest) -> URLRequest { request }
+        override func startLoading() { client?.urlProtocol(self, didFailWithError: URLError(.notConnectedToInternet)) }
+        override func stopLoading() {}
+    }
+#endif

@@ -29,6 +29,7 @@ enum Fixture {
         #expect(view.createRules == [.checkbox(propertyId: "%3BQFf", value: false)])
         #expect(view.datePropertyId == nil)
         #expect(view.titlePropertyId == "title")
+        #expect(view.summary.completionTarget == .checkbox(propertyName: "완료"))
         let body = view.queryBody()
         #expect(body["filter"] == ["property": ";QFf", "checkbox": ["equals": false]])
         #expect(body["sorts"]?.arrayValue?.count == 1)
@@ -57,6 +58,7 @@ enum Fixture {
         #expect(view.showsDone == false)
         #expect(view.completionPatch(done: true) == ["BpXx": ["status": ["id": .string(done)]]])
         #expect(view.completionPatch(done: false) == ["BpXx": ["status": ["id": .string(undo)]]])
+        #expect(view.summary.completionTarget == .status(propertyName: "상태", doneOptionName: "Done"))
     }
 
     @Test func uiQuickFilterMeIsMergedAndFilledOnCreate() throws {
@@ -144,6 +146,7 @@ enum Fixture {
             id: "ds", title: [], properties: ["Name": PropertySchema(id: "title", name: "Name", type: "title")])
         let view = ViewResolver.resolve(view: NotionView(id: "v", name: "v", dataSourceId: "ds"), schema: schema)
         #expect(view.completion == .readOnly(.noCompletionProperty))
+        #expect(view.completionTarget == nil)
     }
 
     @Test func preferredDefaultSkipsDoneViews() throws {

@@ -29,7 +29,10 @@ struct TodoListWidget: Widget {
 
     static var families: [WidgetFamily] {
         var families: [WidgetFamily] = [.systemSmall, .systemMedium, .systemLarge, .systemExtraLarge]
-        if #available(iOS 27.0, macOS 27.0, *) { families.append(.systemExtraLargePortrait) }
+        // 세로형 초대형은 iOS·macOS 27 SDK(Xcode 27, Swift 6.3+)에만 있다.
+        #if compiler(>=6.3)
+            if #available(iOS 27.0, macOS 27.0, *) { families.append(.systemExtraLargePortrait) }
+        #endif
         #if os(iOS)
             families += [.accessoryRectangular, .accessoryInline]
         #endif

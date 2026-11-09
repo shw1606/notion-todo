@@ -43,8 +43,27 @@ final class AppModel {
     private var removalTasks: [String: Task<Void, Never>] = [:]
     private var pendingTrash: [String: Task<Void, Never>] = [:]
 
+    var lastFetchedAt: Date?
+
     init(services: TodoServices = .shared) {
         self.services = services
+        // 다른 창(또는 메뉴 막대)에서 로그인·로그아웃하면 이 창도 다시 시작한다.
+        sessionObserver = Task { [weak self] in
+            for await note in NotificationCenter.default.notifications(named: .notionTodoSessionChanged) {
+                guard let self, note.object as AnyObject? !== self else { continue }
+                await self.start()
+            }
+        }
+    }
+
+    private var sessionObserver: Task<Void, Never>?
+
+    isolated deinit {
+        sessionObserver?.cancel()
+    }
+
+    private func broadcastSessionChange() {
+        NotificationCenter.default.post(name: .notionTodoSessionChanged, object: self)
     }
 
     var isOAuthAvailable: Bool { services.configuration.oauth != nil }
@@ -59,8 +78,9 @@ final class AppModel {
         }
         catalog = await repository.cachedCatalog()
         if let id = await repository.defaultViewId() {
-            await open(viewId: id)
+            await showCached(id)
             phase = .ready
+            await refresh()
             await refreshCatalog()
         } else {
             await refreshCatalog()
@@ -89,11 +109,16 @@ final class AppModel {
     }
 
     func open(viewId: String) async {
+        await showCached(viewId)
+        await refresh()
+    }
+
+    /// 네트워크를 기다리지 않고 마지막 캐시로 먼저 그린다.
+    private func showCached(_ viewId: String) async {
         currentViewId = viewId
         await repository.rememberLastView(viewId)
-        currentView = try? await repository.resolvedView(viewId)
-        if let cached = await repository.cachedItems(viewId) { items = cached.items } else { items = [] }
-        await refresh()
+        currentView = await repository.store.view(viewId)
+        items = await repository.cachedItems(viewId)?.items ?? []
     }
 
     func refresh() async {
@@ -105,6 +130,7 @@ final class AppModel {
             currentView = try await repository.resolvedView(viewId)
             guard currentViewId == viewId else { return }
             items = snapshot.items
+            lastFetchedAt = snapshot.fetchedAt
             isOffline = false
             lastError = nil
         } catch {
@@ -147,7 +173,7 @@ final class AppModel {
         removalTasks[item.id] = Task { [weak self] in
             try? await Task.sleep(for: Motion.removalDelay)
             guard !Task.isCancelled else { return }
-            withAnimation(Motion.check) { _ = self?.lingering.remove(item.id) }
+            withAnimation(Motion.preferred) { _ = self?.lingering.remove(item.id) }
         }
         undo = UndoAction(message: done ? String(localized: "Checked “\(item.title)”") : String(localized: "Unchecked")) {
             [weak self] in
@@ -171,12 +197,12 @@ final class AppModel {
         guard !text.isEmpty, let viewId = currentViewId else { return }
         composerText = ""
         let placeholder = TodoItem(id: "draft-\(UUID().uuidString)", title: text, isDone: currentView?.showsDone ?? false, isPending: true)
-        withAnimation(Motion.check) { items.insert(placeholder, at: 0) }
+        withAnimation(Motion.preferred) { items.insert(placeholder, at: 0) }
         Task {
             do {
                 try await repository.add(viewId: viewId, title: text)
                 if let cached = await repository.cachedItems(viewId), currentViewId == viewId {
-                    withAnimation(Motion.check) { items = cached.items }
+                    withAnimation(Motion.preferred) { items = cached.items }
                 }
             } catch {
                 items.removeAll { $0.id == placeholder.id }
@@ -224,7 +250,7 @@ final class AppModel {
             guard let self else { return }
             self.pendingTrash[item.id]?.cancel()
             self.pendingTrash[item.id] = nil
-            withAnimation(Motion.check) { self.items.insert(removed, at: min(index, self.items.count)) }
+            withAnimation(Motion.preferred) { self.items.insert(removed, at: min(index, self.items.count)) }
             self.undo = nil
         }
         scheduleUndoDismiss()
@@ -271,11 +297,18 @@ final class AppModel {
         reloadWidgets()
     }
 
+    /// 읽기 전용 뷰에서 점을 누르면 이유를 알려준다.
+    func explainReadOnly() {
+        lastError = String(localized: "This view can’t be checked off from here.")
+    }
+
     func finishOnboarding(viewId: String) async {
-        await open(viewId: viewId)
+        await showCached(viewId)
         phase = .ready
+        await refresh()
         await refreshCatalog()
         reloadWidgets()
+        broadcastSessionChange()
     }
 
     func signOut() async {
@@ -287,6 +320,7 @@ final class AppModel {
         currentView = nil
         phase = .onboarding
         reloadWidgets()
+        broadcastSessionChange()
     }
 
     // MARK: 오류
@@ -312,4 +346,8 @@ final class AppModel {
     func reloadWidgets() {
         WidgetCenter.shared.reloadAllTimelines()
     }
+}
+
+extension Notification.Name {
+    static let notionTodoSessionChanged = Notification.Name("NotionTodoSessionChanged")
 }

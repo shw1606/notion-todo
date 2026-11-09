@@ -109,23 +109,13 @@ struct WelcomeStep: View {
     }
 
     func signInWithNotion() {
-        guard let config = model.services.configuration.oauth else { return }
-        let pkce = PKCE()
         isWorking = true
         error = nil
         Task {
             defer { isWorking = false }
             do {
-                let callback = try await webAuthenticationSession.authenticate(
-                    using: config.authorizeURL(pkce: pkce),
-                    callback: .https(host: config.callbackHost, path: config.callbackPath),
-                    preferredBrowserSession: nil,
-                    additionalHeaderFields: [:])
-                let credentials = try await model.services.auth.completeSignIn(callback: callback, pkce: pkce)
-                await model.didSignIn(credentials)
+                guard try await model.signInWithNotion(using: webAuthenticationSession) else { return }
                 onSignedIn()
-            } catch let error as ASWebAuthenticationSessionError where error.code == .canceledLogin {
-                // 사용자가 닫음
             } catch {
                 self.error = String(localized: "Couldn’t sign in: \(error.localizedDescription)")
             }
@@ -208,8 +198,13 @@ struct SourceStep: View {
 
     /// 뷰 해석 결과를 한 줄로 알려준다 — 체크하면 무엇이 바뀌는지.
     func description(_ view: ViewSummary) -> String {
-        if !view.isWritable { return String(localized: "Read only — no checkbox or status to check off") }
-        return view.showsDone ? String(localized: "Shows checked items") : String(localized: "Check off from widgets")
+        guard view.isWritable else { return String(localized: "Read only — no checkbox or status to check off") }
+        let action = switch view.completionTarget {
+        case .checkbox(let name)?: String(localized: "Checking off ticks “\(name)”")
+        case .status(let name, let done)?: String(localized: "Checking off sets \(name) to “\(done)”")
+        case nil: String(localized: "Check off from widgets")
+        }
+        return view.showsDone ? "\(action) · \(String(localized: "Shows checked items"))" : action
     }
 
     func load() async {
@@ -247,6 +242,7 @@ struct SourceStep: View {
 
 struct WidgetGuideStep: View {
     var onDone: () -> Void
+    @State private var appeared = false
 
     var body: some View {
         ScrollView {
@@ -276,6 +272,10 @@ struct WidgetGuideStep: View {
             .frame(maxWidth: .infinity)
         }
         .navigationBarBackButtonHiddenCompat()
+        .task {
+            try? await Task.sleep(for: .milliseconds(300))
+            appeared = true
+        }
     }
 
     func guide(_ icon: String, _ title: LocalizedStringKey, _ text: LocalizedStringKey) -> some View {
@@ -283,6 +283,7 @@ struct WidgetGuideStep: View {
             Image(systemName: icon)
                 .font(.title2)
                 .foregroundStyle(Color.memoAccent)
+                .symbolEffect(.bounce, options: .nonRepeating, value: appeared)
                 .frame(width: 32)
                 .accessibilityHidden(true)
             VStack(alignment: .leading, spacing: Spacing.xxs) {
@@ -290,6 +291,27 @@ struct WidgetGuideStep: View {
                 Text(text).font(.subheadline).foregroundStyle(.secondary)
             }
         }
+    }
+}
+
+extension AppModel {
+    /// "Notion으로 로그인". 다시 하면 Notion 페이지 선택 화면이 다시 떠서 페이지를 더 고를 수 있다 (설정).
+    /// 사용자가 창을 닫으면 false.
+    func signInWithNotion(using session: WebAuthenticationSession) async throws -> Bool {
+        guard let config = services.configuration.oauth else { return false }
+        let pkce = PKCE()
+        let callback: URL
+        do {
+            callback = try await session.authenticate(
+                using: config.authorizeURL(pkce: pkce),
+                callback: .https(host: config.callbackHost, path: config.callbackPath),
+                preferredBrowserSession: nil,
+                additionalHeaderFields: [:])
+        } catch let error as ASWebAuthenticationSessionError where error.code == .canceledLogin {
+            return false
+        }
+        await didSignIn(try await services.auth.completeSignIn(callback: callback, pkce: pkce))
+        return true
     }
 }
 

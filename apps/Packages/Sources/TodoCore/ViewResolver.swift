@@ -24,7 +24,8 @@ public enum ViewResolver {
             showsDone: showsDone,
             filtersByCompletion: fromFilter,
             createRules: createRules(conditions: conditions, properties: properties),
-            resolvedAt: now)
+            resolvedAt: now,
+            completionTarget: completionTarget(completion, properties: properties))
     }
 
     // MARK: 필터 합치기
@@ -132,6 +133,20 @@ public enum ViewResolver {
             ?? status.options.first { !complete.contains($0.id) }?.id
         guard let undo else { return nil }
         return .status(propertyId: prop.id, doneOptionId: done, undoOptionId: undo, completeOptionIds: complete)
+    }
+
+    static func completionTarget(_ completion: CompletionStrategy, properties: [PropertySchema]) -> CompletionTarget? {
+        switch completion {
+        case .checkbox(let id):
+            return properties.first { $0.id == id }.map { .checkbox(propertyName: $0.name) }
+        case .status(let id, let done, _, _):
+            guard let prop = properties.first(where: { $0.id == id }), let option = prop.status?.option(id: done) else {
+                return nil
+            }
+            return .status(propertyName: prop.name, doneOptionName: option.name)
+        case .readOnly:
+            return nil
+        }
     }
 
     /// 필터 값은 옵션 이름(UI·API 모두)으로 오지만, ID일 수도 있어 둘 다 받는다.

@@ -23,6 +23,7 @@ struct WidgetTodoRow: View {
             }
             .buttonStyle(.plain)
             .accessibilityLabel(item.accessibilityDescription)
+            .accessibilityValue(item.accessibilityStatus)
             .accessibilityHint(Text(item.isDone ? "Marks as not done" : "Marks as done"))
         } else {
             label.accessibilityElement(children: .combine)
@@ -30,7 +31,8 @@ struct WidgetTodoRow: View {
     }
 
     var label: some View {
-        HStack(alignment: .firstTextBaseline, spacing: 6) {
+        let baselineOffset = diameter * 0.3
+        return HStack(alignment: .firstTextBaseline, spacing: 6) {
             Group {
                 if isWritable {
                     CheckCircle(isDone: item.isDone, isPending: item.isPending, diameter: diameter)
@@ -40,7 +42,7 @@ struct WidgetTodoRow: View {
             }
             .widgetAccentable()
             // 원의 중심을 글자 몸통 높이에 맞춘다.
-            .alignmentGuide(.firstTextBaseline) { $0[VerticalAlignment.center] + diameter * 0.3 }
+            .alignmentGuide(.firstTextBaseline) { $0[VerticalAlignment.center] + baselineOffset }
             Text(item.title)
                 .font(font)
                 .strikethrough(item.isDone)
@@ -91,11 +93,15 @@ struct TodoListWidgetContent: View {
         case .systemMedium: list(capacity: 4, columns: 1)
         case .systemSmall: list(capacity: 3, columns: 1)
         default:
-            if #available(iOS 27.0, macOS 27.0, *), family == .systemExtraLargePortrait {
-                list(capacity: 14, columns: 1)
-            } else {
+            #if compiler(>=6.3)
+                if #available(iOS 27.0, macOS 27.0, *), family == .systemExtraLargePortrait {
+                    list(capacity: 14, columns: 1)
+                } else {
+                    list(capacity: 4, columns: 1)
+                }
+            #else
                 list(capacity: 4, columns: 1)
-            }
+            #endif
         }
     }
 
@@ -220,8 +226,9 @@ struct TodoListWidgetContent: View {
         }
 
         var inline: some View {
+            // "할 일 3 · 치약 사기"
             if let first = entry.displayItems.first(where: { !$0.isDone }) {
-                Text("\(entry.remaining) · \(first.title)")
+                Text(verbatim: "\(entry.viewName) \(entry.remaining) · \(first.title)")
             } else {
                 Text("All done")
             }

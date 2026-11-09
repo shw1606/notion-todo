@@ -8,6 +8,7 @@ enum ComposerField: Hashable { case main }
 struct TodoListView: View {
     @Environment(AppModel.self) private var model
     @Environment(\.openURL) private var openURL
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     var showsViewMenu: Bool
 
     @FocusState private var focus: ComposerField?
@@ -22,7 +23,8 @@ struct TodoListView: View {
                     item: item, isWritable: model.isWritable, showsDue: model.currentView?.datePropertyId != nil,
                     isEditing: editingBinding(item.id),
                     onToggle: { model.toggle(item) },
-                    onRename: { model.rename(item, to: $0) })
+                    onRename: { model.rename(item, to: $0) },
+                    onExplainReadOnly: { model.explainReadOnly() })
                     .tag(item.id)
                     .swipeActions(edge: .leading) {
                         if model.isWritable {
@@ -62,10 +64,10 @@ struct TodoListView: View {
         #endif
         .onChange(of: model.composerFocusRequest) { focus = .main }
         .task {
-            // 앱을 열면 커서가 이미 입력 바에 있다 (PLAN 2.1-3). iPhone에서만 — 키보드가 화면을 가리지 않는 곳은 바로.
+            // 앱을 열면 커서가 이미 입력 바에 있다 (PLAN 2.1-3).
             focus = .main
         }
-        .animation(Motion.check, value: model.displayItems.map(\.id))
+        .animation(reduceMotion ? Motion.reduced : Motion.check, value: model.displayItems.map(\.id))
     }
 
     var bottomBar: some View {
@@ -73,7 +75,7 @@ struct TodoListView: View {
         return VStack(spacing: Spacing.xs) {
             if let undo = model.undo {
                 UndoToast(message: undo.message) { undo.perform() }
-                    .transition(.move(edge: .bottom).combined(with: .opacity))
+                    .transition(reduceMotion ? .opacity : .move(edge: .bottom).combined(with: .opacity))
             }
             if let error = model.lastError {
                 Text(error)
@@ -176,6 +178,7 @@ struct ViewPickerMenu: View {
             .foregroundStyle(.primary)
         }
         .accessibilityLabel(Text("Change view"))
+        .accessibilityValue(Text(verbatim: model.currentSummary.map { "\($0.name) · \($0.databaseTitle)" } ?? ""))
     }
 }
 
@@ -186,6 +189,7 @@ struct TodoRow: View {
     @Binding var isEditing: Bool
     var onToggle: () -> Void
     var onRename: (String) -> Void
+    var onExplainReadOnly: () -> Void = {}
 
     @State private var draft = ""
     @FocusState private var editorFocused: Bool
@@ -193,6 +197,7 @@ struct TodoRow: View {
     @ScaledMetric(relativeTo: .body) private var circle: CGFloat = Spacing.checkDiameter
 
     var body: some View {
+        let baselineOffset = circle * 0.27
         HStack(alignment: .firstTextBaseline, spacing: Spacing.s) {
             if isWritable {
                 Button(action: onToggle) {
@@ -201,16 +206,25 @@ struct TodoRow: View {
                         .contentShape(.rect)
                 }
                 .buttonStyle(.plain)
-                .alignmentGuide(.firstTextBaseline) { $0[VerticalAlignment.center] + circle * 0.27 }
+                #if os(iOS)
+                    .hoverEffect(.highlight)  // iPad 포인터가 체크 원에 붙는다
+                #endif
+                .alignmentGuide(.firstTextBaseline) { $0[VerticalAlignment.center] + baselineOffset }
                 .sensoryFeedback(.success, trigger: item.isDone) { _, done in done }
                 .accessibilityLabel(item.accessibilityDescription)
+                .accessibilityValue(item.accessibilityStatus)
                 .accessibilityHint(Text(item.isDone ? "Marks as not done" : "Marks as done"))
                 .accessibilityAddTraits(.isButton)
                 .padding(.leading, -Spacing.s)
             } else {
-                Circle().fill(.secondary).frame(width: 6, height: 6)
-                    .frame(width: Spacing.checkDiameter)
-                    .accessibilityHidden(true)
+                Button(action: onExplainReadOnly) {
+                    Circle().fill(.secondary).frame(width: 6, height: 6)
+                        .frame(width: max(Spacing.rowMinHeight, circle), height: Spacing.rowMinHeight)
+                        .contentShape(.rect)
+                }
+                .buttonStyle(.plain)
+                .padding(.leading, -Spacing.s)
+                .accessibilityLabel(Text("Read only"))
             }
             if isEditing {
                 TextField("Memo", text: $draft, axis: .vertical)

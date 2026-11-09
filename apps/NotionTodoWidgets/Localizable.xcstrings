@@ -2,6 +2,15 @@
   "sourceLanguage": "en",
   "version": "1.0",
   "strings": {
+    "": {
+      "shouldTranslate": false
+    },
+    "%@": {
+      "shouldTranslate": false
+    },
+    "%lld": {
+      "shouldTranslate": false
+    },
     "%lld left": {
       "localizations": {
         "ko": {
@@ -21,6 +30,9 @@
           }
         }
       }
+    },
+    "99+": {
+      "shouldTranslate": false
     },
     "Add ${text} to ${view}": {
       "localizations": {
@@ -328,16 +340,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "다시 시도"
-          }
-        }
-      }
-    },
-    "Untitled": {
-      "localizations": {
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "제목 없음"
           }
         }
       }

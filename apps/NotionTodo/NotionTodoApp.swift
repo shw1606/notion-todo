@@ -5,24 +5,17 @@ import TodoCore
 
 @main
 struct NotionTodoApp: App {
-    @State private var model = AppModel()
-    @Environment(\.scenePhase) private var scenePhase
     #if os(macOS)
+        /// 메뉴 막대 빠른 기록·설정 창이 쓰는 모델. 창마다의 모델과 별개다.
+        @State private var utilityModel = AppModel()
         @AppStorage("showsMenuBarExtra") private var showsMenuBarExtra = true
     #endif
 
     var body: some Scene {
         WindowGroup(id: "main") {
-            RootView()
-                .environment(model)
-                .tint(.memoAccent)
-                .task { await model.start() }
-                .onOpenURL { model.handle(url: $0) }
-                .onChange(of: scenePhase) { _, phase in
-                    if phase == .active { Task { await model.becameActive() } }
-                }
+            WindowRoot()
         }
-        .commands { AppCommands(model: model) }
+        .commands { AppCommands() }
         #if os(macOS)
             .defaultSize(width: 820, height: 620)
         #endif
@@ -30,16 +23,17 @@ struct NotionTodoApp: App {
         #if os(macOS)
             Settings {
                 SettingsView()
-                    .environment(model)
+                    .environment(utilityModel)
                     .tint(.memoAccent)
                     .frame(width: 460)
+                    .task { if utilityModel.phase == .launching { await utilityModel.start() } }
             }
 
             MenuBarExtra(isInserted: $showsMenuBarExtra) {
                 MenuBarQuickAdd()
-                    .environment(model)
+                    .environment(utilityModel)
                     .tint(.memoAccent)
-                    .task { if model.phase == .launching { await model.start() } }
+                    .task { if utilityModel.phase == .launching { await utilityModel.start() } }
             } label: {
                 Label("Notion Todo", systemImage: "checklist")
             }
@@ -48,20 +42,46 @@ struct NotionTodoApp: App {
     }
 }
 
-/// 메뉴 막대(Mac)·하드웨어 키보드(iPad) 단축키 (PLAN 3.4).
+/// 창 하나. 창마다 자기 모델을 가져서 iPad Stage Manager·Mac 여러 창에서 각자 다른 뷰를 연다 (PLAN 3.4).
+struct WindowRoot: View {
+    @State private var model = AppModel()
+    @Environment(\.scenePhase) private var scenePhase
+
+    var body: some View {
+        RootView()
+            .environment(model)
+            .tint(.memoAccent)
+            .focusedSceneValue(\.appModel, model)
+            .task { await model.start() }
+            .onOpenURL { model.handle(url: $0) }
+            .onChange(of: scenePhase) { _, phase in
+                if phase == .active { Task { await model.becameActive() } }
+            }
+    }
+}
+
+extension FocusedValues {
+    @Entry var appModel: AppModel?
+}
+
+/// 메뉴 막대(Mac)·하드웨어 키보드(iPad) 단축키. 지금 앞에 있는 창의 모델에 보낸다.
 struct AppCommands: Commands {
-    var model: AppModel
+    @FocusedValue(\.appModel) private var model
+    @Environment(\.openWindow) private var openWindow
 
     var body: some Commands {
+        // 메모·미리 알림처럼 ⌘N은 새 메모, 새 창은 ⌥⌘N.
         CommandGroup(replacing: .newItem) {
-            Button("New Memo") { model.requestComposerFocus() }
+            Button("New Memo") { model?.requestComposerFocus() }
                 .keyboardShortcut("n")
-                .disabled(model.phase != .ready)
+                .disabled(model?.phase != .ready)
+            Button("New Window") { openWindow(id: "main") }
+                .keyboardShortcut("n", modifiers: [.command, .option])
         }
         CommandGroup(after: .toolbar) {
-            Button("Refresh") { Task { await model.refresh() } }
+            Button("Refresh") { Task { await model?.refresh() } }
                 .keyboardShortcut("r")
-                .disabled(model.phase != .ready)
+                .disabled(model?.phase != .ready)
         }
     }
 }

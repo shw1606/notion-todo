@@ -1,3 +1,4 @@
+import AuthenticationServices
 import DesignSystem
 import SwiftUI
 import TodoCore
@@ -7,6 +8,7 @@ import WidgetKit
 struct SettingsView: View {
     @Environment(AppModel.self) private var model
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.webAuthenticationSession) private var webAuthenticationSession
     @State private var confirmsSignOut = false
     #if os(macOS)
         @AppStorage("showsMenuBarExtra") private var showsMenuBarExtra = true
@@ -31,14 +33,24 @@ struct SettingsView: View {
                     LabeledContent("\(view.name)", value: view.databaseTitle)
                 }
                 Button("Reload views") { Task { await model.refreshCatalog() } }
+                if model.isOAuthAvailable {
+                    Button("Select more pages in Notion…", action: selectMorePages)
+                }
                 Button("Choose another database…") { model.phase = .onboarding }
             } header: {
                 Text("Views")
             } footer: {
-                Text("To add databases, sign in again and select more pages in Notion.")
+                if model.credentials?.kind == .oauth {
+                    Text("Databases on the pages you select in Notion show up here.")
+                } else {
+                    Text("To add databases, connect more pages to your integration in Notion.")
+                }
             }
 
             Section {
+                if let fetched = model.lastFetchedAt {
+                    LabeledContent("Last updated") { Text(fetched, style: .relative) }
+                }
                 Button("Refresh widgets now") {
                     Task {
                         await model.refresh()
@@ -56,6 +68,7 @@ struct SettingsView: View {
 
             Section("About") {
                 Link("Source code on GitHub", destination: URL(string: "https://github.com/shw1606/notion-todo")!)
+                Link("License (MIT)", destination: URL(string: "https://github.com/shw1606/notion-todo/blob/main/LICENSE")!)
                 Text("Your data only travels between this device and Notion. No analytics, no tracking.")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
@@ -80,6 +93,18 @@ struct SettingsView: View {
             }
         } message: {
             Text("Cached memos on this device will be removed. Your Notion data stays as it is.")
+        }
+    }
+
+    /// OAuth를 다시 실행하면 Notion이 페이지 선택 화면을 다시 보여준다.
+    func selectMorePages() {
+        Task {
+            do {
+                guard try await model.signInWithNotion(using: webAuthenticationSession) else { return }
+                await model.refreshCatalog()
+            } catch {
+                model.lastError = String(localized: "Couldn’t sign in: \(error.localizedDescription)")
+            }
         }
     }
 }

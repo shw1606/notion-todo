@@ -33,12 +33,13 @@ struct NotionViewQuery: EntityQuery {
         return identifiers.compactMap { id in catalog.first { $0.id == id }.map(NotionViewEntity.init) }
     }
 
-    /// 캐시된 목록을 바로 주고, 비었으면 Notion에서 받아 온다.
+    /// 캐시된 목록을 바로 주고 뒤에서 새로 받아 둔다. 캐시가 비었으면 Notion에서 받아 온다.
     func suggestedEntities() async throws -> [NotionViewEntity] {
         let repository = TodoServices.shared.repository
-        var catalog = await repository.cachedCatalog()
-        if catalog.isEmpty { catalog = (try? await repository.catalog()) ?? [] }
-        return catalog.map(NotionViewEntity.init)
+        let cached = await repository.cachedCatalog()
+        guard !cached.isEmpty else { return ((try? await repository.catalog()) ?? []).map(NotionViewEntity.init) }
+        Task { _ = try? await repository.catalog(refresh: true) }
+        return cached.map(NotionViewEntity.init)
     }
 
     func defaultResult() async -> NotionViewEntity? {

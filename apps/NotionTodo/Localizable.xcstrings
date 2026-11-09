@@ -2,6 +2,15 @@
   "sourceLanguage": "en",
   "version": "1.0",
   "strings": {
+    "%@": {
+      "shouldTranslate": false
+    },
+    "%@ · %@": {
+      "shouldTranslate": false
+    },
+    "%lld": {
+      "shouldTranslate": false
+    },
     "About": {
       "localizations": {
         "ko": {
@@ -142,6 +151,26 @@
         }
       }
     },
+    "Checking off sets %@ to “%@”": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "체크하면 ‘%1$@’ → ‘%2$@’"
+          }
+        }
+      }
+    },
+    "Checking off ticks “%@”": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "체크하면 ‘%@’에 체크됩니다"
+          }
+        }
+      }
+    },
     "Choose View": {
       "localizations": {
         "ko": {
@@ -242,6 +271,16 @@
         }
       }
     },
+    "Databases on the pages you select in Notion show up here.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notion에서 고른 페이지의 데이터베이스가 여기에 나타납니다."
+          }
+        }
+      }
+    },
     "Delete": {
       "localizations": {
         "ko": {
@@ -312,6 +351,26 @@
         }
       }
     },
+    "Last updated": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "마지막 갱신"
+          }
+        }
+      }
+    },
+    "License (MIT)": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "라이선스 (MIT)"
+          }
+        }
+      }
+    },
     "Lock Screen": {
       "localizations": {
         "ko": {
@@ -321,6 +380,9 @@
           }
         }
       }
+    },
+    "Mac": {
+      "shouldTranslate": false
     },
     "Marks as done": {
       "localizations": {
@@ -372,6 +434,16 @@
         }
       }
     },
+    "New Window": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "새로운 윈도우"
+          }
+        }
+      }
+    },
     "No pages are shared yet. Sign in again and select a page.": {
       "localizations": {
         "ko": {
@@ -381,6 +453,12 @@
           }
         }
       }
+    },
+    "Notion": {
+      "shouldTranslate": false
+    },
+    "Notion Todo": {
+      "shouldTranslate": false
     },
     "Notion View": {
       "localizations": {
@@ -502,6 +580,16 @@
         }
       }
     },
+    "Read only": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "읽기 전용"
+          }
+        }
+      }
+    },
     "Read only — no checkbox or status to check off": {
       "localizations": {
         "ko": {
@@ -558,6 +646,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "데스크톱을 우클릭 → 위젯 편집. 메뉴 막대 아이콘으로도 언제든 바로 적을 수 있어요."
+          }
+        }
+      }
+    },
+    "Select more pages in Notion…": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notion에서 페이지 더 고르기…"
           }
         }
       }
@@ -682,12 +780,12 @@
         }
       }
     },
-    "To add databases, sign in again and select more pages in Notion.": {
+    "To add databases, connect more pages to your integration in Notion.": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "DB를 더 추가하려면 다시 로그인해서 Notion에서 페이지를 더 선택하세요."
+            "value": "데이터베이스를 추가하려면 Notion에서 통합에 페이지를 더 연결하세요."
           }
         }
       }
@@ -881,6 +979,9 @@
           }
         }
       }
+    },
+    "ntn_…": {
+      "shouldTranslate": false
     }
   }
 }

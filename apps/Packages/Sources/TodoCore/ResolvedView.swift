@@ -23,6 +23,14 @@ public enum CompletionStrategy: Codable, Hashable, Sendable {
     }
 }
 
+/// 체크하면 무엇이 바뀌는지 사람이 읽을 이름으로. 온보딩에서 뷰마다 한 줄로 알려준다 (PLAN 3.2).
+public enum CompletionTarget: Codable, Hashable, Sendable {
+    /// "완료"에 체크된다.
+    case checkbox(propertyName: String)
+    /// "상태"가 "Done"이 된다.
+    case status(propertyName: String, doneOptionName: String)
+}
+
 public enum ReadOnlyReason: String, Codable, Hashable, Sendable {
     /// checkbox·status 속성이 없다.
     case noCompletionProperty
@@ -60,11 +68,13 @@ public struct ResolvedView: Codable, Hashable, Sendable, Identifiable {
     public var filtersByCompletion: Bool
     public var createRules: [CreateRule]
     public var resolvedAt: Date
+    /// 읽기 전용이거나 이 필드가 생기기 전의 캐시면 nil.
+    public var completionTarget: CompletionTarget? = nil
 
     public var summary: ViewSummary {
         ViewSummary(
             id: id, name: name, databaseId: databaseId, dataSourceId: dataSourceId, databaseTitle: databaseTitle,
-            isWritable: completion.isWritable, showsDone: showsDone)
+            isWritable: completion.isWritable, showsDone: showsDone, completionTarget: completionTarget)
     }
 
     /// data source 쿼리 본문. 위젯 갱신당 이 요청 1회만 보낸다.
@@ -85,10 +95,11 @@ public struct ViewSummary: Codable, Hashable, Sendable, Identifiable {
     public var databaseTitle: String
     public var isWritable: Bool
     public var showsDone: Bool
+    public var completionTarget: CompletionTarget?
 
     public init(
         id: String, name: String, databaseId: String?, dataSourceId: String, databaseTitle: String,
-        isWritable: Bool, showsDone: Bool
+        isWritable: Bool, showsDone: Bool, completionTarget: CompletionTarget? = nil
     ) {
         self.id = id
         self.name = name
@@ -97,6 +108,7 @@ public struct ViewSummary: Codable, Hashable, Sendable, Identifiable {
         self.databaseTitle = databaseTitle
         self.isWritable = isWritable
         self.showsDone = showsDone
+        self.completionTarget = completionTarget
     }
 
     /// 위젯 기본값으로 쓸 만한 뷰인가: 체크할 수 있고, 아직 안 한 일을 보여준다.

@@ -140,6 +140,18 @@ final class MockNotion: URLProtocol, @unchecked Sendable {
         #expect(store.pending().isEmpty)
     }
 
+    /// "완료함"처럼 체크된 항목을 보여주는 뷰에 오프라인으로 추가하면, 대기 항목도 체크된 채로 보여야 뷰에 남는다.
+    @Test func offlineAddInDoneViewShowsChecked() async throws {
+        MockNotion.reset(nil)
+        let done = ViewResolver.resolve(view: try Fixture.load("view-memo-done"), schema: try Fixture.memoSchema)
+        try store.save(view: done)
+        try store.save(items: ItemsSnapshot(viewId: done.id, items: [], hasMore: false, fetchedAt: .now))
+        let local = try await repository.add(viewId: done.id, title: "다 한 일")
+        let item = try #require(await repository.cachedItems(done.id)?.items.first { $0.id == local.id })
+        #expect(item.isDone)
+        #expect(item.isPending)
+    }
+
     @Test func fetchReplacesCacheAndKeepsPendingOverlay() async throws {
         MockNotion.reset(nil)
         try await repository.trash(viewId: view.id, itemId: "p1")

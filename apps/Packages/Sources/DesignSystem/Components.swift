@@ -1,5 +1,6 @@
 import SwiftUI
 import TodoCore
+import WidgetKit
 
 // MARK: - 체크 원
 
@@ -8,6 +9,7 @@ public struct CheckCircle: View {
     var isDone: Bool
     var isPending: Bool
     var diameter: CGFloat
+    @Environment(\.widgetRenderingMode) private var renderingMode
 
     public init(isDone: Bool, isPending: Bool = false, diameter: CGFloat = Spacing.checkDiameter) {
         self.isDone = isDone
@@ -24,8 +26,11 @@ public struct CheckCircle: View {
                 Image(systemName: "checkmark")
                     .font(.system(size: diameter * 0.5, weight: .bold))
                     .foregroundStyle(Color.memoOnAccent)
+                    // 위젯 틴트·단색 모드에서는 색이 한 가지로 합쳐진다 → 체크 표시를 원에서 도려내 모양으로 남긴다.
+                    .blendMode(renderingMode == .fullColor ? .normal : .destinationOut)
             }
         }
+        .compositingGroup()
         .frame(width: diameter, height: diameter)
         .opacity(isPending ? 0.55 : 1)
         .accessibilityHidden(true)
@@ -52,12 +57,12 @@ public struct DueChip: View {
         }
     }
 
-    public struct Label: Equatable {
+    public struct Label: Equatable, Sendable {
         public var text: String
         public var isOverdue: Bool
     }
 
-    public static func label(_ due: String, now: Date = .now, calendar: Calendar = .current) -> Label? {
+    nonisolated public static func label(_ due: String, now: Date = .now, calendar: Calendar = .current) -> Label? {
         guard let date = DayFormat.date(due, calendar: calendar) else { return nil }
         let today = calendar.startOfDay(for: now)
         let day = calendar.startOfDay(for: date)
@@ -110,6 +115,11 @@ extension TodoItem {
             ? String(localized: "Checked", bundle: .module) : String(localized: "Not checked", bundle: .module)
         return Text(verbatim: "\(title), \(state)")
     }
+
+    /// VoiceOver 값: 아직 Notion에 반영되지 않은 변경이 있으면 알려준다.
+    public var accessibilityStatus: Text {
+        isPending ? Text("Waiting to sync", bundle: .module) : Text(verbatim: "")
+    }
 }
 
 // MARK: - 유리 입력 바
@@ -156,7 +166,8 @@ public struct GlassComposer<Field: Hashable>: View {
                     .padding(.horizontal, Spacing.m)
                     .padding(.vertical, Spacing.s)
                     .frame(minHeight: Spacing.rowMinHeight)
-                    .glassEffect(.regular.interactive(), in: .rect(cornerRadius: 22))
+                    // 바깥 용기(화면·창·시트) 모서리와 동심원. 멀리 떨어진 모서리는 최소 22pt.
+                    .glassEffect(.regular.interactive(), in: .rect(corners: .concentric(minimum: .fixed(22))))
                     .glassEffectID("field", in: glass)
                 if canSubmit {
                     Button(action: submit) {

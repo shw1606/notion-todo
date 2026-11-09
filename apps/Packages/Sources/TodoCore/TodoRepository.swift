@@ -91,6 +91,8 @@ public actor TodoRepository {
 
     func applyPending(_ snapshot: ItemsSnapshot) -> ItemsSnapshot {
         var result = snapshot
+        // 만들어질 항목은 뷰 조건을 채운다 → "완료함" 같은 뷰에서는 체크된 채로 생긴다.
+        let createsDone = store.view(snapshot.viewId)?.showsDone ?? false
         for op in store.pending() where op.viewId == snapshot.viewId {
             switch op.kind {
             case .setDone(let pageId, let done):
@@ -108,7 +110,7 @@ public actor TodoRepository {
             case .create(let localId, let title):
                 if !result.items.contains(where: { $0.id == localId }) {
                     result.items.insert(
-                        TodoItem(id: localId, title: title, isDone: false, isPending: true), at: 0)
+                        TodoItem(id: localId, title: title, isDone: createsDone, isPending: true), at: 0)
                 }
             }
         }
@@ -137,7 +139,7 @@ public actor TodoRepository {
         let localId = TodoItem.localPrefix + UUID().uuidString
         try enqueue(PendingOperation(viewId: viewId, kind: .create(localId: localId, title: text)))
         await flushPending()
-        return TodoItem(id: localId, title: text, isDone: false, isPending: true)
+        return TodoItem(id: localId, title: text, isDone: store.view(viewId)?.showsDone ?? false, isPending: true)
     }
 
     public func rename(viewId: String, itemId: String, title: String) async throws {

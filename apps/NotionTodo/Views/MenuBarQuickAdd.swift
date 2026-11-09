@@ -26,6 +26,7 @@
                                 Button { model.toggle(item) } label: { CheckCircle(isDone: item.isDone, isPending: item.isPending, diameter: 16) }
                                     .buttonStyle(.plain)
                                     .accessibilityLabel(item.accessibilityDescription)
+                                    .accessibilityValue(item.accessibilityStatus)
                             }
                             TodoRowContent(item: item, lineLimit: 1, showsDue: false)
                         }
