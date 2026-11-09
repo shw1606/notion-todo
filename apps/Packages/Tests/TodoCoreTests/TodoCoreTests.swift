@@ -169,6 +169,19 @@ enum Fixture {
         // API 목록 순서대로 "완료함"이 먼저 와도 "할 일"을 고른다.
         #expect([done.summary, todo.summary].preferredDefault?.id == todo.id)
     }
+
+    @Test func viewsGroupByDatabaseInOrder() throws {
+        let todo = ViewResolver.resolve(view: try Fixture.load("view-memo-todo"), schema: try Fixture.memoSchema).summary
+        var done = ViewResolver.resolve(view: try Fixture.load("view-memo-done"), schema: try Fixture.memoSchema).summary
+        done.dataSourceId = NotionID.compact(done.dataSourceId)  // 대시가 없어도 같은 DB
+        var other = todo
+        other.id = "v-other"
+        other.dataSourceId = "other-ds"  // 이름이 같아도 다른 DB는 따로 묶는다
+        let groups = [todo, other, done].byDatabase
+        #expect(groups.map(\.id) == [todo.dataSourceId, "other-ds"])
+        #expect(groups.map(\.title) == ["할 일 메모", "할 일 메모"])
+        #expect(groups[0].views.map(\.id) == [todo.id, done.id])
+    }
 }
 
 @Suite struct AuthTests {

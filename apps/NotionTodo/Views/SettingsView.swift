@@ -1,16 +1,14 @@
-import AuthenticationServices
 import DesignSystem
 import SwiftUI
 import TodoCore
 import WidgetKit
 
-/// 계정 · 연결된 뷰 · 위젯 · 정보 (PLAN 3.6).
+/// 계정 · 고른 DB · 위젯 · 정보 (PLAN 3.6).
 struct SettingsView: View {
     @Environment(AppModel.self) private var model
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.webAuthenticationSession) private var webAuthenticationSession
-    @Environment(\.openURL) private var openURL
     @State private var confirmsSignOut = false
+    @State private var addsDatabase = false
     #if os(macOS)
         @AppStorage("showsMenuBarExtra") private var showsMenuBarExtra = true
     #endif
@@ -30,22 +28,28 @@ struct SettingsView: View {
             }
 
             Section {
-                ForEach(model.catalog) { view in
-                    LabeledContent("\(view.name)", value: view.databaseTitle)
+                ForEach(model.databases) { database in
+                    HStack {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(verbatim: database.title)
+                            Text(verbatim: database.views.map(\.name).joined(separator: " · "))
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                        Spacer()
+                        if model.databases.count > 1 {
+                            Button("Remove") { Task { await model.removeDatabase(database.id) } }
+                                .buttonStyle(.borderless)
+                                .accessibilityLabel(Text("Remove “\(database.title)”"))
+                        }
+                    }
                 }
+                Button("Add Database…") { addsDatabase = true }
                 Button("Reload views") { Task { await model.refreshCatalog() } }
-                if model.isOAuthAvailable {
-                    Button("Select more pages in Notion…", action: selectMorePages)
-                }
-                Button("Choose another database…") { model.phase = .onboarding }
             } header: {
-                Text("Views")
+                Text("Databases")
             } footer: {
-                if model.credentials?.kind == .oauth {
-                    Text("Databases on the pages you select in Notion show up here.")
-                } else {
-                    Text("Databases you can see in Notion show up here. With an internal integration, connect its pages in Notion first.")
-                }
+                Text("Only these show up in the app and widgets. Removing one leaves it as it is in Notion.")
             }
 
             Section {
@@ -85,6 +89,7 @@ struct SettingsView: View {
                 }
             #endif
         }
+        .sheet(isPresented: $addsDatabase) { AddDatabaseSheet() }
         .confirmationDialog("Sign out of Notion?", isPresented: $confirmsSignOut) {
             Button("Sign Out", role: .destructive) {
                 Task {
@@ -94,20 +99,6 @@ struct SettingsView: View {
             }
         } message: {
             Text("Cached memos on this device will be removed. Your Notion data stays as it is.")
-        }
-    }
-
-    /// 다시 연결하면 Notion이 페이지 선택 화면을 다시 보여준다.
-    /// 브라우저 탭으로 연 경우(Mac)는 돌아온 창이 연결을 마치고 모든 창에 알려 목록을 다시 받게 한다.
-    func selectMorePages() {
-        let before = model.signIns
-        Task {
-            do {
-                _ = try await model.connectNotion(session: webAuthenticationSession, openURL: openURL)
-                if model.signIns != before { await model.refreshCatalog() }
-            } catch {
-                model.lastError = ConnectionError.message(for: error)
-            }
         }
     }
 }

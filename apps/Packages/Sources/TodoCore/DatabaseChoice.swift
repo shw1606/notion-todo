@@ -25,14 +25,19 @@ public struct DatabaseChoice: Identifiable, Hashable, Sendable {
 }
 
 extension TodoRepository {
+    /// 고르라고 보여줄 DB 수. 개인 액세스 토큰처럼 워크스페이스 전체가 보이는 연결에서도 금방 끝나도록 최근에 고친 것만 본다.
+    static let choiceLimit = 30
+
     /// 할 일 목록으로 쓸 만한 DB: 이 앱이 만든 메모 DB 먼저, 나머지는 최근에 고친 순.
-    public func databaseChoices() async throws -> [DatabaseChoice] {
-        let sources = try await client.searchDataSources(limit: Self.catalogLimit)
+    /// `excludingChosen`이면 이미 고른 DB는 뺀다 ("DB 추가").
+    public func databaseChoices(excludingChosen: Bool = false) async throws -> [DatabaseChoice] {
+        let sources = try await client.searchDataSources(limit: Self.choiceLimit)
         let choices = sources.filter { $0.inTrash != true }.compactMap(DatabaseChoice.init)
+            .filter { !excludingChosen || !isChosen($0.id) }
         return choices.filter(\.isStarter) + choices.filter { !$0.isStarter }
     }
 
-    /// 고른 DB의 뷰를 받아 캐시에 넣고, 할 일을 보여주는 뷰를 돌려준다.
+    /// 고른 DB를 목록에 더하고 뷰를 받아 캐시에 넣는다. 할 일을 보여주는 뷰를 돌려준다.
     public func startingView(dataSourceId: String) async throws -> ViewSummary {
         let source = try await client.dataSource(dataSourceId)
         let views = try await Self.listableViews(of: source, client: client)

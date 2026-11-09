@@ -120,6 +120,27 @@ extension [ViewSummary] {
     public var preferredDefault: ViewSummary? {
         first(where: \.isGoodDefault) ?? first(where: \.isWritable) ?? first
     }
+
+    /// DB별로 묶는다 (사이드바·설정). DB와 뷰의 순서는 목록 순서 그대로.
+    public var byDatabase: [DatabaseViews] {
+        var groups: [DatabaseViews] = []
+        for view in self {
+            if let i = groups.firstIndex(where: { NotionID.compact($0.id) == NotionID.compact(view.dataSourceId) }) {
+                groups[i].views.append(view)
+            } else {
+                groups.append(DatabaseViews(id: view.dataSourceId, title: view.databaseTitle, views: [view]))
+            }
+        }
+        return groups
+    }
+}
+
+/// 고른 DB 하나와 그 뷰들.
+public struct DatabaseViews: Identifiable, Hashable, Sendable {
+    /// data source ID
+    public var id: String
+    public var title: String
+    public var views: [ViewSummary]
 }
 
 /// 한 번 조회한 결과.

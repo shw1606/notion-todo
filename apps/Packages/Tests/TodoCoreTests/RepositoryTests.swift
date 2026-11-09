@@ -183,6 +183,61 @@ final class MockNotion: URLProtocol, @unchecked Sendable {
         }
     }
 
+    // MARK: 고른 DB
+
+    /// 고른 DB만 받는다 (검색하지 않는다). 휴지통에 있거나 연결에서 빠진 DB는 고른 목록에서도 뺀다.
+    @Test func catalogHasOnlyChosenDatabases() async throws {
+        let todo = try JSONDecoder().decode(JSONValue.self, from: Fixture.data("view-memo-todo"))
+        let done = try JSONDecoder().decode(JSONValue.self, from: Fixture.data("view-memo-done"))
+        let schema = try JSONDecoder().decode(JSONValue.self, from: Fixture.data("data-source-memo"))
+        let todoId = try #require(todo["id"]?.stringValue)
+        let doneId = try #require(done["id"]?.stringValue)
+        let memoId = view.dataSourceId
+        try store.save(settings: AppSettings(databaseIds: ["gone-ds", memoId]))
+        MockNotion.reset { request, _ in
+            switch request.url?.path ?? "" {
+            case "/v1/data_sources/\(memoId)": return (200, schema)
+            case "/v1/views":
+                let ids: JSONValue = [["object": "view", "id": .string(doneId)], ["object": "view", "id": .string(todoId)]]
+                return (200, ["object": "list", "results": ids, "has_more": false])
+            case "/v1/views/\(todoId)": return (200, todo)
+            case "/v1/views/\(doneId)": return (200, done)
+            default: return (404, ["object": "error", "code": "object_not_found"])
+            }
+        }
+        let catalog = try await repository.catalog(refresh: true)
+        #expect(catalog.map(\.name) == ["완료함", "할 일"])
+        #expect(!MockNotion.requests.contains { $0.path.hasSuffix("/search") })
+        #expect(store.settings().databaseIds == [memoId])
+    }
+
+    /// 고른 DB를 기록하기 전 버전에서 올라오면 마지막으로 연 뷰의 DB만 남는다.
+    @Test func upgradeKeepsLastViewDatabaseOnly() async throws {
+        var other = view.summary
+        other.id = "v-other"
+        other.dataSourceId = "other-ds"
+        try store.save(catalog: ViewCatalog(views: [other, view.summary], fetchedAt: .now))
+        try store.save(settings: AppSettings(lastViewId: view.id))
+        #expect(await repository.cachedCatalog() == [view.summary])
+        #expect(store.settings().databaseIds == [view.dataSourceId])
+        #expect(store.settings().lastViewId == view.id)
+    }
+
+    /// 뺀 DB의 뷰는 목록에서 사라지고, 마지막으로 연 뷰였어도 기본값이 되지 않는다.
+    @Test func removedDatabaseLeavesCatalogAndDefault() async throws {
+        var other = view
+        other.id = "v-other"
+        other.dataSourceId = "other-ds"
+        try store.save(view: other)
+        try store.save(catalog: ViewCatalog(views: [view.summary, other.summary], fetchedAt: .now))
+        try store.save(settings: AppSettings(lastViewId: other.id, databaseIds: [view.dataSourceId, "other-ds"]))
+        #expect(await repository.defaultViewId() == other.id)
+
+        await repository.removeDatabase("other-ds")
+        #expect(await repository.cachedCatalog() == [view.summary])
+        #expect(await repository.defaultViewId() == view.id)
+    }
+
     // MARK: 로그인·시작 DB (MockNotion을 같이 쓰므로 이 직렬 묶음 안에 둔다)
 
     static let oauth = OAuthConfig(clientId: "cid", authBaseURL: URL(string: "https://auth.example.com")!)
@@ -234,6 +289,10 @@ final class MockNotion: URLProtocol, @unchecked Sendable {
         let request = try #require(MockNotion.requests.first { $0.path.hasSuffix("/search") })
         #expect(request.body?["sort"] == ["direction": "descending", "timestamp": "last_edited_time"])
         #expect(request.body?["page_size"] == 30)
+
+        // "DB 추가"에서는 이미 고른 DB를 뺀다 (대시 없이 저장된 ID도 같은 DB).
+        try store.save(settings: AppSettings(databaseIds: [NotionID.compact(view.dataSourceId)]))
+        #expect(try await repository.databaseChoices(excludingChosen: true).map(\.title) == ["probe-views 테스트"])
     }
 
     /// 새 메모 DB 만들기에 필요한 응답들. `databases`는 만들기 요청 본문을 보고 상태 코드를 정한다.
@@ -281,6 +340,7 @@ final class MockNotion: URLProtocol, @unchecked Sendable {
         // 전체 목록을 다시 받기 전에도 두 뷰가 목록에 있다.
         #expect(store.catalog()?.views.map(\.name).sorted() == ["완료함", "할 일"])
         #expect(store.settings().lastViewId == summary.id)
+        #expect(store.settings().databaseIds == [summary.dataSourceId])
     }
 
     @Test func starterDatabaseFallsBackToTopSharedPage() async throws {

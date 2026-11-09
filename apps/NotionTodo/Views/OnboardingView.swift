@@ -34,7 +34,7 @@ struct OnboardingView: View {
                 }
         }
         .onAppear {
-            // 연결은 됐는데 고른 목록이 없을 때(설정의 "다른 DB 고르기" 등)는 바로 목록 고르기로.
+            // 연결은 됐는데 고른 DB가 없을 때(목록을 고르기 전에 앱을 껐을 때 등)는 바로 목록 고르기로.
             if model.credentials != nil, !model.needsReconnect, path.isEmpty { path = [.source] }
         }
         .onChange(of: model.signIns) {
@@ -229,7 +229,10 @@ struct TokenStep: View {
 
 /// 연결 직후. 이 앱이 만든 메모 DB가 보이면 그것, 아니면 새 메모 DB(Notion "비공개"에 만든다)를 골라 둔다.
 /// 쓰던 DB는 아래에서 고른다. DB 목록은 검색 한 번이라 큰 워크스페이스에서도 바로 뜬다.
+/// "DB 추가"도 이 화면을 쓴다. 그때는 이미 고른 DB를 빼고, 미리 골라 두지 않는다.
 struct SourceStep: View {
+    enum Purpose { case start, add }
+
     enum Choice: Hashable {
         case newDatabase
         case database(String)
@@ -238,19 +241,26 @@ struct SourceStep: View {
     @Environment(AppModel.self) private var model
     @Environment(\.webAuthenticationSession) private var webAuthenticationSession
     @Environment(\.openURL) private var openURL
+    var purpose: Purpose
     var onChosen: (String) -> Void
 
     @State private var databases: [DatabaseChoice] = []
-    @State private var choice = Choice.newDatabase
+    @State private var choice: Choice?
     @State private var isLoading = true
     @State private var isStarting = false
     @State private var error: String?
 
     private let template = StarterTemplate.forCurrentLocale
 
+    init(purpose: Purpose = .start, onChosen: @escaping (String) -> Void) {
+        self.purpose = purpose
+        self.onChosen = onChosen
+        _choice = State(initialValue: purpose == .start ? .newDatabase : nil)
+    }
+
     var body: some View {
         List {
-            if let workspace = model.credentials?.workspaceName {
+            if purpose == .start, let workspace = model.credentials?.workspaceName {
                 Label("Connected to \(workspace)", systemImage: "checkmark.circle.fill")
                     .foregroundStyle(.secondary)
             }
@@ -281,7 +291,7 @@ struct SourceStep: View {
                         .disabled(isStarting)
                 }
             } header: {
-                Text("Or use one you have")
+                purpose == .start ? Text("Or use one you have") : Text("In your Notion")
             } footer: {
                 if model.credentials?.kind == .internalToken {
                     Text("Using an internal integration? In Notion, open the page and add it under ••• → Connections.")
@@ -292,12 +302,12 @@ struct SourceStep: View {
             }
         }
         .safeAreaInset(edge: .bottom) {
-            PrimaryButton(title: "Start", systemImage: nil, isWorking: isStarting, action: start)
-                .disabled(isLoading)
+            PrimaryButton(title: purpose == .start ? "Start" : "Add", systemImage: nil, isWorking: isStarting, action: start)
+                .disabled(isLoading || choice == nil)
                 .padding(Spacing.l)
                 .frame(maxWidth: 560)
         }
-        .navigationTitle("Pick a list")
+        .navigationTitle(purpose == .start ? Text("Pick a list") : Text("Add Database"))
         .task { await load() }
         .refreshable { await load() }
         // Notion에서 페이지를 더 고르고 돌아오면 다시 찾는다.
@@ -348,14 +358,15 @@ struct SourceStep: View {
         error = nil
         defer { isLoading = false }
         do {
-            databases = try await model.repository.databaseChoices()
-            if let starter = databases.first(where: \.isStarter) { choice = .database(starter.id) }
+            databases = try await model.repository.databaseChoices(excludingChosen: purpose == .add)
+            if purpose == .start, let starter = databases.first(where: \.isStarter) { choice = .database(starter.id) }
         } catch {
             self.error = ConnectionError.message(for: error)
         }
     }
 
     func start() {
+        guard let choice else { return }
         isStarting = true
         error = nil
         Task {

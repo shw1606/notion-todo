@@ -49,6 +49,7 @@ final class AppModel {
     /// 바뀔 때마다 입력 바에 포커스를 준다 (딥링크·단축키·제어 위젯).
     var composerFocusRequest = 0
     var showsSettings = false
+    var showsAddDatabase = false
 
     /// 체크 직후 0.8초 동안 목록에 남겨 둘 항목 (실행 취소 구간).
     private var lingering: Set<String> = []
@@ -59,19 +60,28 @@ final class AppModel {
 
     init(services: TodoServices = .shared) {
         self.services = services
-        // 다른 창(또는 메뉴 막대)에서 로그인·로그아웃하면 이 창도 다시 시작한다.
-        sessionObserver = Task { [weak self] in
-            for await note in NotificationCenter.default.notifications(named: .notionTodoSessionChanged) {
-                guard let self, note.object as AnyObject? !== self else { continue }
-                await self.start()
-            }
-        }
+        // 다른 창(또는 메뉴 막대·설정 창)에서 로그인·로그아웃하면 이 창도 다시 시작하고, DB를 더하거나 빼면 목록을 다시 읽는다.
+        observers = [
+            observe(.notionTodoSessionChanged) { await $0.start() },
+            observe(.notionTodoCatalogChanged) { await $0.reloadCatalog() },
+        ]
     }
 
-    private var sessionObserver: Task<Void, Never>?
+    private var observers: [Task<Void, Never>] = []
 
     isolated deinit {
-        sessionObserver?.cancel()
+        for observer in observers { observer.cancel() }
+    }
+
+    private func observe(_ name: Notification.Name, _ action: @escaping @MainActor (AppModel) async -> Void)
+        -> Task<Void, Never>
+    {
+        Task { [weak self] in
+            for await note in NotificationCenter.default.notifications(named: name) {
+                guard let self, note.object as AnyObject? !== self else { continue }
+                await action(self)
+            }
+        }
     }
 
     private func broadcastSessionChange() {
@@ -118,6 +128,35 @@ final class AppModel {
         } catch {
             handle(error)
         }
+    }
+
+    /// 고른 DB와 그 뷰, 고른 순서대로 (사이드바·설정).
+    var databases: [DatabaseViews] { catalog.byDatabase }
+
+    /// "DB 추가"로 고른 DB의 할 일 뷰를 연다.
+    func didAddDatabase(viewId: String) async {
+        catalog = await repository.cachedCatalog()
+        NotificationCenter.default.post(name: .notionTodoCatalogChanged, object: self)
+        await open(viewId: viewId)
+        reloadWidgets()
+    }
+
+    /// 목록에서 뺀다. Notion의 DB는 그대로 둔다. 하나 남은 DB는 뺄 수 없다.
+    func removeDatabase(_ dataSourceId: String) async {
+        guard databases.count > 1 else { return }
+        await repository.removeDatabase(dataSourceId)
+        await reloadCatalog()
+        NotificationCenter.default.post(name: .notionTodoCatalogChanged, object: self)
+        reloadWidgets()
+    }
+
+    /// 캐시된 목록을 다시 읽는다. 보던 뷰의 DB가 빠졌으면 남은 DB의 할 일 뷰로 옮긴다.
+    private func reloadCatalog() async {
+        catalog = await repository.cachedCatalog()
+        guard phase == .ready, let id = currentViewId, !catalog.contains(where: { $0.id == id }),
+            let next = catalog.preferredDefault
+        else { return }
+        await open(viewId: next.id)
     }
 
     func open(viewId: String) async {
@@ -390,4 +429,5 @@ final class AppModel {
 
 extension Notification.Name {
     static let notionTodoSessionChanged = Notification.Name("NotionTodoSessionChanged")
+    static let notionTodoCatalogChanged = Notification.Name("NotionTodoCatalogChanged")
 }

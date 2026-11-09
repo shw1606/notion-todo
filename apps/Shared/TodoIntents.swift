@@ -28,9 +28,19 @@ struct NotionViewEntity: AppEntity, Identifiable {
 }
 
 struct NotionViewQuery: EntityQuery {
+    /// 앱 목록에서 뺀 DB의 뷰라도 이미 그 뷰를 보여주는 위젯은 그대로 둔다 (캐시된 뷰 정의로 찾는다).
     func entities(for identifiers: [String]) async throws -> [NotionViewEntity] {
-        let catalog = await TodoServices.shared.repository.cachedCatalog()
-        return identifiers.compactMap { id in catalog.first { $0.id == id }.map(NotionViewEntity.init) }
+        let repository = TodoServices.shared.repository
+        let catalog = await repository.cachedCatalog()
+        var entities: [NotionViewEntity] = []
+        for id in identifiers {
+            if let summary = catalog.first(where: { $0.id == id }) {
+                entities.append(NotionViewEntity(summary))
+            } else if let view = await repository.store.view(id) {
+                entities.append(NotionViewEntity(view.summary))
+            }
+        }
+        return entities
     }
 
     /// 캐시된 목록을 바로 주고 뒤에서 새로 받아 둔다. 캐시가 비었으면 Notion에서 받아 온다.

@@ -31,6 +31,7 @@ struct LiveTests {
     }
 
     @Test func everyViewQueriesAndTogglesRoundTrip() async throws {
+        await repository.saveDatabaseIds(try await repository.databaseChoices().map(\.id))
         let catalog = try await repository.catalog(refresh: true)
         #expect(!catalog.isEmpty)
         for summary in catalog {

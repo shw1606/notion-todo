@@ -74,6 +74,7 @@ Notion 데이터베이스를 단일 진실 소스로 쓰는 오픈소스 투두 
   In progress / Complete로 고정), checkbox는 true로. 그러면 항목이 뷰 조건에서 빠져 위젯에서도
   사라진다 — Notion에서 체크한 것과 같은 동작.
 - **뷰 선택은 위젯 설정(AppIntent 설정형 위젯)으로 받는다.** 위젯마다 다른 뷰를 고를 수 있다.
+  목록에는 앱에서 고른 DB의 뷰만 나온다.
   첫 추가 시 기본값은 앱에서 마지막으로 연 뷰, 없으면 **체크할 수 있고 아직 안 한 일을 보여주는 뷰**.
   API의 뷰 목록 순서는 Notion 탭 순서와 달라서 "첫 번째 뷰"를 기본값으로 쓰지 않는다.
 - **완료로 거르지 않는 뷰**("내 작업", "오늘" 등)에서는 체크해도 항목이 남는다(Notion과 같음). 앱·위젯은
@@ -199,8 +200,9 @@ server/                  (2단계, 미구현) Notion webhook 수신 + APNs 발�
 4. **Notion 레이트리밋** 평균 3 req/s (인티그레이션 단위). 사용자별 토큰이므로 1인 사용량으로는
    여유가 크다. 단, 위젯 타임라인 하나당 쿼리 1회로 묶고 페이지 단위 반복 조회는 피한다.
 5. **Notion 접근 권한.** 앱은 OAuth 로그인 때 사용자가 고른 페이지·DB와 앱이 만든 메모 DB에만 접근한다.
-   할 일 DB가 빠졌으면 앱에서 "페이지 더 고르기"로 OAuth를 다시 띄운다. 개인 액세스 토큰은 사용자 권한을
-   그대로 쓰므로 앱은 최근에 고친 DB 30개까지만 목록에 올린다.
+   그중 앱 목록·위젯에 보이는 것은 앱에서 고른 DB뿐이다. 할 일 DB가 접근 범위에서 빠졌으면 `DB 추가…`의
+   "Notion에서 고르기"로 OAuth를 다시 띄운다. 개인 액세스 토큰은 사용자 권한을 그대로 쓰므로 고를 DB 목록은
+   최근에 고친 30개까지 보여준다.
 6. **토큰 보관.** access/refresh 토큰은 App Group 공유 Keychain에만 저장한다. 소스 코드·번들·로그·
    분석 도구로 내보내지 않는다. 앱은 서드파티 분석/트래킹 SDK를 넣지 않는다.
 7. **뷰 해석 실패 처리.** 뷰가 삭제되거나 필터 속성이 바뀌면 위젯에 명확한 오류와 "뷰 다시 선택"
@@ -237,7 +239,7 @@ cd auth && npm test                                # 토큰 교환 함수
 
 # 실제 Notion에 붙는 테스트 (테스트용 토큰과 DB 필요)
 NT_LIVE_TOKEN=<토큰> swift test --package-path apps/Packages --filter Live
-# UI 테스트 4개: 추가→체크→실행 취소 / 뷰 전환 / 오프라인 추가 후 복구 / 첫 실행 연결. iOS는 -destination 'id=<시뮬레이터>'
+# UI 테스트 5개: 추가→체크→실행 취소 / 뷰 전환 / 오프라인 추가 후 복구 / 첫 실행 연결 / DB 더하고 빼기(iOS만). iOS는 -destination 'id=<시뮬레이터>'
 TEST_RUNNER_NT_DEV_TOKEN=<토큰> xcodebuild test -project apps/NotionTodo.xcodeproj -scheme NotionTodo \
   -destination 'platform=macOS' CODE_SIGN_IDENTITY=- CODE_SIGN_STYLE=Manual DEVELOPMENT_TEAM= CODE_SIGN_ENTITLEMENTS=
 
@@ -252,7 +254,7 @@ TEST_RUNNER_SNAPSHOT_DIR=/tmp/widget-snapshots xcodebuild test -project apps/Not
 
 ## 사용 흐름
 
-1. Notion으로 로그인 → 할 일 DB가 있는 페이지 선택
+1. Notion으로 로그인 → 앱에서 쓸 할 일 DB 고르기 (없으면 새 메모 DB를 만들어 준다)
 2. 위젯 추가 → (원하면) 위젯 편집에서 Notion 뷰 선택
 3. 끝 — 속성 지정 없음
 

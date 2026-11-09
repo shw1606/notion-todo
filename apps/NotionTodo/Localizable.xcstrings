@@ -51,12 +51,42 @@
         }
       }
     },
+    "Add": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "추가"
+          }
+        }
+      }
+    },
     "Add ${text} to ${view}": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
             "value": "${view}에 ${text} 추가"
+          }
+        }
+      }
+    },
+    "Add Database": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DB 추가"
+          }
+        }
+      }
+    },
+    "Add Database…": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DB 추가…"
           }
         }
       }
@@ -211,16 +241,6 @@
         }
       }
     },
-    "Choose another database…": {
-      "localizations": {
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "다른 DB 고르기…"
-          }
-        }
-      }
-    },
     "Click the date and time in the menu bar, then Edit Widgets at the bottom.": {
       "localizations": {
         "ko": {
@@ -341,12 +361,12 @@
         }
       }
     },
-    "Databases on the pages you select in Notion show up here.": {
+    "Databases": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Notion에서 고른 페이지의 데이터베이스가 여기에 나타납니다."
+            "value": "DB"
           }
         }
       }
@@ -357,16 +377,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "체크박스나 상태 속성이 있는 DB가 여기에 나타나요."
-          }
-        }
-      }
-    },
-    "Databases you can see in Notion show up here. With an internal integration, connect its pages in Notion first.": {
-      "localizations": {
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Notion에서 볼 수 있는 DB가 여기에 나타나요. internal integration은 Notion에서 페이지를 먼저 연결하세요."
           }
         }
       }
@@ -457,6 +467,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Notion에서 ‘New token’을 누르고 ‘Notion API’를 고른 뒤 ‘Create token’을 누르세요."
+          }
+        }
+      }
+    },
+    "In your Notion": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notion에 있는 DB"
           }
         }
       }
@@ -684,6 +704,16 @@
         }
       }
     },
+    "Only these show up in the app and widgets. Removing one leaves it as it is in Notion.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "여기 있는 DB만 앱과 위젯에 보여요. 빼도 Notion의 DB는 그대로예요."
+          }
+        }
+      }
+    },
     "Open Notion": {
       "localizations": {
         "ko": {
@@ -834,12 +864,32 @@
         }
       }
     },
-    "Select more pages in Notion…": {
+    "Remove": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Notion에서 페이지 더 고르기…"
+            "value": "빼기"
+          }
+        }
+      }
+    },
+    "Remove “%@”": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "‘%@’ 빼기"
+          }
+        }
+      }
+    },
+    "Remove “%@” from Sidebar": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "사이드바에서 ‘%@’ 빼기"
           }
         }
       }
@@ -1120,16 +1170,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "뷰 ID"
-          }
-        }
-      }
-    },
-    "Views": {
-      "localizations": {
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "뷰"
           }
         }
       }

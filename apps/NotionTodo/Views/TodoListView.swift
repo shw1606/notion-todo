@@ -167,6 +167,9 @@ struct ViewPickerMenu: View {
                 }
             }
             Divider()
+            Button { model.showsAddDatabase = true } label: {
+                Label("Add Database…", systemImage: "plus")
+            }
             Button { Task { await model.refreshCatalog() } } label: {
                 Label("Reload views", systemImage: "arrow.clockwise")
             }

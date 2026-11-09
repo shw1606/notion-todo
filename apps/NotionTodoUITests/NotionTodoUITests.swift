@@ -1,7 +1,7 @@
 import XCTest
 
-/// 핵심 흐름 (PLAN 6.1): 추가 → 체크 → 실행 취소 / 뷰 전환 / 오프라인 추가 후 복구 / 첫 실행 연결. iPhone·Mac 공용.
-/// 실제 Notion 테스트 DB에 쓴다. `TEST_RUNNER_NT_DEV_TOKEN`이 없으면 건너뛴다.
+/// 핵심 흐름 (PLAN 6.1): 추가 → 체크 → 실행 취소 / 뷰 전환 / 오프라인 추가 후 복구 / 첫 실행 연결 / DB 더하고 빼기.
+/// iPhone·Mac 공용. 실제 Notion 테스트 DB에 쓴다. `TEST_RUNNER_NT_DEV_TOKEN`이 없으면 건너뛴다.
 final class NotionTodoUITests: XCTestCase {
     var app: XCUIApplication!
 
@@ -14,6 +14,11 @@ final class NotionTodoUITests: XCTestCase {
         app.launchEnvironment["NT_DEV_TOKEN"] = token
         app.launchArguments += ["-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
         app.launch()
+        // 고른 DB가 없으면(새 시뮬레이터) 시작할 목록 화면이 뜬다. 이 앱이 만든 메모 DB로 시작한다.
+        let start = app.buttons["Start"].firstMatch
+        let deadline = Date.now.addingTimeInterval(20)
+        while Date.now < deadline, !composer.exists, !start.exists { usleep(250_000) }
+        if start.exists { startWithStarterDatabase() }
     }
 
     var composer: XCUIElement { app.descendants(matching: .any).matching(identifier: "composer").firstMatch }
@@ -130,6 +135,58 @@ final class NotionTodoUITests: XCTestCase {
         field.typeText(token)
         press(app.buttons["Connect"].firstMatch)
 
+        startWithStarterDatabase(screenshots: true)
+        attachScreenshot("5 list")
+    }
+
+    /// "DB 추가"로 고른 DB만 목록에 생기고, 설정에서 빼면 원래 DB로 돌아온다.
+    /// 테스트 워크스페이스에 메모 DB 말고 체크할 칸이 있는 DB가 하나 더 있어야 한다.
+    func testAddAndRemoveDatabase() throws {
+        #if os(iOS)
+            XCTAssertTrue(composer.waitForExistence(timeout: 20))
+            let picker = app.buttons["Change view"].firstMatch
+            XCTAssertTrue(picker.waitForExistence(timeout: 10))
+            let original = try XCTUnwrap(picker.value as? String)
+            let originalDatabase = try XCTUnwrap(original.components(separatedBy: " · ").last)
+            picker.tap()
+            app.buttons["Add Database…"].firstMatch.tap()
+
+            // 이미 고른 메모 DB는 목록에 없다.
+            let add = app.buttons["Add"].firstMatch
+            XCTAssertTrue(add.waitForExistence(timeout: 10), "DB 추가 화면이 뜬다")
+            let enabled = XCTNSPredicateExpectation(predicate: NSPredicate(format: "isEnabled == true"), object: add)
+            // DB 줄의 레이블 = "DB 이름, 체크하면 바뀌는 것".
+            let rows = app.buttons.matching(
+                NSPredicate(format: "label CONTAINS 'Checking off' OR label CONTAINS 'depends on the view'"))
+            XCTAssertTrue(rows.firstMatch.waitForExistence(timeout: 20), "고를 DB가 하나 이상 있어야 한다")
+            XCTAssertFalse(rows.allElementsBoundByIndex.contains { $0.label.hasPrefix("할 일 메모") }, "고른 DB는 다시 나오지 않는다")
+            let row = rows.firstMatch
+            let title = try XCTUnwrap(row.label.components(separatedBy: ", ").first)
+            attachScreenshot("add database")
+            row.tap()
+            XCTAssertEqual(XCTWaiter().wait(for: [enabled], timeout: 5), .completed, "고르면 더할 수 있다")
+            add.tap()
+            XCTAssertTrue(wait(picker, "value ENDSWITH %@", " · \(title)", timeout: 20), "더한 DB의 뷰가 열린다")
+
+            app.buttons["Settings"].firstMatch.tap()
+            let remove = app.buttons["Remove “\(title)”"].firstMatch
+            XCTAssertTrue(remove.waitForExistence(timeout: 10))
+            attachScreenshot("settings databases")
+            remove.tap()
+            XCTAssertTrue(waitForDisappearance(remove, timeout: 5), "뺀 DB는 설정 목록에서 사라진다")
+            app.buttons["Done"].firstMatch.tap()
+            XCTAssertTrue(
+                wait(picker, "value ENDSWITH %@", " · \(originalDatabase)", timeout: 10), "보던 DB를 빼면 남은 DB로 돌아온다")
+        #else
+            throw XCTSkip("Mac 사이드바의 DB 추가·빼기는 아직 UI 테스트가 없다")
+        #endif
+    }
+
+    // MARK: 도우미
+
+    /// 시작할 목록 화면: 이 앱이 만든 메모 DB가 골라져 있는지 보고 시작 → 위젯 안내 → 목록.
+    /// 메모 DB가 없으면 새로 만들지 않고 실패한다.
+    func startWithStarterDatabase(screenshots: Bool = false) {
         let start = app.buttons["Start"].firstMatch
         XCTAssertTrue(start.waitForExistence(timeout: 20), "연결되면 시작할 목록을 고르는 화면이 뜬다")
         let enabled = XCTNSPredicateExpectation(predicate: NSPredicate(format: "isEnabled == true"), object: start)
@@ -137,18 +194,15 @@ final class NotionTodoUITests: XCTestCase {
         let starter = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "할 일 메모")).firstMatch
         XCTAssertTrue(starter.waitForExistence(timeout: 5))
         XCTAssertTrue(starter.isSelected, "이 앱이 만든 메모 DB가 미리 골라져 있어야 한다")
-        attachScreenshot("3 source")
+        if screenshots { attachScreenshot("3 source") }
         press(start)
 
         let writing = app.buttons["Start writing"].firstMatch
         XCTAssertTrue(writing.waitForExistence(timeout: 20))
-        attachScreenshot("4 widgets")
+        if screenshots { attachScreenshot("4 widgets") }
         press(writing)
         XCTAssertTrue(composer.waitForExistence(timeout: 20), "온보딩을 마치면 목록이 열린다")
-        attachScreenshot("5 list")
     }
-
-    // MARK: 도우미
 
     func attachScreenshot(_ name: String) {
         let attachment = XCTAttachment(screenshot: app.screenshot())

@@ -99,11 +99,14 @@ public struct ViewCatalog: Codable, Hashable, Sendable {
 public struct AppSettings: Codable, Hashable, Sendable {
     /// 앱 메인 화면에 마지막으로 연 뷰. 위젯 설정이 비었을 때도 기본값이 된다.
     public var lastViewId: String?
+    /// 앱 목록·위젯 설정에 올릴 DB(data source ID), 고른 순서대로. nil이면 이 값을 기록하기 전 버전에서 올라왔다.
+    public var databaseIds: [String]?
     /// Mac 메뉴 막대 빠른 기록 표시.
     public var showsMenuBarExtra: Bool = true
 
-    public init(lastViewId: String? = nil, showsMenuBarExtra: Bool = true) {
+    public init(lastViewId: String? = nil, databaseIds: [String]? = nil, showsMenuBarExtra: Bool = true) {
         self.lastViewId = lastViewId
+        self.databaseIds = databaseIds
         self.showsMenuBarExtra = showsMenuBarExtra
     }
 }

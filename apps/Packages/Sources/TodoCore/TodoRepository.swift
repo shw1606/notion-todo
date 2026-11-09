@@ -16,42 +16,88 @@ public actor TodoRepository {
         self.viewMaxAge = viewMaxAge
     }
 
+    // MARK: 고른 DB
+
+    /// 앱 목록·위젯 설정에 올릴 DB (data source ID), 고른 순서대로. 연결이 볼 수 있는 DB 전부가 아니라
+    /// 온보딩·"DB 추가"로 고른 것만 올린다.
+    public func databaseIds() -> [String] {
+        let settings = store.settings()
+        if let ids = settings.databaseIds { return ids }
+        // 고른 DB를 기록하기 전 버전에서 올라왔다: 마지막으로 연 뷰의 DB만 남긴다.
+        let ids = settings.lastViewId.flatMap { store.view($0) }.map { [$0.dataSourceId] } ?? []
+        saveDatabaseIds(ids)
+        return ids
+    }
+
+    func saveDatabaseIds(_ ids: [String]) {
+        var settings = store.settings()
+        settings.databaseIds = ids
+        try? store.save(settings: settings)
+    }
+
+    func isChosen(_ dataSourceId: String) -> Bool {
+        databaseIds().contains { NotionID.compact($0) == NotionID.compact(dataSourceId) }
+    }
+
+    /// 목록에서 뺀다. Notion의 DB는 그대로 둔다.
+    public func removeDatabase(_ dataSourceId: String) {
+        saveDatabaseIds(databaseIds().filter { NotionID.compact($0) != NotionID.compact(dataSourceId) })
+    }
+
     // MARK: 뷰 목록
 
-    /// 목록에 올릴 DB 수. 개인 액세스 토큰처럼 워크스페이스 전체가 보이는 연결에서도 금방 끝나도록 최근에 고친 것만 본다.
-    static let catalogLimit = 30
-
-    /// 연결된 DB(최근에 고친 순)의 목록형 뷰. 각 뷰를 해석해 캐시에 넣는다.
+    /// 고른 DB의 목록형 뷰. 각 뷰를 해석해 캐시에 넣는다. 휴지통에 있거나 연결에서 빠진 DB는 고른 목록에서도 뺀다.
     public func catalog(refresh: Bool = false) async throws -> [ViewSummary] {
         if !refresh, let cached = store.catalog(), Date.now.timeIntervalSince(cached.fetchedAt) < viewMaxAge {
-            return cached.views
+            return cachedCatalog()
         }
-        let sources = try await client.searchDataSources(limit: Self.catalogLimit).filter { $0.inTrash != true }
-        let views = try await Self.listableViews(of: sources, client: client)
+        let ids = databaseIds()
+        let found = try await Self.listableViews(ofDataSources: ids, client: client)
+        let gone = Set(zip(ids, found).filter { $0.1 == nil }.map { NotionID.compact($0.0) })
+        if !gone.isEmpty { saveDatabaseIds(databaseIds().filter { !gone.contains(NotionID.compact($0)) }) }
+        let views = found.compactMap { $0 }.flatMap { $0 }
         for view in views { try? store.save(view: view) }
-        let summaries = views.map(\.summary)
-        try? store.save(catalog: ViewCatalog(views: summaries, fetchedAt: .now))
-        return summaries
+        // 받는 동안 "DB 추가"로 더한 DB의 뷰는 그대로 둔다. 뺀 DB의 뷰는 버린다.
+        let fetched = Set(ids.map(NotionID.compact))
+        let chosen = Set(databaseIds().map(NotionID.compact))
+        let added = (store.catalog()?.views ?? []).filter {
+            let id = NotionID.compact($0.dataSourceId)
+            return chosen.contains(id) && !fetched.contains(id)
+        }
+        try? store.save(catalog: ViewCatalog(views: views.map(\.summary) + added, fetchedAt: .now))
+        return cachedCatalog()
     }
 
     /// DB 순서를 지키며 3개씩 동시에 받는다 (Notion 요청 한도는 평균 초당 3회).
-    static func listableViews(of sources: [DataSource], client: NotionClient) async throws -> [ResolvedView] {
-        try await withThrowingTaskGroup(of: (Int, [ResolvedView]).self) { group in
-            var results = [[ResolvedView]](repeating: [], count: sources.count)
+    /// 휴지통에 있거나 연결에서 빠진 DB 자리는 nil.
+    static func listableViews(ofDataSources ids: [String], client: NotionClient) async throws -> [[ResolvedView]?] {
+        try await withThrowingTaskGroup(of: (Int, [ResolvedView]?).self) { group in
+            var results = [[ResolvedView]?](repeating: nil, count: ids.count)
             var next = 0
             func enqueue() {
-                guard next < sources.count else { return }
+                guard next < ids.count else { return }
                 let index = next
                 next += 1
-                group.addTask { (index, try await listableViews(of: sources[index], client: client)) }
+                group.addTask { (index, try await listableViews(ofDataSource: ids[index], client: client)) }
             }
             for _ in 0..<3 { enqueue() }
             while let (index, views) = try await group.next() {
                 results[index] = views
                 enqueue()
             }
-            return results.flatMap { $0 }
+            return results
         }
+    }
+
+    static func listableViews(ofDataSource id: String, client: NotionClient) async throws -> [ResolvedView]? {
+        let source: DataSource
+        do {
+            source = try await client.dataSource(id)
+        } catch NotionError.notFound {
+            return nil
+        }
+        guard source.inTrash != true else { return nil }
+        return try await listableViews(of: source, client: client)
     }
 
     /// DB 하나의 목록형 뷰(표·목록·보드…)를 해석한다.
@@ -64,21 +110,35 @@ public actor TodoRepository {
         return views
     }
 
-    /// 전체 목록을 다시 받기 전에도 사이드바·위젯 설정에 보이도록 캐시된 목록 앞에 더한다.
+    /// 고른 DB의 뷰를 더한다 (온보딩·"DB 추가"). 전체 목록을 다시 받기 전에도 사이드바·위젯 설정에 보인다.
     /// 받은 시각은 그대로 둬서 다음에 전체 목록을 받게 한다.
     func addToCatalog(_ views: [ViewSummary]) {
+        var ids = databaseIds()
+        for view in views where !ids.contains(where: { NotionID.compact($0) == NotionID.compact(view.dataSourceId) }) {
+            ids.append(view.dataSourceId)
+        }
+        saveDatabaseIds(ids)
+        // 같은 DB의 예전 뷰(그사이 Notion에서 지운 뷰 포함)는 새로 받은 것으로 바꾼다.
         let cached = store.catalog()
-        let ids = Set(views.map(\.id))
-        let merged = views + (cached?.views ?? []).filter { !ids.contains($0.id) }
+        let sources = Set(views.map { NotionID.compact($0.dataSourceId) })
+        let merged = (cached?.views ?? []).filter { !sources.contains(NotionID.compact($0.dataSourceId)) } + views
         try? store.save(catalog: ViewCatalog(views: merged, fetchedAt: cached?.fetchedAt ?? .distantPast))
     }
 
-    public func cachedCatalog() -> [ViewSummary] { store.catalog()?.views ?? [] }
+    /// 캐시된 뷰 중 고른 DB의 것, 고른 순서대로.
+    public func cachedCatalog() -> [ViewSummary] {
+        let views = store.catalog()?.views ?? []
+        return databaseIds().flatMap { id in
+            views.filter { NotionID.compact($0.dataSourceId) == NotionID.compact(id) }
+        }
+    }
 
-    /// 설정이 비었을 때 쓸 뷰: 마지막으로 연 뷰 → 할 일을 보여주는 뷰.
+    /// 설정이 비었을 때 쓸 뷰: 마지막으로 연 뷰 → 할 일을 보여주는 뷰. 둘 다 고른 DB 안에서.
     public func defaultViewId() async -> String? {
-        if let last = store.settings().lastViewId, store.view(last) != nil { return last }
-        if let cached = store.catalog()?.views.preferredDefault { return cached.id }
+        if let last = store.settings().lastViewId, let view = store.view(last), isChosen(view.dataSourceId) {
+            return last
+        }
+        if let cached = cachedCatalog().preferredDefault { return cached.id }
         return try? await catalog().preferredDefault?.id
     }
 
