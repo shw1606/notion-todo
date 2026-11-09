@@ -1,48 +1,58 @@
-// 앱 아이콘 생성: 따뜻한 메모지 위 앰버 체크 원. `swift scripts/make-app-icon.swift <출력 폴더>`
+// 앱 아이콘 생성: 노션 일러스트처럼 붓으로 그린 체크박스. 왼쪽·아래 획이 굵어(노션 로고의 블록처럼) 무게가 실리고,
+// 체크는 상자 밖으로 뻗는다. `swift scripts/make-app-icon.swift <출력 폴더>`
 import AppKit
 
-func render(size: CGFloat, dark: Bool, tinted: Bool) -> Data {
-    // 화면 배율과 무관하게 정확한 픽셀 크기로 그린다.
-    let rep = NSBitmapImageRep(
-        bitmapDataPlanes: nil, pixelsWide: Int(size), pixelsHigh: Int(size), bitsPerSample: 8, samplesPerPixel: 4,
-        hasAlpha: true, isPlanar: false, colorSpaceName: .deviceRGB, bytesPerRow: 0, bitsPerPixel: 0)!
-    rep.size = NSSize(width: size, height: size)
-    NSGraphicsContext.saveGraphicsState()
-    NSGraphicsContext.current = NSGraphicsContext(bitmapImageRep: rep)
-    let ctx = NSGraphicsContext.current!.cgContext
-    let rect = CGRect(x: 0, y: 0, width: size, height: size)
-    // 배경: 종이 (다크·틴트 변형은 시스템 규칙대로 배경 없음/어두운 배경)
-    if tinted {
-        NSColor.black.setFill(); ctx.fill(rect)
-    } else if dark {
-        NSColor(calibratedRed: 0.10, green: 0.09, blue: 0.08, alpha: 1).setFill(); ctx.fill(rect)
-    } else {
-        let gradient = NSGradient(colors: [
-            NSColor(calibratedRed: 1.00, green: 0.97, blue: 0.88, alpha: 1),
-            NSColor(calibratedRed: 0.99, green: 0.91, blue: 0.70, alpha: 1),
-        ])!
-        gradient.draw(in: rect, angle: -90)
+func color(_ hex: UInt32) -> CGColor {
+    CGColor(srgbRed: CGFloat((hex >> 16) & 0xFF) / 255, green: CGFloat((hex >> 8) & 0xFF) / 255,
+            blue: CGFloat(hex & 0xFF) / 255, alpha: 1)
+}
+
+func render(size: Int, dark: Bool, tinted: Bool) -> Data {
+    // 정확한 픽셀 크기로, 알파 채널 없이 그린다 (App Store는 투명 채널이 있는 아이콘을 받지 않는다).
+    let ctx = CGContext(data: nil, width: size, height: size, bitsPerComponent: 8, bytesPerRow: 0,
+                        space: CGColorSpace(name: CGColorSpace.sRGB)!,
+                        bitmapInfo: CGImageAlphaInfo.noneSkipLast.rawValue)!
+    ctx.scaleBy(x: CGFloat(size), y: CGFloat(size))  // 이하 0…1 좌표, y는 위쪽
+    // 노션의 종이색과 글자색 (다크·틴트 변형은 시스템 규칙대로 어두운 배경)
+    let paper = tinted ? color(0x000000) : (dark ? color(0x191919) : color(0xF7F6F3))
+    let ink = tinted ? color(0xFFFFFF) : (dark ? color(0xEDECE9) : color(0x37352F))
+    ctx.setFillColor(paper); ctx.fill(CGRect(x: 0, y: 0, width: 1, height: 1))
+
+    // 상자: 살짝 기울인 둥근 사각형 테. 바깥 테를 왼쪽·아래로 더 내밀어 그 쪽 획을 굵게 한다.
+    ctx.saveGState()
+    ctx.translateBy(x: 0.45, y: 0.45); ctx.rotate(by: -4 * .pi / 180); ctx.translateBy(x: -0.45, y: -0.45)
+    let inner = CGRect(x: 0.23, y: 0.23, width: 0.45, height: 0.45)
+    let outer = CGRect(x: inner.minX - 0.062, y: inner.minY - 0.062, width: inner.width + 0.098, height: inner.height + 0.098)
+    ctx.addPath(CGPath(roundedRect: outer, cornerWidth: 0.115, cornerHeight: 0.115, transform: nil))
+    ctx.addPath(CGPath(roundedRect: inner, cornerWidth: 0.07, cornerHeight: 0.07, transform: nil))
+    ctx.setFillColor(ink); ctx.fillPath(using: .evenOdd)
+    ctx.restoreGState()
+
+    // 체크: 짧게 내려갔다가 곡선으로 길게 올라가며 가늘어진다. 원을 촘촘히 찍어 붓 자국처럼 만든다.
+    let start = CGPoint(x: 0.31, y: 0.50), elbow = CGPoint(x: 0.445, y: 0.335), end = CGPoint(x: 0.85, y: 0.84)
+    let control = CGPoint(x: 0.60, y: 0.53)
+    var dabs: [(CGPoint, CGFloat)] = []
+    for i in 0...900 {
+        let u = CGFloat(i) / 900
+        if u < 0.24 {
+            let k = u / 0.24
+            dabs.append((CGPoint(x: start.x + (elbow.x - start.x) * k, y: start.y + (elbow.y - start.y) * k), 0.052 + 0.036 * k))
+        } else {
+            let k = (u - 0.24) / 0.76, m = 1 - k
+            let point = CGPoint(x: m * m * elbow.x + 2 * m * k * control.x + k * k * end.x,
+                                y: m * m * elbow.y + 2 * m * k * control.y + k * k * end.y)
+            dabs.append((point, 0.088 - 0.062 * pow(k, 1.5)))
+        }
     }
-    // 메모 줄 세 개
-    let lineColor = tinted ? NSColor(white: 0.55, alpha: 1) : (dark ? NSColor(white: 1, alpha: 0.22) : NSColor(calibratedRed: 0.60, green: 0.39, blue: 0.07, alpha: 0.28))
-    lineColor.setFill()
-    for i in 0..<3 {
-        let y = size * (0.60 - CGFloat(i) * 0.15)
-        let width = size * (i == 2 ? 0.30 : 0.42)
-        NSBezierPath(roundedRect: CGRect(x: size * 0.46, y: y, width: width, height: size * 0.055), xRadius: size * 0.0275, yRadius: size * 0.0275).fill()
+    // 상자 테와 겹치는 곳은 종이색 테두리로 먼저 끊어 체크가 위에 놓이게 한다.
+    for (fill, extra) in [(paper, 0.042), (ink, 0.0)] {
+        for (p, w) in dabs {
+            let d = w + extra
+            ctx.addEllipse(in: CGRect(x: p.x - d / 2, y: p.y - d / 2, width: d, height: d))
+        }
+        ctx.setFillColor(fill); ctx.fillPath()
     }
-    // 체크 원
-    let amber = tinted ? NSColor(white: 1, alpha: 1) : (dark ? NSColor(calibratedRed: 0.965, green: 0.718, blue: 0.235, alpha: 1) : NSColor(calibratedRed: 0.604, green: 0.388, blue: 0.071, alpha: 1))
-    let circle = CGRect(x: size * 0.14, y: size * 0.38, width: size * 0.26, height: size * 0.26)
-    amber.setFill(); NSBezierPath(ovalIn: circle).fill()
-    let check = NSBezierPath()
-    check.move(to: CGPoint(x: circle.minX + circle.width * 0.27, y: circle.midY))
-    check.line(to: CGPoint(x: circle.minX + circle.width * 0.44, y: circle.minY + circle.height * 0.32))
-    check.line(to: CGPoint(x: circle.minX + circle.width * 0.75, y: circle.minY + circle.height * 0.70))
-    check.lineWidth = size * 0.028; check.lineCapStyle = .round; check.lineJoinStyle = .round
-    (tinted ? NSColor.black : (dark ? NSColor(calibratedRed: 0.11, green: 0.08, blue: 0.02, alpha: 1) : .white)).setStroke(); check.stroke()
-    NSGraphicsContext.restoreGraphicsState()
-    return rep.representation(using: .png, properties: [:])!
+    return NSBitmapImageRep(cgImage: ctx.makeImage()!).representation(using: .png, properties: [:])!
 }
 
 let out = URL(fileURLWithPath: CommandLine.arguments[1])
@@ -51,5 +61,5 @@ for (name, dark, tinted) in [("icon-light", false, false), ("icon-dark", true, f
 }
 // macOS용 크기
 for s in [16, 32, 64, 128, 256, 512, 1024] {
-    try! render(size: CGFloat(s), dark: false, tinted: false).write(to: out.appendingPathComponent("mac-\(s).png"))
+    try! render(size: s, dark: false, tinted: false).write(to: out.appendingPathComponent("mac-\(s).png"))
 }
