@@ -16,7 +16,7 @@
 | M3 홈화면 위젯 | ✅ | 목록·개수 위젯, 뷰 선택, 위젯 체크, 스냅샷 169장(크기 × 렌더링 모드 × 라이트/다크 × 글자 크기) |
 | M4 잠금화면·StandBy·제어 | ✅ 코드 / ⏳ 실기기 | 잠금 중 체크 허용 인텐트, 제어 위젯, Siri. 실기기 확인은 [RELEASE.md](RELEASE.md) 3장 |
 | M5 iPad·Mac | ✅ | 분할 화면, 창마다 다른 뷰, 키보드(⌘N·⌘R·Space·⌫), 포인터 호버, 초대형·세로형 위젯, 메뉴 막대, UI 테스트 3개 통과(Mac) |
-| M6 OAuth·온보딩 | ✅ 코드 / ⏳ 배포 | `auth/` 함수(테스트 10개, 실제 Notion 토큰 갱신 확인), 연결 버튼 하나 → 시작할 목록 추천 → 위젯 안내(플랫폼별), 토큰 붙여넣기 연결, 설정에서 페이지 더 고르기. 로컬 함수로 Mac에서 동의 화면·콜백·교환 경로 확인. 배포는 계정 필요 |
+| M6 OAuth·온보딩 | ✅ | `auth/` 함수(테스트 10개, 실제 Notion 토큰 갱신 확인) — Vercel 배포(`notion-todo-auth.vercel.app`), 연결 버튼 하나 → 시작할 목록 추천 → 위젯 안내(플랫폼별), 토큰 붙여넣기 연결, 설정에서 페이지 더 고르기. 배포 주소로 동의 화면(이름·아이콘·이메일 제외)·콜백·교환 응답 확인 |
 | M7 다듬기 | ✅ | 한국어·영어, VoiceOver 레이블, 동작 줄이기, Dynamic Type(위젯 줄 수 자동 축소) |
 | M8 배포 | ⏳ | 계정이 필요한 단계 — [RELEASE.md](RELEASE.md) |
 
@@ -339,7 +339,7 @@ apps/
   Config/
     Base.xcconfig          공용 설정
     Local.xcconfig.example 팀 ID·번들 ID 접두사·OAuth client ID·auth 함수 URL (Local.xcconfig는 커밋 안 함)
-auth/                      OAuth 토큰 교환 함수 (Cloudflare Workers 후보, TypeScript)
+auth/                      OAuth 토큰 교환 함수 (TypeScript — Vercel 배포, Cloudflare Workers 겸용)
 scripts/probe-views.mjs    API 검증 스크립트 (기존)
 ```
 
@@ -384,6 +384,7 @@ App Group ID와 Keychain access group은 `Local.xcconfig`의 팀·접두사로 �
 - 앱↔함수 사이 PKCE: Notion OAuth엔 PKCE가 없지만 함수가 직접 확인해, 가로챈 `code`만으로는 교환할 수 없게 한다.
 - 저장소·로그 없음. CORS 불필요(네이티브 앱 전용). 요청 크기·빈도 제한.
 - 시크릿: `NOTION_OAUTH_CLIENT_ID` / `NOTION_OAUTH_CLIENT_SECRET` / `NOTION_OAUTH_REDIRECT_URI`.
+- 호스팅: Vercel(`https://notion-todo-auth.vercel.app`) — `api/index.ts` 어댑터가 같은 `handle`을 부른다. Workers로도 배포할 수 있다.
 
 ### 5.5 앱 인텐트 목록
 

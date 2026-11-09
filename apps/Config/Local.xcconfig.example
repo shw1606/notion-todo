@@ -9,4 +9,4 @@ BUNDLE_ID_PREFIX = com.example
 // 비워 두면 앱은 토큰 붙여넣기(개인 액세스 토큰·internal integration)만 제공한다.
 // 함수를 로컬에서 띄워 시험할 때는 http:/$()/localhost:8787 (auth/README.md).
 NT_OAUTH_CLIENT_ID =
-NT_AUTH_BASE_URL = https:/$()/notion-todo-auth.example.workers.dev
+NT_AUTH_BASE_URL = https:/$()/your-project.vercel.app

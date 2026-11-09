@@ -9,5 +9,5 @@
     "lib": ["ES2023", "WebWorker"],
     "types": []
   },
-  "include": ["src", "test"]
+  "include": ["api", "src", "test"]
 }

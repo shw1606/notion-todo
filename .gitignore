@@ -21,3 +21,4 @@ apps/Packages/.build/
 auth/node_modules/
 auth/.wrangler/
 auth/.dev.vars
+auth/.vercel/

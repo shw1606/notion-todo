@@ -2,6 +2,17 @@
 
 새 결정은 맨 위에 추가. 날짜는 절대값으로 쓴다.
 
+## 2026-11-09 — 토큰 교환 함수는 Vercel에 둔다
+
+**결정:** `auth/`를 Vercel(`https://notion-todo-auth.vercel.app`)에 배포한다. 코드는 플랫폼 중립인 `handle` 하나이고,
+Vercel은 `api/index.ts` 어댑터로, Cloudflare Workers는 기본 export로 같은 코드를 쓴다.
+
+- **모든 경로를 함수로.** `vercel.json`은 `rewrites`가 아니라 `routes`를 쓴다. 정적 출력이 없는 프로젝트는 올린 소스가
+  정적 파일로도 나가고 `rewrites`는 그 뒤에 적용돼서, `/src/index.ts`가 그대로 보였다.
+- **올리는 파일은 허용 목록.** `.vercelignore`가 `api/`·`src/`·설정 파일만 올린다. 로컬 비밀값(`.dev.vars`)이 섞이지 않는다.
+- **사용자 정보 권한은 이메일 제외.** 앱은 사용자 ID·이름만 쓴다. 이메일까지 받으면 동의 화면에 "사용자와 이메일 보기"가
+  붙어 첫 연결이 무거워진다.
+
 ## 2026-11-09 — 첫 연결은 버튼 한 번 (Widget for Notion처럼)
 
 **결정:** 온보딩에서 키 발급·페이지 공유·페이지 고르기를 없앤다. "Notion 연결하기" → Notion 동의 화면에서

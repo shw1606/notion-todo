@@ -144,7 +144,7 @@ client secret을 앱 번들에 넣으면 누구나 추출해 이 앱을 사칭�
   `notiontodo://oauth`로 넘긴다 — 도메인 연결 설정이 필요 없다)
 - **안 하는 일:** 토큰·사용자 데이터 저장, Notion 데이터 조회. 무상태이며 로그를 남기지 않는다
 - **호출 빈도:** 로그인 1회 + 토큰 갱신 시. 사용자당 하루 수 회 이하
-- **비용:** 서버리스 무료 티어 범위 (예: Cloudflare Workers 무료 10만 req/일). 사실상 0원
+- **비용:** 서버리스 무료 플랜 범위 (Vercel Hobby·Cloudflare Workers 무료 티어 어느 쪽이든 충분). 사실상 0원
 - **직접 빌드하는 사용자:** 자기 Notion public integration + 자기 함수 배포, 또는 Notion 개인 액세스 토큰을
   붙여 넣는 대체 경로를 쓴다 (internal integration 토큰도 된다)
 
@@ -181,7 +181,7 @@ apps/
   Shared/                앱·위젯 공용 앱 인텐트 (체크, 추가, 뷰 선택, 딥링크)
   NotionTodoUITests/     UI 테스트 (추가 → 체크 → 실행 취소 → 삭제, 실제 Notion)
   NotionTodoWidgetsTests/ 위젯 스냅샷 (크기 × 라이트/다크 × 글자 크기)
-auth/                    OAuth 토큰 교환 함수 (Cloudflare Workers, 무상태)
+auth/                    OAuth 토큰 교환 함수 (Vercel 배포, Cloudflare Workers 겸용, 무상태)
 scripts/                 API 검증 스크립트, 앱 아이콘 생성
 docs/                    계획·결정·배포 절차
 server/                  (2단계, 미구현) Notion webhook 수신 + APNs 발송
@@ -284,7 +284,7 @@ TEST_RUNNER_SNAPSHOT_DIR=/tmp/widget-snapshots xcodebuild test -project apps/Not
 - [x] 최소 OS: iOS·iPadOS·macOS 26 (Liquid Glass 기준, 2026-11-09)
 - [ ] 배포 채널 — App Store / TestFlight 공개 베타 / 소스 빌드만
 - [x] 속성 매핑 없이 Notion 뷰 기반 위젯 + OAuth 로그인 (2026-11-08)
-- [x] 토큰 교환 함수 호스팅 — Cloudflare Workers (무료 티어, 2026-11-09)
+- [x] 토큰 교환 함수 호스팅 — Vercel (`notion-todo-auth.vercel.app`, 2026-11-09). 같은 코드가 Cloudflare Workers에서도 돈다
 - [x] 위젯 체크 토글을 첫 릴리스에 포함 — 잠금 상태에서도 (2026-11-09)
 - [ ] 2단계 중계 서버 도입 여부
 

@@ -1,0 +1,7 @@
+# 함수에 필요한 파일만 올린다 — .dev.vars 같은 비밀 파일이 섞이지 않게.
+/*
+!api
+!src
+!package.json
+!tsconfig.json
+!vercel.json

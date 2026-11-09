@@ -2,7 +2,7 @@
   "name": "notion-todo-auth",
   "private": true,
   "type": "module",
-  "description": "Stateless Notion OAuth token exchange for Notion Todo (Cloudflare Worker)",
+  "description": "Stateless Notion OAuth token exchange for Notion Todo (Vercel Function or Cloudflare Worker)",
   "scripts": {
     "test": "node --test \"test/*.test.ts\"",
     "dev": "wrangler dev",

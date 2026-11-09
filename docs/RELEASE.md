@@ -1,13 +1,17 @@
 # 배포 절차 (PLAN 7장 M8)
 
-Apple Developer Program 계정과 Notion·Cloudflare 계정이 필요하다. 코드 쪽 준비는 끝나 있고, 아래는 계정이
+Apple Developer Program 계정과 Notion·Vercel 계정이 필요하다. 코드 쪽 준비는 끝나 있고, 아래는 계정이
 필요한 단계만 모은 것이다.
 
 ## 1. 로그인 함수 배포
 
-[auth/README.md](../auth/README.md)대로 Notion public integration을 만들고 Cloudflare Workers에 배포한다.
-integration 이름(`Notion Todo`)과 아이콘을 채운다 — 연결할 때 Notion 동의 화면에 보인다.
+[auth/README.md](../auth/README.md)대로 Notion public integration을 만들고 Vercel에 배포한다(Cloudflare Workers도 된다).
+integration 이름(`Notion Todo`)·아이콘·사용자 정보 권한(이메일 제외)을 맞춘다 — 연결할 때 Notion 동의 화면에 보인다.
 배포 후 `https://<auth 호스트>/callback?code=x&state=y`가 `notiontodo://oauth?code=x&state=y`로 302를 돌려주는지 확인한다.
+
+**완료 (2026-11-09):** `https://notion-todo-auth.vercel.app` (Vercel 프로젝트 `notion-todo-auth`). 콜백 302, PKCE 거부,
+Notion이 client 인증을 받아들이는 것(가짜 code에 `invalid_client`가 아닌 "Invalid code")까지 확인. Notion integration은
+이름 `Notion Todo`·앱 아이콘·리다이렉트 URI(이 주소와 `http://localhost:8787/callback`)·이메일 제외로 설정했다.
 
 ## 2. 서명 설정
 
