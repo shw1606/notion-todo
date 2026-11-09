@@ -9,6 +9,7 @@ struct SettingsView: View {
     @Environment(AppModel.self) private var model
     @Environment(\.dismiss) private var dismiss
     @Environment(\.webAuthenticationSession) private var webAuthenticationSession
+    @Environment(\.openURL) private var openURL
     @State private var confirmsSignOut = false
     #if os(macOS)
         @AppStorage("showsMenuBarExtra") private var showsMenuBarExtra = true
@@ -24,7 +25,7 @@ struct SettingsView: View {
                 LabeledContent(
                     "Connection",
                     value: model.credentials?.kind == .oauth
-                        ? String(localized: "Signed in with Notion") : String(localized: "Integration token"))
+                        ? String(localized: "Signed in with Notion") : String(localized: "Access token"))
                 Button("Sign Out", role: .destructive) { confirmsSignOut = true }
             }
 
@@ -43,7 +44,7 @@ struct SettingsView: View {
                 if model.credentials?.kind == .oauth {
                     Text("Databases on the pages you select in Notion show up here.")
                 } else {
-                    Text("To add databases, connect more pages to your integration in Notion.")
+                    Text("Databases you can see in Notion show up here. With an internal integration, connect its pages in Notion first.")
                 }
             }
 
@@ -96,14 +97,16 @@ struct SettingsView: View {
         }
     }
 
-    /// OAuth를 다시 실행하면 Notion이 페이지 선택 화면을 다시 보여준다.
+    /// 다시 연결하면 Notion이 페이지 선택 화면을 다시 보여준다.
+    /// 브라우저 탭으로 연 경우(Mac)는 돌아온 창이 연결을 마치고 모든 창에 알려 목록을 다시 받게 한다.
     func selectMorePages() {
+        let before = model.signIns
         Task {
             do {
-                guard try await model.signInWithNotion(using: webAuthenticationSession) else { return }
-                await model.refreshCatalog()
+                _ = try await model.connectNotion(session: webAuthenticationSession, openURL: openURL)
+                if model.signIns != before { await model.refreshCatalog() }
             } catch {
-                model.lastError = String(localized: "Couldn’t sign in: \(error.localizedDescription)")
+                model.lastError = ConnectionError.message(for: error)
             }
         }
     }

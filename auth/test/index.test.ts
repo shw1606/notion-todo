@@ -6,7 +6,6 @@ const env: Env = {
   NOTION_OAUTH_CLIENT_ID: "client-id",
   NOTION_OAUTH_CLIENT_SECRET: "client-secret",
   NOTION_OAUTH_REDIRECT_URI: "https://auth.example.com/callback",
-  APPLE_APP_IDS: "TEAMID.com.example.notiontodo, TEAMID.com.example.other",
 };
 
 const verifier = "dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk";
@@ -107,13 +106,29 @@ test("missing secrets is a server error, not a forwarded request", async () => {
   assert.equal(calls.length, 0);
 });
 
-test("callback page and apple-app-site-association", async () => {
+function get(path: string) {
+  return new Request(`https://auth.example.com${path}`);
+}
+
+test("callback hands code and state to the app scheme", async () => {
+  const { fn, calls } = upstreamReturning(200, {});
+  const response = await handle(get("/callback?code=c&state=nonce1234.abc&extra=x"), env, fn);
+  assert.equal(response.status, 302);
+  assert.equal(response.headers.get("Location"), "notiontodo://oauth?code=c&state=nonce1234.abc");
+  assert.equal(response.headers.get("Cache-Control"), "no-store");
+  assert.match(await response.text(), /href="notiontodo:\/\/oauth\?code=c&amp;state=nonce1234\.abc"/);
+  assert.equal(calls.length, 0);
+});
+
+test("callback forwards a denial, honors a custom app URL, and shows a page when opened directly", async () => {
   const { fn } = upstreamReturning(200, {});
-  const page = await handle(new Request("https://auth.example.com/callback?code=c&state=s"), env, fn);
+  const denied = await handle(get("/callback?error=access_denied&state=s"), env, fn);
+  assert.equal(denied.headers.get("Location"), "notiontodo://oauth?state=s&error=access_denied");
+  const fork = await handle(get("/callback?code=c&state=s"), { ...env, APP_CALLBACK_URL: "myfork://oauth" }, fn);
+  assert.equal(fork.headers.get("Location"), "myfork://oauth?code=c&state=s");
+  const page = await handle(get("/callback"), env, fn);
   assert.equal(page.status, 200);
+  assert.equal(page.headers.get("Location"), null);
   assert.match(await page.text(), /Return to the app/);
-  const aasa = await handle(new Request("https://auth.example.com/.well-known/apple-app-site-association"), env, fn);
-  assert.deepEqual(await aasa.json(), {
-    webcredentials: { apps: ["TEAMID.com.example.notiontodo", "TEAMID.com.example.other"] },
-  });
+  assert.equal((await handle(get("/.well-known/apple-app-site-association"), env, fn)).status, 404);
 });

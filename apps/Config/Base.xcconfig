@@ -8,10 +8,11 @@ DEVELOPMENT_TEAM =
 NT_OAUTH_CLIENT_ID =
 // 토큰 교환 함수 주소. xcconfig에서 //는 주석이라 https:/$()/ 로 쓴다.
 NT_AUTH_BASE_URL =
-// 위 주소의 호스트. HTTPS 로그인 콜백용 Associated Domains(webcredentials)에 들어간다.
-NT_AUTH_HOST = notion-todo-auth.invalid
 
 #include? "Local.xcconfig"
 
 NT_APP_GROUP_ID = group.$(BUNDLE_ID_PREFIX).notiontodo
+// macOS는 팀 ID로 시작하는 App Group을 서명만으로 인정한다. group. 형식은 프로필에 등록돼 있지 않으면
+// "다른 앱의 데이터에 접근" 허용 창이 뜨고, 위젯 확장은 공유 저장소를 못 쓴다.
+NT_APP_GROUP_ID[sdk=macosx*] = $(TeamIdentifierPrefix)$(BUNDLE_ID_PREFIX).notiontodo
 NT_KEYCHAIN_GROUP = $(AppIdentifierPrefix)$(BUNDLE_ID_PREFIX).notiontodo

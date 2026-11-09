@@ -6,15 +6,16 @@ Apple Developer Program 계정과 Notion·Cloudflare 계정이 필요하다. 코
 ## 1. 로그인 함수 배포
 
 [auth/README.md](../auth/README.md)대로 Notion public integration을 만들고 Cloudflare Workers에 배포한다.
-배포 후 `https://<auth 호스트>/.well-known/apple-app-site-association`이 `webcredentials` JSON을 돌려주는지 확인한다.
+integration 이름(`Notion Todo`)과 아이콘을 채운다 — 연결할 때 Notion 동의 화면에 보인다.
+배포 후 `https://<auth 호스트>/callback?code=x&state=y`가 `notiontodo://oauth?code=x&state=y`로 302를 돌려주는지 확인한다.
 
 ## 2. 서명 설정
 
 1. `apps/Config/Local.xcconfig.example` → `apps/Config/Local.xcconfig` 복사 후 채운다
-   (`DEVELOPMENT_TEAM`, `BUNDLE_ID_PREFIX`, `NT_OAUTH_CLIENT_ID`, `NT_AUTH_BASE_URL`, `NT_AUTH_HOST`).
+   (`DEVELOPMENT_TEAM`, `BUNDLE_ID_PREFIX`, `NT_OAUTH_CLIENT_ID`, `NT_AUTH_BASE_URL`).
 2. Apple Developer 사이트에서 식별자 두 개를 만든다 — 앱 `<접두사>.notiontodo`, 위젯 `<접두사>.notiontodo.widgets`.
-   두 식별자 모두 **App Groups**(`group.<접두사>.notiontodo`)와 **Keychain Sharing**을 켜고, 앱에는
-   **Associated Domains**(`webcredentials:<auth 호스트>`)도 켠다. Xcode 자동 서명을 쓰면 대부분 자동으로 된다.
+   두 식별자 모두 **App Groups**(iOS `group.<접두사>.notiontodo`, Mac은 팀 ID 접두사 그룹)와 **Keychain Sharing**을
+   켠다. 로그인 콜백은 앱 주소(`notiontodo://`)라 Associated Domains는 필요 없다. Xcode 자동 서명을 쓰면 대부분 자동으로 된다.
 3. `apps/NotionTodo.xcodeproj`를 열어 iPhone·Mac 각각 실행해 본다.
 
 ## 3. 실기기 확인 (PLAN 6.2 — 릴리스마다)
@@ -27,6 +28,8 @@ Apple Developer Program 계정과 Notion·Cloudflare 계정이 필요하다. 코
 - [ ] 투명도 줄이기·대비 증가에서 입력 바와 툴바가 읽힌다
 - [ ] VoiceOver: 행 = "치약 사기, 체크 안 됨", 체크 버튼 힌트 "완료로 표시"
 - [ ] Notion에서 연결 해제 → 앱·위젯이 "다시 로그인"으로 바뀐다
+- [ ] 새 Notion 계정: "Notion 연결하기" → 페이지 고르지 않고 "액세스 허용" → 시작 → "개인 페이지"에 메모 DB가 생기고 위젯에 뜬다
+- [ ] Mac 기본 브라우저가 Safari일 때(인증 창)와 Chrome일 때(새 탭 → 앱 열기) 모두 연결된다. 취소하면 갇히지 않는다
 - [ ] "오늘" 필터 뷰 위젯이 자정 직후 갱신된다
 - [ ] 제어 센터 "메모 추가" → 앱이 입력 바에 커서를 둔 채 열린다
 - [ ] Siri "Notion Todo에 메모 추가" → 앱을 열지 않고 추가된다

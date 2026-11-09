@@ -149,6 +149,20 @@ enum Fixture {
         #expect(view.completionTarget == nil)
     }
 
+    @Test func databaseChoicesNeedSomethingToCheck() throws {
+        let search = try Fixture.load("search-data-sources", as: ListResponse<DataSource>.self)
+        let choices = search.results.compactMap(DatabaseChoice.init)
+        #expect(choices.map(\.title) == ["할 일 메모", "probe-views 테스트"])
+        #expect(choices.map(\.isStarter) == [true, false])
+        #expect(choices[0].completionTarget == .checkbox(propertyName: "완료"))
+        // 뷰 필터 없이 스키마만 보면 하나뿐인 status가 체크 대상이다.
+        #expect(choices[1].completionTarget == .status(propertyName: "상태", doneOptionName: "Done"))
+
+        var plain = try Fixture.memoSchema
+        plain.properties = plain.properties.filter { $0.value.type != "checkbox" }
+        #expect(DatabaseChoice(plain) == nil, "체크할 칸이 없는 DB는 후보가 아니다")
+    }
+
     @Test func preferredDefaultSkipsDoneViews() throws {
         let done = ViewResolver.resolve(view: try Fixture.load("view-memo-done"), schema: try Fixture.memoSchema)
         let todo = ViewResolver.resolve(view: try Fixture.load("view-memo-todo"), schema: try Fixture.memoSchema)
@@ -170,8 +184,8 @@ enum Fixture {
         let items = try #require(URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems)
         #expect(items.first { $0.name == "redirect_uri" }?.value == "https://auth.example.com/callback")
         #expect(items.first { $0.name == "owner" }?.value == "user")
-        #expect(config.callbackHost == "auth.example.com")
-        #expect(config.callbackPath == "/callback")
+        // 함수의 /callback이 결과를 앱 스킴으로 넘긴다 (Info.plist의 CFBundleURLSchemes와 같아야 한다).
+        #expect(OAuthConfig.callbackScheme == "notiontodo")
     }
 
     @Test func refreshUsesTokenAlreadyRotatedByOtherProcess() async throws {

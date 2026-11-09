@@ -5,8 +5,8 @@ DEVELOPMENT_TEAM = ABCDE12345
 // 번들 ID 접두사. 앱은 <접두사>.notiontodo, 위젯은 <접두사>.notiontodo.widgets
 BUNDLE_ID_PREFIX = com.example
 
-// "Notion으로 로그인"을 쓰려면: auth/ 함수를 배포하고 Notion public integration을 만든 뒤 채운다.
-// 비워 두면 앱은 internal integration 토큰 직접 입력만 제공한다.
+// "Notion 연결하기"(OAuth)를 쓰려면: Notion public integration을 만들고 auth/ 함수를 배포한 뒤 채운다.
+// 비워 두면 앱은 토큰 붙여넣기(개인 액세스 토큰·internal integration)만 제공한다.
+// 함수를 로컬에서 띄워 시험할 때는 http:/$()/localhost:8787 (auth/README.md).
 NT_OAUTH_CLIENT_ID =
 NT_AUTH_BASE_URL = https:/$()/notion-todo-auth.example.workers.dev
-NT_AUTH_HOST = notion-todo-auth.example.workers.dev

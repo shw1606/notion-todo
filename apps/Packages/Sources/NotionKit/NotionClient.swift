@@ -137,10 +137,15 @@ extension NotionClient {
         try await send("GET", "users/me")
     }
 
-    /// 연결에 공유된 data source 전체.
-    public func searchDataSources() async throws -> [DataSource] {
-        try await paginate { cursor in
-            var body: [String: JSONValue] = ["filter": ["property": "object", "value": "data_source"], "page_size": 100]
+    /// 연결이 볼 수 있는 data source, 최근에 고친 것부터 `limit`개까지.
+    /// 개인 액세스 토큰은 워크스페이스 전체를 보므로 상한 없이 받으면 수백 개가 될 수 있다.
+    public func searchDataSources(limit: Int = 1000) async throws -> [DataSource] {
+        try await paginate(limit: limit) { cursor in
+            var body: [String: JSONValue] = [
+                "filter": ["property": "object", "value": "data_source"],
+                "sort": ["direction": "descending", "timestamp": "last_edited_time"],
+                "page_size": .number(Double(min(limit, 100))),
+            ]
             if let cursor { body["start_cursor"] = .string(cursor) }
             return try await self.send("POST", "search", body: .object(body), as: ListResponse<DataSource>.self)
         }
@@ -193,11 +198,12 @@ extension NotionClient {
         return try await send("PATCH", "pages/\(id)", body: .object(body))
     }
 
-    public func createDatabase(parentPageId: String, title: String, emoji: String?, properties: JSONValue)
+    /// `parentPageId`가 nil이면 워크스페이스 맨 위, 사용자의 "비공개" 섹션에 만든다.
+    public func createDatabase(parentPageId: String?, title: String, emoji: String?, properties: JSONValue)
         async throws -> Database
     {
         var body: [String: JSONValue] = [
-            "parent": ["type": "page_id", "page_id": .string(parentPageId)],
+            "parent": parentPageId.map { ["type": "page_id", "page_id": .string($0)] } ?? ["type": "workspace", "workspace": true],
             "title": [["text": ["content": .string(title)]]],
             "initial_data_source": ["properties": properties],
         ]
@@ -220,14 +226,14 @@ extension NotionClient {
         try await send("PATCH", "views/\(id)", body: .object(body))
     }
 
-    func paginate<Item>(_ fetch: (String?) async throws -> ListResponse<Item>) async throws -> [Item] {
+    func paginate<Item>(limit: Int = 1000, _ fetch: (String?) async throws -> ListResponse<Item>) async throws -> [Item] {
         var items: [Item] = []
         var cursor: String?
         repeat {
             let page = try await fetch(cursor)
             items += page.results
             cursor = page.hasMore ? page.nextCursor : nil
-        } while cursor != nil && items.count < 1000
-        return items
+        } while cursor != nil && items.count < limit
+        return Array(items.prefix(limit))
     }
 }

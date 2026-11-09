@@ -11,12 +11,32 @@
     "%lld": {
       "shouldTranslate": false
     },
+    "A personal access token sees what you can see in Notion, so there’s nothing to share. Internal integration tokens work too.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "개인 액세스 토큰은 내가 Notion에서 볼 수 있는 걸 그대로 봐서 따로 공유할 게 없어요. internal integration 토큰도 쓸 수 있어요."
+          }
+        }
+      }
+    },
     "About": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
             "value": "정보"
+          }
+        }
+      }
+    },
+    "Access token": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "액세스 토큰"
           }
         }
       }
@@ -61,6 +81,16 @@
         }
       }
     },
+    "Add the “Add Memo” control to jot something down from anywhere.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "‘메모 추가’ 제어를 추가하면 어디서든 바로 적을 수 있어요."
+          }
+        }
+      }
+    },
     "Added “%@”.": {
       "localizations": {
         "ko": {
@@ -81,6 +111,16 @@
         }
       }
     },
+    "Adds “%@” to Private in your Notion sidebar. Just a memo and a checkbox.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notion 사이드바의 ‘개인 페이지’에 ‘%@’를 만들어요. 메모 칸과 체크 칸뿐이에요."
+          }
+        }
+      }
+    },
     "All done": {
       "localizations": {
         "ko": {
@@ -91,22 +131,22 @@
         }
       }
     },
-    "Building it yourself? Create an internal integration in Notion, share your database with it, and paste its token.": {
-      "localizations": {
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "직접 빌드하셨나요? Notion에서 internal integration을 만들고 DB를 공유한 뒤 토큰을 붙여 넣으세요."
-          }
-        }
-      }
-    },
     "Cached memos on this device will be removed. Your Notion data stays as it is.": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
             "value": "이 기기에 저장된 메모 캐시가 지워집니다. Notion 데이터는 그대로 남아요."
+          }
+        }
+      }
+    },
+    "Cancel": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "취소"
           }
         }
       }
@@ -127,16 +167,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "체크"
-          }
-        }
-      }
-    },
-    "Check off from widgets": {
-      "localizations": {
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "위젯에서 체크할 수 있어요"
           }
         }
       }
@@ -181,16 +211,6 @@
         }
       }
     },
-    "Choose a database": {
-      "localizations": {
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "DB 고르기"
-          }
-        }
-      }
-    },
     "Choose another database…": {
       "localizations": {
         "ko": {
@@ -201,12 +221,52 @@
         }
       }
     },
+    "Click the date and time in the menu bar, then Edit Widgets at the bottom.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "메뉴 막대의 날짜와 시간을 클릭하고 맨 아래 ‘위젯 편집’을 누르세요."
+          }
+        }
+      }
+    },
     "Connect": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
             "value": "연결"
+          }
+        }
+      }
+    },
+    "Connect Notion": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notion 연결하기"
+          }
+        }
+      }
+    },
+    "Connect with a token": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "토큰으로 연결"
+          }
+        }
+      }
+    },
+    "Connected to %@": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@에 연결됐어요"
           }
         }
       }
@@ -231,6 +291,16 @@
         }
       }
     },
+    "Control-click the desktop, choose Edit Widgets, and drag Notion Todo out.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "데스크탑을 Control-클릭해 ‘위젯 편집’을 고르고, Notion Todo를 끌어다 놓으세요."
+          }
+        }
+      }
+    },
     "Copy": {
       "localizations": {
         "ko": {
@@ -241,32 +311,32 @@
         }
       }
     },
-    "Couldn’t create the database: %@": {
+    "Couldn’t reach the sign-in server. Check your connection and try again.": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "DB를 만들지 못했어요: %@"
+            "value": "로그인 서버에 연결하지 못했어요. 인터넷 연결을 확인하고 다시 시도하세요."
           }
         }
       }
     },
-    "Couldn’t sign in: %@": {
+    "Create a token": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "로그인하지 못했어요: %@"
+            "value": "토큰 만들기"
           }
         }
       }
     },
-    "Creates “Memo · Done · Created” with a To do view and a Done view under the page you pick.": {
+    "Create a token in Notion and paste it here. It takes about a minute.": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "고른 페이지 아래에 ‘내용 · 완료 · 만든 시간’ 속성과 ‘할 일’·‘완료함’ 뷰를 가진 DB를 만듭니다."
+            "value": "Notion에서 토큰을 만들어 여기에 붙여 넣으세요. 1분이면 돼요."
           }
         }
       }
@@ -277,6 +347,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "Notion에서 고른 페이지의 데이터베이스가 여기에 나타납니다."
+          }
+        }
+      }
+    },
+    "Databases with a checkbox or status show up here.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "체크박스나 상태 속성이 있는 DB가 여기에 나타나요."
+          }
+        }
+      }
+    },
+    "Databases you can see in Notion show up here. With an internal integration, connect its pages in Notion first.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notion에서 볼 수 있는 DB가 여기에 나타나요. internal integration은 Notion에서 페이지를 먼저 연결하세요."
           }
         }
       }
@@ -301,12 +391,32 @@
         }
       }
     },
+    "Desktop": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "데스크탑"
+          }
+        }
+      }
+    },
     "Done": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
             "value": "완료"
+          }
+        }
+      }
+    },
+    "Don’t see yours? Select it in Notion…": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "안 보이나요? Notion에서 고르기…"
           }
         }
       }
@@ -321,6 +431,16 @@
         }
       }
     },
+    "Finish in your browser. Notion Todo comes back when you allow access.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "브라우저에서 마무리하세요. 액세스를 허용하면 Notion Todo로 돌아와요."
+          }
+        }
+      }
+    },
     "Home Screen": {
       "localizations": {
         "ko": {
@@ -331,12 +451,22 @@
         }
       }
     },
-    "Integration token": {
+    "In Notion, choose New token, select Notion API, then Create token.": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "통합 토큰"
+            "value": "Notion에서 ‘New token’을 누르고 ‘Notion API’를 고른 뒤 ‘Create token’을 누르세요."
+          }
+        }
+      }
+    },
+    "Jot something down from the menu bar icon. It stays after you close the window.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "메뉴 막대 아이콘으로 언제든 적을 수 있어요. 창을 닫아도 남아 있어요."
           }
         }
       }
@@ -381,8 +511,15 @@
         }
       }
     },
-    "Mac": {
-      "shouldTranslate": false
+    "Looking for your databases…": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DB를 찾는 중…"
+          }
+        }
+      }
     },
     "Marks as done": {
       "localizations": {
@@ -424,6 +561,16 @@
         }
       }
     },
+    "Menu bar": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "메뉴 막대"
+          }
+        }
+      }
+    },
     "New Memo": {
       "localizations": {
         "ko": {
@@ -444,12 +591,22 @@
         }
       }
     },
-    "No pages are shared yet. Sign in again and select a page.": {
+    "New memo database": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "아직 공유된 페이지가 없어요. 다시 로그인해서 페이지를 선택하세요."
+            "value": "새 메모 DB"
+          }
+        }
+      }
+    },
+    "Notification Center": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "알림 센터"
           }
         }
       }
@@ -466,6 +623,36 @@
           "stringUnit": {
             "state": "translated",
             "value": "Notion 뷰"
+          }
+        }
+      }
+    },
+    "Notion didn’t accept this token. Copy it again. It starts with ntn_.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notion이 이 토큰을 받지 않았어요. 다시 복사해 보세요. ntn_으로 시작해요."
+          }
+        }
+      }
+    },
+    "Notion didn’t finish connecting. Try again.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notion 연결을 마치지 못했어요. 다시 시도하세요."
+          }
+        }
+      }
+    },
+    "Notion ended this connection. Go back and connect again.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notion 연결이 끊겼어요. 돌아가서 다시 연결하세요."
           }
         }
       }
@@ -500,12 +687,12 @@
         }
       }
     },
-    "On the next screen, pick the page that holds your todo database — or any page where a new one should go.": {
+    "Open Notion": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "다음 화면에서 할 일 DB가 있는 페이지를 고르세요. 새 DB를 만들 페이지를 골라도 됩니다."
+            "value": "Notion 열기"
           }
         }
       }
@@ -550,12 +737,32 @@
         }
       }
     },
-    "Or use a view you already have": {
+    "Or use one you have": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "또는 이미 있는 뷰 쓰기"
+            "value": "또는 쓰던 DB로"
+          }
+        }
+      }
+    },
+    "Paste it here": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "여기에 붙여넣기"
+          }
+        }
+      }
+    },
+    "Pick a list": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "목록 고르기"
           }
         }
       }
@@ -566,6 +773,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "이 위젯에 보여줄 Notion 뷰를 고르세요."
+          }
+        }
+      }
+    },
+    "Picking pages is optional. Already keep todos in Notion? Check that page.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "페이지는 안 골라도 돼요. Notion에 할 일 DB가 이미 있다면 그 페이지에 체크하세요."
           }
         }
       }
@@ -586,26 +803,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "읽기 전용"
-          }
-        }
-      }
-    },
-    "Read only — no checkbox or status to check off": {
-      "localizations": {
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "읽기 전용 — 체크할 체크박스나 상태 속성이 없어요"
-          }
-        }
-      }
-    },
-    "Recommended: create a new memo database": {
-      "localizations": {
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "추천: 새 메모 DB 만들기"
           }
         }
       }
@@ -640,22 +837,22 @@
         }
       }
     },
-    "Right-click the desktop → Edit Widgets. The menu bar icon is always one click away.": {
-      "localizations": {
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "데스크톱을 우클릭 → 위젯 편집. 메뉴 막대 아이콘으로도 언제든 바로 적을 수 있어요."
-          }
-        }
-      }
-    },
     "Select more pages in Notion…": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
             "value": "Notion에서 페이지 더 고르기…"
+          }
+        }
+      }
+    },
+    "Select pages, then Allow access": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "‘페이지 선택’ → ‘액세스 허용’"
           }
         }
       }
@@ -680,16 +877,6 @@
         }
       }
     },
-    "Shows checked items": {
-      "localizations": {
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "체크한 항목을 보여줘요"
-          }
-        }
-      }
-    },
     "Sign Out": {
       "localizations": {
         "ko": {
@@ -700,12 +887,12 @@
         }
       }
     },
-    "Sign in with Notion": {
+    "Sign in to Notion": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Notion으로 로그인"
+            "value": "Notion에 로그인"
           }
         }
       }
@@ -730,12 +917,32 @@
         }
       }
     },
+    "Something went wrong: %@": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "문제가 생겼어요: %@"
+          }
+        }
+      }
+    },
     "Source code on GitHub": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
             "value": "GitHub 소스 코드"
+          }
+        }
+      }
+    },
+    "Start": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "시작"
           }
         }
       }
@@ -750,12 +957,22 @@
         }
       }
     },
-    "That token didn’t work. Check it and try again.": {
+    "There’s no page to put it in. In Notion, add a page to your integration under ••• → Connections, then try again.": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "토큰이 맞지 않아요. 확인하고 다시 시도하세요."
+            "value": "DB를 둘 페이지가 없어요. Notion에서 페이지의 ••• → 연결에 통합을 추가한 뒤 다시 시도하세요."
+          }
+        }
+      }
+    },
+    "This database has no table or list view. Add one in Notion, or pick another.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이 DB에는 표나 목록 뷰가 없어요. Notion에서 하나 추가하거나 다른 DB를 고르세요."
           }
         }
       }
@@ -780,22 +997,22 @@
         }
       }
     },
-    "To add databases, connect more pages to your integration in Notion.": {
-      "localizations": {
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "데이터베이스를 추가하려면 Notion에서 통합에 페이지를 더 연결하세요."
-          }
-        }
-      }
-    },
     "Toggle Memo": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
             "value": "메모 체크"
+          }
+        }
+      }
+    },
+    "Token": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "토큰"
           }
         }
       }
@@ -850,12 +1067,22 @@
         }
       }
     },
-    "Use an integration token": {
+    "Use a token instead": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "통합 토큰으로 연결"
+            "value": "토큰으로 연결하기"
+          }
+        }
+      }
+    },
+    "Using an internal integration? In Notion, open the page and add it under ••• → Connections.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "internal integration을 쓰나요? Notion에서 페이지를 열고 ••• → 연결에 추가하세요."
           }
         }
       }
@@ -900,12 +1127,42 @@
         }
       }
     },
+    "We check it with Notion right away.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "붙여 넣으면 바로 Notion에 확인해요."
+          }
+        }
+      }
+    },
+    "We’ll make a memo database for you, or use yours.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "메모 DB를 만들어 드려요. 쓰던 DB를 골라도 돼요."
+          }
+        }
+      }
+    },
     "What do you want to write down?": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
             "value": "무엇을 적을까요?"
+          }
+        }
+      }
+    },
+    "What gets checked depends on the view": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "무엇이 체크될지는 뷰에 따라 달라요"
           }
         }
       }
@@ -950,6 +1207,16 @@
         }
       }
     },
+    "Your Notion connection ended. Connect again to pick up where you left off.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notion 연결이 끊겼어요. 다시 연결하면 하던 대로 이어서 쓸 수 있어요."
+          }
+        }
+      }
+    },
     "Your Notion connection expired. Sign in again.": {
       "localizations": {
         "ko": {
@@ -980,8 +1247,15 @@
         }
       }
     },
-    "ntn_…": {
-      "shouldTranslate": false
+    "You’re offline. Check your connection and try again.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "인터넷에 연결되어 있지 않아요. 연결을 확인하고 다시 시도하세요."
+          }
+        }
+      }
     }
   }
 }

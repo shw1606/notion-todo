@@ -4,6 +4,10 @@ import NotionKit
 
 /// Notion OAuth 설정. client secret은 앱에 없다 — `auth/` 토큰 교환 함수만 가진다.
 public struct OAuthConfig: Sendable, Hashable {
+    /// 함수의 /callback이 로그인 결과를 `notiontodo://oauth?code=…&state=…`로 넘기고,
+    /// `ASWebAuthenticationSession`이 이 스킴으로의 이동을 가로챈다.
+    public static let callbackScheme = "notiontodo"
+
     public var clientId: String
     /// 토큰 교환 함수 주소 (예: `https://auth.example.workers.dev`).
     public var authBaseURL: URL
@@ -13,10 +17,8 @@ public struct OAuthConfig: Sendable, Hashable {
         self.authBaseURL = authBaseURL
     }
 
-    /// Notion에 등록한 리다이렉트 URI. 앱의 `ASWebAuthenticationSession`이 이 주소로의 이동을 가로챈다.
+    /// Notion에 등록한 리다이렉트 URI (= 함수의 /callback).
     public var redirectURI: URL { authBaseURL.appending(path: "callback") }
-    public var callbackHost: String { authBaseURL.host() ?? "" }
-    public var callbackPath: String { redirectURI.path() }
 
     public func authorizeURL(pkce: PKCE) -> URL {
         var components = URLComponents(string: "https://api.notion.com/v1/oauth/authorize")!
@@ -67,6 +69,8 @@ extension Data {
 }
 
 public enum AuthError: Error, Equatable, Sendable {
+    /// Notion 화면에서 "취소"를 눌렀다 (`error=access_denied`).
+    case canceled
     case signedOut
     case stateMismatch
     case missingCode
@@ -125,7 +129,9 @@ public actor AuthSession: NotionTokenProvider {
     public func completeSignIn(callback: URL, pkce: PKCE) async throws -> Credentials {
         guard let config else { throw AuthError.exchangeFailed("OAuth not configured") }
         let items = URLComponents(url: callback, resolvingAgainstBaseURL: false)?.queryItems ?? []
-        if let error = items.first(where: { $0.name == "error" })?.value { throw AuthError.exchangeFailed(error) }
+        if let error = items.first(where: { $0.name == "error" })?.value {
+            throw error == "access_denied" ? AuthError.canceled : AuthError.exchangeFailed(error)
+        }
         guard items.first(where: { $0.name == "state" })?.value == pkce.state else { throw AuthError.stateMismatch }
         guard let code = items.first(where: { $0.name == "code" })?.value else { throw AuthError.missingCode }
         let token = try await post(

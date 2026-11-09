@@ -7,8 +7,8 @@ workers_dev = true
 [vars]
 # Notion public integration에 등록한 리다이렉트 URI (= 이 함수의 /callback)
 NOTION_OAUTH_REDIRECT_URI = "https://notion-todo-auth.<your-subdomain>.workers.dev/callback"
-# HTTPS 로그인 콜백용: "<팀 ID>.<앱 번들 ID>" (쉼표로 여러 개)
-APPLE_APP_IDS = "ABCDE12345.com.example.notiontodo"
+# /callback은 로그인 결과를 앱(notiontodo://oauth)으로 넘긴다. 앱의 URL 스킴을 바꿨다면:
+# APP_CALLBACK_URL = "myapp://oauth"
 
 # 비밀값은 여기에 쓰지 말고 아래 명령으로 넣는다:
 #   npx wrangler secret put NOTION_OAUTH_CLIENT_ID

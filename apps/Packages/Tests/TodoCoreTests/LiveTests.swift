@@ -20,6 +20,16 @@ struct LiveTests {
         repository = TodoRepository(client: NotionClient(tokens: auth), store: store, auth: auth)
     }
 
+    /// 온보딩의 "토큰 붙여 넣기" 경로: users/me로 확인하고 저장소에 넣는다.
+    @Test func tokenSignInReadsWorkspace() async throws {
+        let token = ProcessInfo.processInfo.environment["NT_LIVE_TOKEN"] ?? ""
+        let store = InMemoryCredentialStore(nil)
+        let credentials = try await AuthSession(store: store, config: nil).signIn(internalToken: token)
+        #expect(credentials.kind == .internalToken)
+        #expect(credentials.workspaceName != nil)
+        #expect(store.load() == credentials)
+    }
+
     @Test func everyViewQueriesAndTogglesRoundTrip() async throws {
         let catalog = try await repository.catalog(refresh: true)
         #expect(!catalog.isEmpty)

@@ -12,13 +12,14 @@ export interface Env {
   NOTION_OAUTH_CLIENT_SECRET: string;
   /** Notion에 등록한 리다이렉트 URI = 이 함수의 /callback 주소 */
   NOTION_OAUTH_REDIRECT_URI: string;
-  /** HTTPS 로그인 콜백용 Associated Domains. "TEAMID.bundle.id" 쉼표 구분 */
-  APPLE_APP_IDS?: string;
+  /** 로그인 결과를 넘길 앱 주소. 앱의 URL 스킴을 바꾼 경우에만 쓴다 (기본 notiontodo://oauth) */
+  APP_CALLBACK_URL?: string;
 }
 
 type Upstream = (input: string, init: RequestInit) => Promise<Response>;
 
 const NOTION_TOKEN_URL = "https://api.notion.com/v1/oauth/token";
+const APP_CALLBACK_URL = "notiontodo://oauth";
 const MAX_BODY_BYTES = 4096;
 const VERIFIER = /^[A-Za-z0-9\-._~]{43,128}$/;
 const STATE = /^([A-Za-z0-9\-_]{8,128})\.([A-Za-z0-9\-_]{43})$/;
@@ -34,13 +35,11 @@ export async function handle(request: Request, env: Env, upstream: Upstream): Pr
   try {
     switch (pathname) {
       case "/callback":
-        return request.method === "GET" ? callbackPage() : methodNotAllowed();
+        return request.method === "GET" ? callback(request, env) : methodNotAllowed();
       case "/token":
         return request.method === "POST" ? await exchange(request, env, upstream) : methodNotAllowed();
       case "/refresh":
         return request.method === "POST" ? await refresh(request, env, upstream) : methodNotAllowed();
-      case "/.well-known/apple-app-site-association":
-        return request.method === "GET" ? appSiteAssociation(env) : methodNotAllowed();
       default:
         return json({ error: "not_found" }, 404);
     }
@@ -92,23 +91,32 @@ async function forward(env: Env, upstream: Upstream, payload: Record<string, str
   });
 }
 
-/** ASWebAuthenticationSession이 보통 이 주소로의 이동을 가로챈다. 브라우저로 직접 열렸을 때만 보인다. */
-function callbackPage(): Response {
+/**
+ * Notion이 돌아오는 곳. 받은 code·state(거절했으면 error)를 앱 스킴으로 그대로 넘기면
+ * 앱의 ASWebAuthenticationSession이 그 이동을 가로챈다 — Associated Domains 없이 된다.
+ * 다른 앱이 같은 스킴으로 code를 받아도 verifier가 없어서 교환하지 못한다.
+ */
+function callback(request: Request, env: Env): Response {
+  const query = new URL(request.url).searchParams;
+  const forwarded = new URLSearchParams();
+  for (const key of ["code", "state", "error"]) {
+    const value = query.get(key);
+    if (value) forwarded.set(key, value);
+  }
+  if (!forwarded.has("code") && !forwarded.has("error")) return callbackPage();
+  return callbackPage(`${env.APP_CALLBACK_URL || APP_CALLBACK_URL}?${forwarded}`);
+}
+
+/** 앱으로 넘길 주소가 있으면 그리로 보낸다(302). 본문은 브라우저로 직접 열렸을 때만 보인다. */
+function callbackPage(location?: string): Response {
+  const link = location ? `<p><a href="${escapeHTML(location)}">Open Notion Todo · 앱 열기</a></p>` : "";
   const html = `<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width">
 <title>Notion Todo</title><body style="font:17px -apple-system,system-ui;padding:2rem;max-width:32rem;margin:auto">
 <h1>Notion Todo</h1><p>Return to the app to finish signing in. You can close this page.</p>
-<p lang="ko">앱으로 돌아가 로그인을 마치세요. 이 페이지는 닫아도 됩니다.</p></body>`;
-  return new Response(html, {
-    headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store" },
-  });
-}
-
-/** HTTPS 콜백(`.https(host:path:)`)은 앱과 도메인의 webcredentials 연결을 요구한다. */
-function appSiteAssociation(env: Env): Response {
-  const apps = (env.APPLE_APP_IDS ?? "").split(",").map((s) => s.trim()).filter(Boolean);
-  return new Response(JSON.stringify({ webcredentials: { apps } }), {
-    headers: { "Content-Type": "application/json", "Cache-Control": "public, max-age=3600" },
-  });
+<p lang="ko">앱으로 돌아가 로그인을 마치세요. 이 페이지는 닫아도 됩니다.</p>${link}</body>`;
+  const headers: Record<string, string> = { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store" };
+  if (location) Object.assign(headers, { Location: location, "Referrer-Policy": "no-referrer" });
+  return new Response(html, { status: location ? 302 : 200, headers });
 }
 
 // MARK: - 도우미
@@ -116,6 +124,10 @@ function appSiteAssociation(env: Env): Response {
 export async function challengeFor(verifier: string): Promise<string> {
   const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(verifier));
   return base64url(new Uint8Array(digest));
+}
+
+function escapeHTML(text: string): string {
+  return text.replaceAll("&", "&amp;").replaceAll('"', "&quot;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
 }
 
 function base64url(bytes: Uint8Array): string {

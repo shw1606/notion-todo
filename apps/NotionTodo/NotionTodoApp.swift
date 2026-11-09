@@ -54,6 +54,8 @@ struct WindowRoot: View {
             .focusedSceneValue(\.appModel, model)
             .task { await model.start() }
             .onOpenURL { model.handle(url: $0) }
+            // 위젯·로그인에서 여는 앱 주소를 새 창이 아니라 열려 있는 창이 받는다 (Mac은 기본이 새 창).
+            .handlesExternalEvents(preferring: ["*"], allowing: ["*"])
             .onChange(of: scenePhase) { _, phase in
                 if phase == .active { Task { await model.becameActive() } }
             }

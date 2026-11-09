@@ -51,7 +51,8 @@ Notion 데이터베이스를 단일 진실 소스로 쓰는 오픈소스 투두 
 2. 세 플랫폼 모두 **인터랙티브 위젯** — 위젯에서 바로 체크 (AppIntent)
 3. **설정 거의 없음** — 속성 매핑을 받지 않는다. 위젯은 사용자가 Notion에 이미 만든 **뷰**를
    그대로 보여준다 (아래 "뷰 기반 위젯" 참고)
-4. **Notion으로 로그인** (OAuth) — 토큰 복사·DB 공유 같은 개발자 절차 없음
+4. **Notion 연결하기 한 번** (OAuth) — 토큰 복사·DB 공유 같은 개발자 절차 없음. 페이지를 고르지 않아도
+   메모 DB를 Notion "개인 페이지"에 만들어 주고, 쓰던 할 일 DB가 있으면 그것을 고를 수 있다
 5. 데이터 서버 없음 — 앱·위젯이 Notion과 직접 통신한다
 6. 변경이 수 분 내 반영 (아래 제약 3번 참고 — "실시간"은 위젯에서 성립하지 않는다)
 
@@ -139,12 +140,13 @@ HTTP Basic 인증을 요구한다. PKCE 같은 비밀 없는 네이티브 앱용
 client secret을 앱 번들에 넣으면 누구나 추출해 이 앱을 사칭할 수 있으므로, secret을 가진 작은 함수가
 교환·갱신 두 요청만 대신 보낸다.
 
-- **하는 일:** `POST /v1/oauth/token` 프록시 2종(코드 교환, 토큰 갱신) + OAuth 리다이렉트 페이지
+- **하는 일:** `POST /v1/oauth/token` 프록시 2종(코드 교환, 토큰 갱신) + OAuth 리다이렉트(결과를 앱 주소
+  `notiontodo://oauth`로 넘긴다 — 도메인 연결 설정이 필요 없다)
 - **안 하는 일:** 토큰·사용자 데이터 저장, Notion 데이터 조회. 무상태이며 로그를 남기지 않는다
 - **호출 빈도:** 로그인 1회 + 토큰 갱신 시. 사용자당 하루 수 회 이하
 - **비용:** 서버리스 무료 티어 범위 (예: Cloudflare Workers 무료 10만 req/일). 사실상 0원
-- **직접 빌드하는 사용자:** 자기 Notion public integration + 자기 함수 배포, 또는 internal integration
-  토큰을 직접 입력하는 대체 경로를 쓴다
+- **직접 빌드하는 사용자:** 자기 Notion public integration + 자기 함수 배포, 또는 Notion 개인 액세스 토큰을
+  붙여 넣는 대체 경로를 쓴다 (internal integration 토큰도 된다)
 
 ### 2단계 — 셀프호스팅 중계 서버 (선택)
 
@@ -196,8 +198,9 @@ server/                  (2단계, 미구현) Notion webhook 수신 + APNs 발�
    → 동기화의 현실적 정의: **앱 내부는 즉시, 위젯은 수 분~수십 분.**
 4. **Notion 레이트리밋** 평균 3 req/s (인티그레이션 단위). 사용자별 토큰이므로 1인 사용량으로는
    여유가 크다. 단, 위젯 타임라인 하나당 쿼리 1회로 묶고 페이지 단위 반복 조회는 피한다.
-5. **Notion 접근 권한.** 앱은 OAuth 로그인 때 사용자가 고른 페이지·DB에만 접근한다. 할 일 DB가
-   빠졌으면 앱에서 "페이지 추가 선택"으로 OAuth를 다시 띄운다.
+5. **Notion 접근 권한.** 앱은 OAuth 로그인 때 사용자가 고른 페이지·DB와 앱이 만든 메모 DB에만 접근한다.
+   할 일 DB가 빠졌으면 앱에서 "페이지 더 고르기"로 OAuth를 다시 띄운다. 개인 액세스 토큰은 사용자 권한을
+   그대로 쓰므로 앱은 최근에 고친 DB 30개까지만 목록에 올린다.
 6. **토큰 보관.** access/refresh 토큰은 App Group 공유 Keychain에만 저장한다. 소스 코드·번들·로그·
    분석 도구로 내보내지 않는다. 앱은 서드파티 분석/트래킹 SDK를 넣지 않는다.
 7. **뷰 해석 실패 처리.** 뷰가 삭제되거나 필터 속성이 바뀌면 위젯에 명확한 오류와 "뷰 다시 선택"
@@ -220,10 +223,11 @@ server/                  (2단계, 미구현) Notion webhook 수신 + APNs 발�
 1. `apps/Config/Local.xcconfig.example`을 `apps/Config/Local.xcconfig`로 복사하고 팀 ID·번들 ID 접두사를 넣는다.
 2. `apps/NotionTodo.xcodeproj`를 열고 `NotionTodo` 스킴을 iPhone·iPad·Mac 중 원하는 대상으로 실행한다.
    (`project.yml`을 고쳤다면 `brew install xcodegen && cd apps && xcodegen`으로 다시 생성.)
-3. 로그인 — 둘 중 하나:
-   - **Notion으로 로그인**: [auth/README.md](auth/README.md)대로 함수를 배포하고 client ID·주소를 `Local.xcconfig`에 넣는다.
-   - **통합 토큰**: Notion에서 internal integration을 만들고 DB를 그 연결에 공유한 뒤, 앱 첫 화면의
-     "통합 토큰으로 연결"에 토큰을 붙여 넣는다. 함수 배포 없이 바로 쓸 수 있다.
+3. 연결 — 둘 중 하나:
+   - **Notion 연결하기**: [auth/README.md](auth/README.md)대로 함수를 배포(또는 로컬에서 실행)하고 client ID·주소를
+     `Local.xcconfig`에 넣는다.
+   - **토큰**: [Notion 개인 액세스 토큰](https://www.notion.so/developers/tokens)을 만들어(Notion API 켜기) 앱 첫 화면의
+     "토큰으로 연결하기"에 붙여 넣는다. 함수 배포도, 페이지 공유도 필요 없다.
 
 ### 테스트
 
@@ -233,7 +237,7 @@ cd auth && npm test                                # 토큰 교환 함수
 
 # 실제 Notion에 붙는 테스트 (테스트용 토큰과 DB 필요)
 NT_LIVE_TOKEN=<토큰> swift test --package-path apps/Packages --filter Live
-# UI 테스트 3개: 추가→체크→실행 취소 / 뷰 전환 / 오프라인 추가 후 복구. iOS는 -destination 'id=<시뮬레이터>'
+# UI 테스트 4개: 추가→체크→실행 취소 / 뷰 전환 / 오프라인 추가 후 복구 / 첫 실행 연결. iOS는 -destination 'id=<시뮬레이터>'
 TEST_RUNNER_NT_DEV_TOKEN=<토큰> xcodebuild test -project apps/NotionTodo.xcodeproj -scheme NotionTodo \
   -destination 'platform=macOS' CODE_SIGN_IDENTITY=- CODE_SIGN_STYLE=Manual DEVELOPMENT_TEAM= CODE_SIGN_ENTITLEMENTS=
 
@@ -243,6 +247,7 @@ TEST_RUNNER_SNAPSHOT_DIR=/tmp/widget-snapshots xcodebuild test -project apps/Not
 ```
 
 디버그 빌드는 `NT_DEV_TOKEN` 환경 변수가 있으면 그 토큰으로 바로 로그인한다(Keychain을 쓰지 않음). UI 테스트가 이 경로를 쓴다.
+`NT_DEV_SIGNED_OUT=1`이면 로그인하지 않은 상태로 온보딩부터 시작하고, 연결해도 메모리에만 둔다.
 `NT_DEV_OFFLINE=1`을 함께 주면 모든 요청이 "인터넷 연결 없음"으로 실패한다(오프라인 UI 테스트용).
 
 ## 사용 흐름

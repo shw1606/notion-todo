@@ -32,6 +32,18 @@ final class AppModel {
     var isRefreshing = false
     var isOffline = false
     var lastError: String?
+    /// Notion이 연결을 끊었다(토큰 취소·만료). 온보딩 첫 화면에서 다시 연결하게 한다.
+    var needsReconnect = false
+    /// 연결될 때마다 늘어난다. 온보딩 화면은 이것을 보고 다음 단계로 넘어간다.
+    private(set) var signIns = 0
+    /// 브라우저 탭에서 돌아온 연결의 끝 (성공·취소·실패). 화면은 바뀔 때마다 기다림을 푼다.
+    private(set) var browserSignInOutcome: BrowserSignInOutcome?
+
+    struct BrowserSignInOutcome: Equatable {
+        let id = UUID()
+        /// 실패했을 때만. 취소는 nil.
+        var error: String?
+    }
     var undo: UndoAction?
     var composerText = ""
     /// 바뀔 때마다 입력 바에 포커스를 준다 (딥링크·단축키·제어 위젯).
@@ -278,6 +290,10 @@ final class AppModel {
     // MARK: 딥링크
 
     func handle(url: URL) {
+        if url.scheme == OAuthConfig.callbackScheme, url.host() == "oauth" {
+            Task { await finishBrowserSignIn(callback: url) }
+            return
+        }
         guard let action = DeepLink.parse(url) else { return }
         switch action {
         case .compose(let viewId):
@@ -294,7 +310,30 @@ final class AppModel {
 
     func didSignIn(_ credentials: Credentials) async {
         self.credentials = credentials
+        needsReconnect = false
+        lastError = nil
+        signIns += 1
         reloadWidgets()
+    }
+
+    /// 기본 브라우저 탭에서 진행 중인 "Notion 연결하기"(Mac). 결과는 앱 주소로 돌아오고,
+    /// 연결을 시작한 창(설정 창일 수도 있다)과 상관없이 주소를 받은 창이 이것으로 마친다.
+    static var pendingBrowserSignIn: PKCE?
+
+    func finishBrowserSignIn(callback: URL) async {
+        guard let pkce = Self.pendingBrowserSignIn else { return }
+        Self.pendingBrowserSignIn = nil
+        do {
+            await didSignIn(try await services.auth.completeSignIn(callback: callback, pkce: pkce))
+            browserSignInOutcome = BrowserSignInOutcome()
+            // 설정의 "페이지 더 고르기"로 돌아온 경우: 이 창의 목록도 다시 받는다 (다른 창은 알림을 받고 다시 시작한다).
+            if phase == .ready { await refreshCatalog() }
+            broadcastSessionChange()
+        } catch AuthError.canceled {
+            browserSignInOutcome = BrowserSignInOutcome()
+        } catch {
+            browserSignInOutcome = BrowserSignInOutcome(error: ConnectionError.message(for: error))
+        }
     }
 
     /// 읽기 전용 뷰에서 점을 누르면 이유를 알려준다.
@@ -331,6 +370,7 @@ final class AppModel {
             isOffline = true
         case NotionError.unauthorized:
             lastError = String(localized: "Your Notion connection expired. Sign in again.")
+            needsReconnect = true
             phase = .onboarding
         case NotionError.notFound:
             lastError = String(localized: "This view is no longer available. Choose another one.")

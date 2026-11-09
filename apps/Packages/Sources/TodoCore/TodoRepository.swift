@@ -18,23 +18,59 @@ public actor TodoRepository {
 
     // MARK: 뷰 목록
 
-    /// 연결된 모든 DB의 목록형 뷰. 각 뷰를 해석해 캐시에 넣는다.
+    /// 목록에 올릴 DB 수. 개인 액세스 토큰처럼 워크스페이스 전체가 보이는 연결에서도 금방 끝나도록 최근에 고친 것만 본다.
+    static let catalogLimit = 30
+
+    /// 연결된 DB(최근에 고친 순)의 목록형 뷰. 각 뷰를 해석해 캐시에 넣는다.
     public func catalog(refresh: Bool = false) async throws -> [ViewSummary] {
         if !refresh, let cached = store.catalog(), Date.now.timeIntervalSince(cached.fetchedAt) < viewMaxAge {
             return cached.views
         }
-        var summaries: [ViewSummary] = []
-        for dataSource in try await client.searchDataSources() where dataSource.inTrash != true {
-            for viewId in try await client.viewIds(dataSourceId: dataSource.id) {
-                let view = try await client.view(viewId)
-                guard view.isListable else { continue }
-                let resolved = ViewResolver.resolve(view: view, schema: dataSource)
-                try? store.save(view: resolved)
-                summaries.append(resolved.summary)
-            }
-        }
+        let sources = try await client.searchDataSources(limit: Self.catalogLimit).filter { $0.inTrash != true }
+        let views = try await Self.listableViews(of: sources, client: client)
+        for view in views { try? store.save(view: view) }
+        let summaries = views.map(\.summary)
         try? store.save(catalog: ViewCatalog(views: summaries, fetchedAt: .now))
         return summaries
+    }
+
+    /// DB 순서를 지키며 3개씩 동시에 받는다 (Notion 요청 한도는 평균 초당 3회).
+    static func listableViews(of sources: [DataSource], client: NotionClient) async throws -> [ResolvedView] {
+        try await withThrowingTaskGroup(of: (Int, [ResolvedView]).self) { group in
+            var results = [[ResolvedView]](repeating: [], count: sources.count)
+            var next = 0
+            func enqueue() {
+                guard next < sources.count else { return }
+                let index = next
+                next += 1
+                group.addTask { (index, try await listableViews(of: sources[index], client: client)) }
+            }
+            for _ in 0..<3 { enqueue() }
+            while let (index, views) = try await group.next() {
+                results[index] = views
+                enqueue()
+            }
+            return results.flatMap { $0 }
+        }
+    }
+
+    /// DB 하나의 목록형 뷰(표·목록·보드…)를 해석한다.
+    static func listableViews(of source: DataSource, client: NotionClient) async throws -> [ResolvedView] {
+        var views: [ResolvedView] = []
+        for viewId in try await client.viewIds(dataSourceId: source.id) {
+            let view = try await client.view(viewId)
+            if view.isListable { views.append(ViewResolver.resolve(view: view, schema: source)) }
+        }
+        return views
+    }
+
+    /// 전체 목록을 다시 받기 전에도 사이드바·위젯 설정에 보이도록 캐시된 목록 앞에 더한다.
+    /// 받은 시각은 그대로 둬서 다음에 전체 목록을 받게 한다.
+    func addToCatalog(_ views: [ViewSummary]) {
+        let cached = store.catalog()
+        let ids = Set(views.map(\.id))
+        let merged = views + (cached?.views ?? []).filter { !ids.contains($0.id) }
+        try? store.save(catalog: ViewCatalog(views: merged, fetchedAt: cached?.fetchedAt ?? .distantPast))
     }
 
     public func cachedCatalog() -> [ViewSummary] { store.catalog()?.views ?? [] }
@@ -266,6 +302,8 @@ public enum TodoError: Error, Equatable, Sendable {
     case readOnly
     case emptyTitle
     case noView
+    /// 새 DB를 둘 곳이 없다: 워크스페이스 맨 위에 만들 수 없는 연결인데 공유된 페이지도 없다.
+    case nowhereToCreate
 }
 
 extension PendingOperation.Kind {

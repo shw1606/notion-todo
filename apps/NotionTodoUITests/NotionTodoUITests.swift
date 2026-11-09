@@ -1,6 +1,6 @@
 import XCTest
 
-/// 핵심 흐름 3개 (PLAN 6.1): 추가 → 체크 → 실행 취소 / 뷰 전환 / 오프라인 추가 후 복구. iPhone·Mac 공용.
+/// 핵심 흐름 (PLAN 6.1): 추가 → 체크 → 실행 취소 / 뷰 전환 / 오프라인 추가 후 복구 / 첫 실행 연결. iPhone·Mac 공용.
 /// 실제 Notion 테스트 DB에 쓴다. `TEST_RUNNER_NT_DEV_TOKEN`이 없으면 건너뛴다.
 final class NotionTodoUITests: XCTestCase {
     var app: XCUIApplication!
@@ -108,7 +108,54 @@ final class NotionTodoUITests: XCTestCase {
         try deleteAndWait(row)
     }
 
+    /// 첫 실행 (PLAN 3.2): 토큰을 붙여 넣으면 이 앱이 만든 메모 DB가 골라져 있고, 시작 → 위젯 안내 → 목록.
+    /// 로그인은 메모리에만 둔다 (`NT_DEV_SIGNED_OUT`). 새 DB는 만들지 않는다.
+    func testTokenOnboarding() throws {
+        let token = try XCTUnwrap(ProcessInfo.processInfo.environment["NT_DEV_TOKEN"])
+        app.terminate()
+        app.launchEnvironment["NT_DEV_SIGNED_OUT"] = "1"
+        app.launch()
+
+        // OAuth를 쓸 수 있는 빌드면 보조 버튼, 아니면 큰 버튼이다.
+        let instead = app.buttons["Use a token instead"].firstMatch
+        let primary = app.buttons["Connect with a token"].firstMatch
+        XCTAssertTrue(instead.waitForExistence(timeout: 10) || primary.exists, "첫 화면에 토큰 연결 버튼이 있어야 한다")
+        attachScreenshot("1 welcome")
+        press(instead.exists ? instead : primary)
+
+        let field = app.secureTextFields.firstMatch
+        XCTAssertTrue(field.waitForExistence(timeout: 5))
+        attachScreenshot("2 token")
+        press(field)
+        field.typeText(token)
+        press(app.buttons["Connect"].firstMatch)
+
+        let start = app.buttons["Start"].firstMatch
+        XCTAssertTrue(start.waitForExistence(timeout: 20), "연결되면 시작할 목록을 고르는 화면이 뜬다")
+        let enabled = XCTNSPredicateExpectation(predicate: NSPredicate(format: "isEnabled == true"), object: start)
+        XCTAssertEqual(XCTWaiter().wait(for: [enabled], timeout: 20), .completed, "DB 목록을 받으면 시작할 수 있다")
+        let starter = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "할 일 메모")).firstMatch
+        XCTAssertTrue(starter.waitForExistence(timeout: 5))
+        XCTAssertTrue(starter.isSelected, "이 앱이 만든 메모 DB가 미리 골라져 있어야 한다")
+        attachScreenshot("3 source")
+        press(start)
+
+        let writing = app.buttons["Start writing"].firstMatch
+        XCTAssertTrue(writing.waitForExistence(timeout: 20))
+        attachScreenshot("4 widgets")
+        press(writing)
+        XCTAssertTrue(composer.waitForExistence(timeout: 20), "온보딩을 마치면 목록이 열린다")
+        attachScreenshot("5 list")
+    }
+
     // MARK: 도우미
+
+    func attachScreenshot(_ name: String) {
+        let attachment = XCTAttachment(screenshot: app.screenshot())
+        attachment.name = name
+        attachment.lifetime = .keepAlways
+        add(attachment)
+    }
 
     func relaunch(offline: Bool) {
         app.terminate()

@@ -41,7 +41,7 @@ public final class TodoServices: Sendable {
     ) {
         self.configuration = configuration
         let credentialStore = credentials ?? KeychainCredentialStore(accessGroup: configuration.keychainGroup)
-        auth = AuthSession(store: credentialStore, config: configuration.oauth)
+        auth = AuthSession(store: credentialStore, config: configuration.oauth, session: session)
         repository = TodoRepository(
             client: NotionClient(tokens: auth, session: session),
             store: store ?? .appGroup(configuration.appGroupId),
@@ -53,12 +53,17 @@ public final class TodoServices: Sendable {
             // 개발·UI 테스트: NT_DEV_TOKEN이 있으면 Keychain을 건드리지 않는다.
             // (서명이 바뀐 개발 빌드가 로그인 키체인을 읽으면 macOS가 허용 창을 띄우고 멈춘다.)
             // NT_DEV_OFFLINE=1이면 모든 요청이 "인터넷 연결 없음"으로 실패한다 (오프라인 UI 테스트).
+            // NT_DEV_SIGNED_OUT=1이면 로그인 안 한 상태로 시작한다 (온보딩 시험). 연결해도 메모리에만 둔다.
             let environment = ProcessInfo.processInfo.environment
+            let session: URLSession = environment["NT_DEV_OFFLINE"] == "1" ? .offline : .shared
+            if environment["NT_DEV_SIGNED_OUT"] == "1" {
+                return TodoServices(configuration: .fromBundle(), credentials: InMemoryCredentialStore(), session: session)
+            }
             if let token = environment["NT_DEV_TOKEN"], !token.isEmpty {
                 return TodoServices(
                     configuration: .fromBundle(),
                     credentials: InMemoryCredentialStore(Credentials(kind: .internalToken, accessToken: token)),
-                    session: environment["NT_DEV_OFFLINE"] == "1" ? .offline : .shared)
+                    session: session)
             }
         #endif
         return TodoServices(configuration: .fromBundle())

@@ -19,6 +19,8 @@ public struct StarterTemplate: Sendable, Hashable {
         databaseTitle: "Memo Todos", emoji: "📝", titleProperty: "Memo", doneProperty: "Done",
         createdProperty: "Created", todoView: "To do", doneView: "Done")
 
+    public static let all: [StarterTemplate] = [.korean, .english]
+
     /// 기기 언어가 한국어면 한국어 이름으로 만든다.
     public static var forCurrentLocale: StarterTemplate {
         Locale.preferredLanguages.first?.hasPrefix("ko") == true ? .korean : .english
@@ -26,8 +28,19 @@ public struct StarterTemplate: Sendable, Hashable {
 }
 
 extension TodoRepository {
-    /// 선택한 페이지 아래에 기본 예시 DB를 만들고 "할 일" 뷰 요약을 돌려준다.
-    public func createStarterDatabase(parentPageId: String, template: StarterTemplate = .forCurrentLocale)
+    /// 기본 예시 DB를 만들고 "할 일" 뷰 요약을 돌려준다. 페이지를 고르지 않아도 되게 워크스페이스 맨 위
+    /// (사용자의 "비공개" 섹션)에 만들고, 그럴 수 없는 연결(internal integration)이면 공유된 맨 위 페이지 아래에 만든다.
+    public func createStarterDatabase(template: StarterTemplate = .forCurrentLocale) async throws -> ViewSummary {
+        do {
+            return try await createStarterDatabase(parentPageId: nil, template: template)
+        } catch NotionError.http(let status, _, _) where status == 400 || status == 403 {
+            guard let page = try await client.searchPages().topLevel.first else { throw TodoError.nowhereToCreate }
+            return try await createStarterDatabase(parentPageId: page.id, template: template)
+        }
+    }
+
+    /// `parentPageId`가 nil이면 워크스페이스 맨 위에 만든다.
+    public func createStarterDatabase(parentPageId: String?, template: StarterTemplate = .forCurrentLocale)
         async throws -> ViewSummary
     {
         let database = try await client.createDatabase(
@@ -55,13 +68,33 @@ extension TodoRepository {
                 body: ["filter": notDone, "sorts": newestFirst]
             ).id
         }
-        _ = try await client.createView(
+        let doneViewId = try await client.createView(
             databaseId: database.id, dataSourceId: dataSourceId, name: template.doneView,
-            body: ["filter": done, "sorts": newestFirst])
+            body: ["filter": done, "sorts": newestFirst]
+        ).id
 
-        let resolved = try await resolvedView(todoViewId, refresh: true)
-        _ = try? await catalog(refresh: true)
-        rememberLastView(resolved.id)
-        return resolved.summary
+        let todo = try await resolvedView(todoViewId, refresh: true)
+        let doneView = try? await resolvedView(doneViewId, refresh: true)
+        addToCatalog([todo.summary] + (doneView.map { [$0.summary] } ?? []))
+        rememberLastView(todo.id)
+        return todo.summary
+    }
+}
+
+extension [Page] {
+    /// 새 DB를 둘 만한 페이지: DB 항목이 아닌 페이지, 공유된 것 중 맨 위에 있는 것부터.
+    var topLevel: [Page] {
+        let pages = filter { page in
+            switch page.parent {
+            case .dataSource?, .database?: false
+            default: true
+            }
+        }
+        let ids = Set(pages.map { NotionID.compact($0.id) })
+        func isRoot(_ page: Page) -> Bool {
+            guard case .page(let parent)? = page.parent else { return true }
+            return !ids.contains(NotionID.compact(parent))
+        }
+        return pages.filter(isRoot) + pages.filter { !isRoot($0) }
     }
 }

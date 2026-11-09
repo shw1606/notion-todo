@@ -182,4 +182,115 @@ final class MockNotion: URLProtocol, @unchecked Sendable {
             try await repository.fetchItems(view.id)
         }
     }
+
+    // MARK: 로그인·시작 DB (MockNotion을 같이 쓰므로 이 직렬 묶음 안에 둔다)
+
+    static let oauth = OAuthConfig(clientId: "cid", authBaseURL: URL(string: "https://auth.example.com")!)
+
+    @Test func signInExchangesCodeThroughFunction() async throws {
+        MockNotion.reset { _, _ in
+            let owner: JSONValue = ["type": "user", "user": ["object": "user", "id": "u1", "name": "현우"]]
+            return (200, ["access_token": "at", "refresh_token": "rt", "bot_id": "b", "workspace_name": "내 공간", "owner": owner])
+        }
+        let store = InMemoryCredentialStore()
+        let auth = AuthSession(store: store, config: Self.oauth, session: MockNotion.session)
+        let pkce = PKCE()
+        var callback = URLComponents(string: "notiontodo://oauth")!
+        callback.queryItems = [URLQueryItem(name: "code", value: "c"), URLQueryItem(name: "state", value: pkce.state)]
+
+        let credentials = try await auth.completeSignIn(callback: try #require(callback.url), pkce: pkce)
+        #expect(credentials.kind == .oauth)
+        #expect(credentials.workspaceName == "내 공간")
+        #expect(credentials.ownerName == "현우")
+        #expect(store.load()?.refreshToken == "rt")
+        let post = try #require(MockNotion.requests.first)
+        #expect(post.method == "POST" && post.path == "/token")
+        #expect(post.body == ["code": "c", "state": .string(pkce.state), "code_verifier": .string(pkce.verifier)])
+    }
+
+    @Test func deniedOrForgedCallbackDoesNotSignIn() async throws {
+        MockNotion.reset { _, _ in (200, ["access_token": "at"]) }
+        let auth = AuthSession(store: InMemoryCredentialStore(), config: Self.oauth, session: MockNotion.session)
+        let pkce = PKCE()
+        // Notion 화면에서 "취소"를 누르면 error=access_denied로 돌아온다 → 창을 닫은 것과 같다.
+        await #expect(throws: AuthError.canceled) {
+            try await auth.completeSignIn(
+                callback: URL(string: "notiontodo://oauth?error=access_denied&state=\(pkce.state)")!, pkce: pkce)
+        }
+        await #expect(throws: AuthError.stateMismatch) {
+            try await auth.completeSignIn(callback: URL(string: "notiontodo://oauth?code=c&state=forged")!, pkce: pkce)
+        }
+        #expect(MockNotion.requests.isEmpty)
+        #expect(await auth.credentials == nil)
+    }
+
+    @Test func databaseChoicesPutStarterFirst() async throws {
+        let search = try JSONDecoder().decode(JSONValue.self, from: Fixture.data("search-data-sources"))
+        let reversed = Array((search["results"]?.arrayValue ?? []).reversed())
+        MockNotion.reset { _, _ in (200, ["object": "list", "results": .array(reversed), "has_more": false]) }
+        let choices = try await repository.databaseChoices()
+        #expect(choices.map(\.title) == ["할 일 메모", "probe-views 테스트"])
+        // 최근에 고친 것부터, 상한까지만 받는다 (개인 액세스 토큰은 워크스페이스 전체를 본다).
+        let request = try #require(MockNotion.requests.first { $0.path.hasSuffix("/search") })
+        #expect(request.body?["sort"] == ["direction": "descending", "timestamp": "last_edited_time"])
+        #expect(request.body?["page_size"] == 30)
+    }
+
+    /// 새 메모 DB 만들기에 필요한 응답들. `databases`는 만들기 요청 본문을 보고 상태 코드를 정한다.
+    func starterHandler(databases: @escaping @Sendable (JSONValue?) -> Int) throws
+        -> @Sendable (URLRequest, Data?) -> (Int, JSONValue)
+    {
+        let todo = try JSONDecoder().decode(JSONValue.self, from: Fixture.data("view-memo-todo"))
+        let done = try JSONDecoder().decode(JSONValue.self, from: Fixture.data("view-memo-done"))
+        let schema = try JSONDecoder().decode(JSONValue.self, from: Fixture.data("data-source-memo"))
+        let todoId = try #require(todo["id"]?.stringValue)
+        let doneId = try #require(done["id"]?.stringValue)
+        let pages: JSONValue = [
+            "object": "list", "has_more": false,
+            "results": [
+                ["object": "page", "id": "p-child", "parent": ["type": "page_id", "page_id": "p-root"], "properties": [:]],
+                ["object": "page", "id": "p-root", "parent": ["type": "workspace", "workspace": true], "properties": [:]],
+            ],
+        ]
+        return { request, body in
+            let path = request.url?.path ?? ""
+            switch (request.httpMethod ?? "", path) {
+            case ("POST", "/v1/databases"):
+                let status = databases(body.flatMap { try? JSONDecoder().decode(JSONValue.self, from: $0) })
+                guard status == 200 else { return (status, ["object": "error", "code": "validation_error"]) }
+                return (200, ["object": "database", "id": "db1", "title": [], "data_sources": [["id": "ds1"]]])
+            case ("POST", "/v1/search"): return (200, pages)
+            case ("GET", "/v1/views"):
+                return (200, ["object": "list", "results": [["object": "view", "id": "v-default"]], "has_more": false])
+            case ("PATCH", "/v1/views/v-default"), ("GET", "/v1/views/\(todoId)"): return (200, todo)
+            case ("POST", "/v1/views"), ("GET", "/v1/views/\(doneId)"): return (200, done)
+            case ("GET", _) where path.hasPrefix("/v1/data_sources/"): return (200, schema)
+            default: return (404, ["object": "error", "code": "object_not_found"])
+            }
+        }
+    }
+
+    @Test func starterDatabaseGoesToWorkspaceTopLevel() async throws {
+        MockNotion.reset(try starterHandler { _ in 200 })
+        let summary = try await repository.createStarterDatabase(template: .korean)
+        #expect(summary.name == "할 일")
+        #expect(!summary.showsDone)
+        let create = try #require(MockNotion.requests.first { $0.path == "/v1/databases" })
+        #expect(create.body?["parent"] == ["type": "workspace", "workspace": true])
+        #expect(create.body?["title"] == [["text": ["content": "할 일 메모"]]])
+        // 전체 목록을 다시 받기 전에도 두 뷰가 목록에 있다.
+        #expect(store.catalog()?.views.map(\.name).sorted() == ["완료함", "할 일"])
+        #expect(store.settings().lastViewId == summary.id)
+    }
+
+    @Test func starterDatabaseFallsBackToTopSharedPage() async throws {
+        // internal integration처럼 맨 위에 만들 수 없으면 공유된 페이지 중 맨 위 페이지 아래에 만든다.
+        MockNotion.reset(try starterHandler { body in body?["parent"]?["type"] == "workspace" ? 400 : 200 })
+        let summary = try await repository.createStarterDatabase(template: .korean)
+        #expect(summary.name == "할 일")
+        let creates = MockNotion.requests.filter { $0.path == "/v1/databases" }
+        #expect(creates.map { $0.body?["parent"]?["type"] } == ["workspace", "page_id"])
+        #expect(creates.last?.body?["parent"]?["page_id"] == "p-root")
+    }
+
 }

@@ -5,10 +5,13 @@ client secret을 요구하는데, secret을 앱에 넣으면 누구나 꺼내 �
 
 | 경로 | 하는 일 |
 |---|---|
-| `GET /callback` | Notion 리다이렉트 URI. 앱(`ASWebAuthenticationSession`)이 이 주소로의 이동을 가로챈다 |
+| `GET /callback` | Notion 리다이렉트 URI. 받은 `code`·`state`(거절이면 `error`)를 앱 주소 `notiontodo://oauth`로 넘긴다(302) |
 | `POST /token` | `{code, state, code_verifier}` → PKCE 확인 → Notion에 코드 교환 |
 | `POST /refresh` | `{refresh_token}` → Notion에 토큰 갱신 (갱신 토큰은 매번 바뀌고, 이전 접근 토큰은 즉시 무효) |
-| `GET /.well-known/apple-app-site-association` | HTTPS 로그인 콜백용 `webcredentials` 연결 |
+
+앱 주소로 넘기므로 도메인 연결(Associated Domains·AASA)이 필요 없다. 앱의 인증 창(`ASWebAuthenticationSession`)이
+그 이동을 가로채고, Mac에서 기본 브라우저 탭으로 연 경우에는 브라우저가 앱을 연다. 다른 앱이 같은 주소로 `code`를
+받아도 `code_verifier`는 연결을 시작한 앱에만 있어서 교환할 수 없다.
 
 **저장하지 않는다.** 토큰·사용자 데이터·요청 본문 어디에도 남기지 않는다. Notion 데이터를 조회하지도 않는다.
 호출은 로그인할 때와 토큰 갱신할 때뿐이라 Cloudflare Workers 무료 티어(하루 10만 요청) 안에서 충분하다.
@@ -18,8 +21,8 @@ client secret을 요구하는데, secret을 앱에 넣으면 누구나 꺼내 �
 1. **Notion public integration 만들기** — [개발자 포털](https://app.notion.com/developers/connections)에서
    OAuth 연결을 만들고 리다이렉트 URI에 `https://notion-todo-auth.<서브도메인>.workers.dev/callback`을 넣는다.
    필요한 권한: 콘텐츠 읽기·수정·추가, 사용자 정보(이메일 제외 가능).
-2. **설정** — `wrangler.toml`의 `NOTION_OAUTH_REDIRECT_URI`(1번과 같은 값)와 `APPLE_APP_IDS`
-   (`<팀 ID>.<앱 번들 ID>`, 예: `ABCDE12345.com.example.notiontodo`)를 채운다.
+   이름은 `Notion Todo`, 아이콘은 앱 아이콘으로 한다 — 사용자가 연결할 때 Notion 동의 화면에 그대로 보인다.
+2. **설정** — `wrangler.toml`의 `NOTION_OAUTH_REDIRECT_URI`를 1번과 같은 값으로 채운다.
 3. **비밀값** — 로그인 후 client ID·secret을 넣는다.
    ```sh
    cd auth
@@ -32,11 +35,26 @@ client secret을 요구하는데, secret을 앱에 넣으면 누구나 꺼내 �
    ```
    NT_OAUTH_CLIENT_ID = <client ID>
    NT_AUTH_BASE_URL = https:/$()/notion-todo-auth.<서브도메인>.workers.dev
-   NT_AUTH_HOST = notion-todo-auth.<서브도메인>.workers.dev
    ```
    (xcconfig에서 `//`는 주석이라 `https:/$()/`로 쓴다.)
+6. **확인** — `curl -i "<함수 주소>/callback?code=x&state=y"`가 `302`와 `Location: notiontodo://oauth?code=x&state=y`를 돌려준다.
 
 자기 도메인을 쓰려면 Workers 사용자 지정 도메인을 붙이고 1·2·5번의 주소를 그 도메인으로 바꾼다.
+
+## 로컬에서 해 보기
+
+배포하지 않고 이 맥에서 "Notion 연결하기"를 끝까지 시험할 수 있다.
+
+1. Notion integration의 리다이렉트 URI에 `http://localhost:8787/callback`을 더한다.
+2. `auth/.dev.vars`(커밋 안 함)에 비밀값을 둔다.
+   ```
+   NOTION_OAUTH_CLIENT_ID=<client ID>
+   NOTION_OAUTH_CLIENT_SECRET=<client secret>
+   NOTION_OAUTH_REDIRECT_URI=http://localhost:8787/callback
+   ```
+3. `npm run dev` (포트 8787).
+4. `apps/Config/Local.xcconfig`에 `NT_AUTH_BASE_URL = http:/$()/localhost:8787`과 client ID를 넣고 앱을 빌드한다.
+   개발 빌드를 `NT_DEV_SIGNED_OUT=1`로 실행하면 Keychain의 로그인을 건드리지 않고 온보딩부터 시작한다.
 
 ## 테스트
 
