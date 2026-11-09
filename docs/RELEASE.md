@@ -12,6 +12,8 @@ integration 이름(`Todo Widget for Notion`)·아이콘·사용자 정보 권한
 **완료 (2026-11-09):** `https://notion-todo-auth.vercel.app` (Vercel 프로젝트 `notion-todo-auth`). 콜백 302, PKCE 거부,
 Notion이 client 인증을 받아들이는 것(가짜 code에 `invalid_client`가 아닌 "Invalid code")까지 확인. Notion integration은
 이름 `Todo Widget for Notion`·앱 아이콘·리다이렉트 URI(이 주소와 `http://localhost:8787/callback`)·이메일 제외로 설정했다.
+설치 범위는 **모든 워크스페이스**(공개용)다 — 처음 만든 연결은 개발 워크스페이스 전용이라 같은 설정으로 새로 만들어
+client ID·secret을 바꿨다. 예전 연결은 그 연결로 로그인한 앱이 다시 연결한 뒤 개발자 포털에서 지운다.
 
 ## 2. 서명 설정
 

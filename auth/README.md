@@ -22,7 +22,8 @@ client secret을 요구하는데, secret을 앱에 넣으면 누구나 꺼내 �
 ## 배포
 
 1. **Notion public integration 만들기** — [개발자 포털](https://app.notion.com/developers/connections)에서
-   OAuth 연결을 만들고 리다이렉트 URI에 `<함수 주소>/callback`을 넣는다.
+   "신규 연결" → 인증 방법 **OAuth**, 설치 가능 워크스페이스 **모든 워크스페이스**로 만들고 리다이렉트 URI에
+   `<함수 주소>/callback`을 넣는다. 설치 범위는 만든 뒤에 바꿀 수 없다 — 내 워크스페이스로 만들면 다른 사람은 연결하지 못한다.
    권한은 콘텐츠 읽기·업데이트·삽입, 사용자 정보는 "이메일 주소를 제외한 사용자 정보 읽기"로 한다 — 앱은 이메일을
    쓰지 않고, 이메일까지 고르면 동의 화면에 "사용자와 이메일 보기"가 붙는다.
    이름은 `Todo Widget for Notion`, 아이콘은 앱 아이콘(`apps/NotionTodo/Assets.xcassets/AppIcon.appiconset/mac-512.png`)으로
