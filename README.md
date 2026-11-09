@@ -11,7 +11,7 @@ Notion 데이터베이스를 단일 진실 소스로 쓰는 오픈소스 투두 
 > optional self-hosted relay (Notion webhook → APNs widget push) comes later for
 > near-instant widget refresh. Scaffold stage — no implementation yet.
 
-**상태:** 스캐폴드 (2026-11-08). 구현 코드 없음.
+**상태:** 스캐폴드 (2026-11-09). 구현 코드 없음. 디자인·구현 계획은 [docs/PLAN.md](docs/PLAN.md).
 
 ---
 
@@ -99,8 +99,9 @@ Notion 데이터베이스를 단일 진실 소스로 쓰는 오픈소스 투두 
 - 잠금화면 위젯은 단색으로 그려진다. 색에 의존하지 않는 레이아웃이어야 한다.
 - 잠긴 상태에서도 갱신되려면 위젯이 Keychain 토큰을 읽을 수 있어야 한다 → 토큰은
   `kSecAttrAccessibleAfterFirstUnlock`으로 저장한다 (기본값 `WhenUnlocked`면 잠긴 동안 갱신 실패).
-- 잠금화면에서 체크 토글이 잠금 해제 없이 동작하는지는 실기기에서 확인한다. 확인 전까지는
-  잠금화면은 표시 전용, 탭하면 앱 열기로 둔다.
+- **잠금 상태에서도 위젯 체크가 된다.** 체크(완료 토글) 인텐트만 잠금 해제 없이 허용하고, 추가·삭제·
+  수정은 잠금 해제를 요구한다. 위젯 캐시 파일도 잠금 중 읽기·쓰기 가능한 보호 등급을 쓴다
+  ([PLAN](docs/PLAN.md) 4.5).
 - 같은 `accessory*` 위젯이 Apple Watch 컴플리케이션으로도 쓰일 수 있다 (범위 밖, 추후 검토).
 - iPhone 충전 중 가로 거치(StandBy)에서는 홈화면 위젯이 크게 표시된다 — 책상 위 "메모판" 용도.
 
@@ -193,7 +194,7 @@ docs/          설계·결정 기록
    - Notion UI에서 건 필터는 뷰의 `filter`가 아니라 **`quick_filters`**에 저장된다. 둘 다 읽어 AND로 합친다.
    - `"me"`는 OAuth 토큰에서 **로그인 사용자로 해석된다** ✅ (`people.contains: "me"`로 저장)
    - "오늘"은 고정 날짜가 아니라 **`date.equals: "today"`로 저장되고** 오늘 항목이 맞게 걸린다 ✅.
-     날짜가 바뀐 뒤 재계산되는지는 2026-11-10 재확인 예정
+     상대값이므로 날짜가 바뀌면 Notion이 새 날짜로 계산한다. 위젯은 자정 직후 갱신을 예약한다
    - 뷰 쿼리(`/views/{id}/queries`) 결과에는 **페이지 ID만** 온다 → 제목을 보려면 페이지마다 추가 요청.
    - data source 쿼리도 `"me"`·`"today"`를 그대로 받고 같은 결과를 낸다 → 위젯은 **뷰 정의를 읽어
      `filter`+`quick_filters`+`sorts`로 data source 쿼리 1회**를 보내 속성까지 한 번에 받는다
@@ -236,7 +237,7 @@ docs/          설계·결정 기록
 
 - [x] 클라이언트: 네이티브 SwiftUI + WidgetKit (2026-11-08)
 - [x] 오픈소스, iPhone·iPad·Mac 지원 (2026-11-08)
-- [ ] 최소 OS 버전 — iOS/iPadOS 17·macOS 14(인터랙티브 위젯 하한) vs 더 최신
+- [ ] 최소 OS 버전 — 제안: iOS·iPadOS·macOS 26 (Liquid Glass 기준, [PLAN](docs/PLAN.md) 1장)
 - [ ] 배포 채널 — App Store / TestFlight 공개 베타 / 소스 빌드만
 - [x] 속성 매핑 없이 Notion 뷰 기반 위젯 + OAuth 로그인 (2026-11-08)
 - [ ] 토큰 교환 함수 호스팅 — Cloudflare Workers / Vercel Functions 등

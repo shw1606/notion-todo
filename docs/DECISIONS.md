@@ -2,6 +2,15 @@
 
 새 결정은 맨 위에 추가. 날짜는 절대값으로 쓴다.
 
+## 2026-11-09 — 잠금 상태에서도 위젯 체크를 허용한다 (체크만)
+
+**결정:** 완료 토글 인텐트(`ToggleTodoIntent`)만 `authenticationPolicy = .alwaysAllowed`로 둬서 잠금
+해제 없이 잠금화면·StandBy 위젯에서 체크할 수 있게 한다. 추가·삭제·수정·뷰 변경은 잠금 해제를 요구한다.
+토큰은 Keychain `AfterFirstUnlock`, App Group 캐시·대기열은 `completeUntilFirstUserAuthentication` 보호 등급.
+
+**근거:** 잠금화면에 항상 떠 있는 메모를 보고 바로 지우는 것이 이 앱의 핵심 경험이다. 체크는 되돌릴 수
+있는(다시 체크 해제) 가벼운 쓰기라 잠금 중 허용해도 위험이 작고, 내용을 바꾸거나 지우는 동작은 막는다.
+
 ## 2026-11-09 — 뷰 정의를 읽어 data source 쿼리 1회로 조회한다
 
 **결정:** 위젯은 뷰 쿼리(`/views/{id}/queries`)를 쓰지 않는다. 뷰 정의(`GET /v1/views/{id}`)를
@@ -11,7 +20,7 @@
 **근거 (`scripts/probe-views.mjs` 실측, OAuth 토큰):**
 - Notion UI에서 만든 필터는 `filter`가 아닌 `quick_filters`에 저장됐다.
 - `"me"`는 로그인 사용자로, `"today"`는 오늘 날짜로 해석되어 기대한 항목만 걸렸다. 뷰 기반 설계의
-  전제가 성립한다. ("today"의 날짜 경계 재계산은 2026-11-10 재확인)
+  전제가 성립한다. "today"는 상대값으로 저장되므로 날짜가 바뀌면 Notion이 다시 계산한다.
 - 뷰 쿼리 결과는 페이지 ID만 줘서 항목 N개면 요청이 N+1회다. data source 쿼리는 같은 필터
   (`"me"`·`"today"` 포함)를 받고 속성까지 한 번에 준다.
 - 완료 속성 추론도 `filter`와 `quick_filters`를 모두 봐야 한다.
