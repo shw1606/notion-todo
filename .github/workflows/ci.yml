@@ -1,0 +1,64 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+# 명시한 bash는 pipefail이 켜진다 (기본 셸은 파이프 앞 명령의 실패를 놓친다).
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  packages:
+    name: Swift packages (unit tests)
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@v5
+      - name: Select newest Xcode
+        run: sudo xcode-select -s "$(ls -d /Applications/Xcode_*.app | sort -V | tail -1)" && xcodebuild -version
+      - name: Test NotionKit · TodoCore · DesignSystem
+        run: swift test --package-path apps/Packages
+
+  apps:
+    name: App + widgets (iOS · macOS)
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@v5
+      - name: Select newest Xcode
+        run: sudo xcode-select -s "$(ls -d /Applications/Xcode_*.app | sort -V | tail -1)" && xcodebuild -version
+      - name: Build macOS
+        run: >
+          xcodebuild build -quiet -project apps/NotionTodo.xcodeproj -scheme NotionTodo
+          -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO
+      - name: Build iOS
+        run: >
+          xcodebuild build -quiet -project apps/NotionTodo.xcodeproj -scheme NotionTodo
+          -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO
+      - name: Widget snapshots
+        run: |
+          SIM=$(xcrun simctl list devices available -j | python3 -c 'import json,sys; d=json.load(sys.stdin)["devices"]; print(next(x["udid"] for k,v in sorted(d.items(), reverse=True) if "iOS" in k for x in v if x["name"].startswith("iPhone")))')
+          TEST_RUNNER_SNAPSHOT_DIR="$RUNNER_TEMP/widget-snapshots" xcodebuild test -quiet -project apps/NotionTodo.xcodeproj \
+            -scheme WidgetSnapshots -destination "id=$SIM" CODE_SIGN_IDENTITY=- CODE_SIGN_STYLE=Manual DEVELOPMENT_TEAM=
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: widget-snapshots
+          path: ${{ runner.temp }}/widget-snapshots
+          if-no-files-found: ignore
+
+  auth:
+    name: auth/ token exchange function
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm test
+        working-directory: auth

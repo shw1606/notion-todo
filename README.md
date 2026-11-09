@@ -9,9 +9,12 @@ Notion 데이터베이스를 단일 진실 소스로 쓰는 오픈소스 투두 
 > Sign in with Notion (OAuth) — a tiny stateless token-exchange function holds the client
 > secret; your data never touches it. The app and widgets talk to Notion directly. An
 > optional self-hosted relay (Notion webhook → APNs widget push) comes later for
-> near-instant widget refresh. Scaffold stage — no implementation yet.
+> near-instant widget refresh. Implemented for iPhone, iPad and Mac (2026-11-09); release via
+> TestFlight is pending — see docs/RELEASE.md.
 
-**상태:** 스캐폴드 (2026-11-09). 구현 코드 없음. 디자인·구현 계획은 [docs/PLAN.md](docs/PLAN.md).
+**상태:** 구현 완료 (2026-11-09) — iPhone·iPad·Mac 앱과 위젯, 로그인 함수, 테스트, CI.
+배포(TestFlight)와 실기기 확인은 계정이 필요한 단계라 [docs/RELEASE.md](docs/RELEASE.md)에 정리돼 있다.
+디자인·구현 계획과 현황은 [docs/PLAN.md](docs/PLAN.md).
 
 ---
 
@@ -70,7 +73,10 @@ Notion 데이터베이스를 단일 진실 소스로 쓰는 오픈소스 투두 
   In progress / Complete로 고정), checkbox는 true로. 그러면 항목이 뷰 조건에서 빠져 위젯에서도
   사라진다 — Notion에서 체크한 것과 같은 동작.
 - **뷰 선택은 위젯 설정(AppIntent 설정형 위젯)으로 받는다.** 위젯마다 다른 뷰를 고를 수 있다.
-  첫 추가 시 기본값은 접근 가능한 첫 DB의 첫 뷰.
+  첫 추가 시 기본값은 앱에서 마지막으로 연 뷰, 없으면 **체크할 수 있고 아직 안 한 일을 보여주는 뷰**.
+  API의 뷰 목록 순서는 Notion 탭 순서와 달라서 "첫 번째 뷰"를 기본값으로 쓰지 않는다.
+- **완료로 거르지 않는 뷰**("내 작업", "오늘" 등)에서는 체크해도 항목이 남는다(Notion과 같음). 앱·위젯은
+  체크한 항목을 취소선과 함께 아래로 내린다.
 - 뷰 필터에서 완료 속성을 추론할 수 없으면(필터 없음 등) title 외 status → checkbox 순으로
   DB에 하나뿐인 속성을 쓰고, 그래도 모호하면 읽기 전용으로 표시한다.
 - "작업 데이터베이스로 지정"(Turn into Tasks) 여부는 API에 노출되지 않으므로 쓰지 않는다.
@@ -107,7 +113,7 @@ Notion 데이터베이스를 단일 진실 소스로 쓰는 오픈소스 투두 
 
 ## 아키텍처
 
-### 1단계 — 데이터 서버 없음 (현재 계획)
+### 1단계 — 데이터 서버 없음 (구현됨)
 
 ```
                     ┌───────────────────────────────┐
@@ -158,17 +164,25 @@ Notion DB
 서버에서만 보낼 수 있다. 데이터 조회·토글은 1단계처럼 클라이언트가 Notion과 직접 주고받는다.
 APNs 인증 키는 앱 번들 ID·팀에 묶이므로, 직접 빌드한 사용자는 자기 팀의 키로 서버를 띄워야 한다.
 
-### 계획 디렉터리 구조
+### 디렉터리 구조
 
 ```
-apps/          Xcode 프로젝트 — iOS(iPhone·iPad)·macOS 앱 + 위젯 확장, 공유 코드
-  Shared/        Notion 클라이언트(Views API), 모델, 뷰 해석(완료·기한 추론), Keychain
-  App/           SwiftUI 앱
-  Widgets/       WidgetKit 확장 + AppIntent (뷰 선택 설정, 완료 토글)
-  Config/        xcconfig (팀 ID·번들 ID 접두사는 Local.xcconfig로 분리, 커밋 안 함)
-auth/          OAuth 토큰 교환 함수 (서버리스, 무상태)
-server/        (2단계) Notion webhook 수신 + APNs 발송 (Node)
-docs/          설계·결정 기록
+apps/
+  project.yml            XcodeGen 정의 (NotionTodo.xcodeproj는 여기서 생성, 커밋돼 있음)
+  Config/                xcconfig — 개인 값은 Local.xcconfig (커밋 안 함)
+  Packages/              Swift 패키지
+    NotionKit/             Notion HTTP 클라이언트 (Notion-Version 2026-03-11, 필터는 JSON 통과)
+    TodoCore/              뷰 해석·완료 추론, App Group 캐시, 오프라인 대기열, Keychain, OAuth
+    DesignSystem/          디자인 토큰, 체크 원, Liquid Glass 입력 바
+  NotionTodo/            앱 (iPhone·iPad·Mac 멀티플랫폼 타깃)
+  NotionTodoWidgets/     위젯 확장 (목록·개수·제어 위젯)
+  Shared/                앱·위젯 공용 앱 인텐트 (체크, 추가, 뷰 선택, 딥링크)
+  NotionTodoUITests/     UI 테스트 (추가 → 체크 → 실행 취소 → 삭제, 실제 Notion)
+  NotionTodoWidgetsTests/ 위젯 스냅샷 (크기 × 라이트/다크 × 글자 크기)
+auth/                    OAuth 토큰 교환 함수 (Cloudflare Workers, 무상태)
+scripts/                 API 검증 스크립트, 앱 아이콘 생성
+docs/                    계획·결정·배포 절차
+server/                  (2단계, 미구현) Notion webhook 수신 + APNs 발송
 ```
 
 ## 제약 — 설계에 반드시 반영할 것
@@ -199,12 +213,37 @@ docs/          설계·결정 기록
    - data source 쿼리도 `"me"`·`"today"`를 그대로 받고 같은 결과를 낸다 → 위젯은 **뷰 정의를 읽어
      `filter`+`quick_filters`+`sorts`로 data source 쿼리 1회**를 보내 속성까지 한 번에 받는다
 
-## 직접 빌드하기 (구현 후 채움)
+## 직접 빌드하기
 
-1. `apps/Config/Local.xcconfig.example`을 `Local.xcconfig`로 복사하고 자기 팀 ID·번들 ID 접두사 입력
-2. Notion 로그인: 자기 public integration의 client ID와 `auth/` 함수 URL을 `Local.xcconfig`에 입력,
-   또는 internal integration 토큰을 앱에서 직접 입력하는 대체 경로 사용
-3. Xcode에서 iOS 또는 macOS 스킴 빌드
+필요: macOS 26 이상, Xcode 26 이상 (Xcode 27이면 iOS 27 세로형 초대형 위젯까지).
+
+1. `apps/Config/Local.xcconfig.example`을 `apps/Config/Local.xcconfig`로 복사하고 팀 ID·번들 ID 접두사를 넣는다.
+2. `apps/NotionTodo.xcodeproj`를 열고 `NotionTodo` 스킴을 iPhone·iPad·Mac 중 원하는 대상으로 실행한다.
+   (`project.yml`을 고쳤다면 `brew install xcodegen && cd apps && xcodegen`으로 다시 생성.)
+3. 로그인 — 둘 중 하나:
+   - **Notion으로 로그인**: [auth/README.md](auth/README.md)대로 함수를 배포하고 client ID·주소를 `Local.xcconfig`에 넣는다.
+   - **통합 토큰**: Notion에서 internal integration을 만들고 DB를 그 연결에 공유한 뒤, 앱 첫 화면의
+     "통합 토큰으로 연결"에 토큰을 붙여 넣는다. 함수 배포 없이 바로 쓸 수 있다.
+
+### 테스트
+
+```sh
+swift test --package-path apps/Packages            # 뷰 해석·저장소·클라이언트·색 대비 단위 테스트 (실제 응답 픽스처)
+cd auth && npm test                                # 토큰 교환 함수
+
+# 실제 Notion에 붙는 테스트 (테스트용 토큰과 DB 필요)
+NT_LIVE_TOKEN=<토큰> swift test --package-path apps/Packages --filter Live
+# UI 테스트 3개: 추가→체크→실행 취소 / 뷰 전환 / 오프라인 추가 후 복구. iOS는 -destination 'id=<시뮬레이터>'
+TEST_RUNNER_NT_DEV_TOKEN=<토큰> xcodebuild test -project apps/NotionTodo.xcodeproj -scheme NotionTodo \
+  -destination 'platform=macOS' CODE_SIGN_IDENTITY=- CODE_SIGN_STYLE=Manual DEVELOPMENT_TEAM= CODE_SIGN_ENTITLEMENTS=
+
+# 위젯 스냅샷 PNG
+TEST_RUNNER_SNAPSHOT_DIR=/tmp/widget-snapshots xcodebuild test -project apps/NotionTodo.xcodeproj \
+  -scheme WidgetSnapshots -destination 'platform=iOS Simulator,name=iPhone 17' CODE_SIGN_IDENTITY=- CODE_SIGN_STYLE=Manual DEVELOPMENT_TEAM=
+```
+
+디버그 빌드는 `NT_DEV_TOKEN` 환경 변수가 있으면 그 토큰으로 바로 로그인한다(Keychain을 쓰지 않음). UI 테스트가 이 경로를 쓴다.
+`NT_DEV_OFFLINE=1`을 함께 주면 모든 요청이 "인터넷 연결 없음"으로 실패한다(오프라인 UI 테스트용).
 
 ## 사용 흐름
 
@@ -240,14 +279,15 @@ docs/          설계·결정 기록
 - [x] 최소 OS: iOS·iPadOS·macOS 26 (Liquid Glass 기준, 2026-11-09)
 - [ ] 배포 채널 — App Store / TestFlight 공개 베타 / 소스 빌드만
 - [x] 속성 매핑 없이 Notion 뷰 기반 위젯 + OAuth 로그인 (2026-11-08)
-- [ ] 토큰 교환 함수 호스팅 — Cloudflare Workers / Vercel Functions 등
-- [ ] 위젯 체크 토글을 첫 릴리스에 포함할지, 읽기 전용으로 시작할지
+- [x] 토큰 교환 함수 호스팅 — Cloudflare Workers (무료 티어, 2026-11-09)
+- [x] 위젯 체크 토글을 첫 릴리스에 포함 — 잠금 상태에서도 (2026-11-09)
 - [ ] 2단계 중계 서버 도입 여부
 
 ## 기여
 
-아직 스캐폴드 단계다. 설계 논의는 이슈로, 결정은 [docs/DECISIONS.md](docs/DECISIONS.md)에 기록한다.
-PR에 Notion 토큰·팀 ID·`Local.xcconfig`가 섞이지 않게 주의한다.
+설계 논의는 이슈로, 결정은 [docs/DECISIONS.md](docs/DECISIONS.md)에 기록한다. PR은 CI(단위 테스트,
+iOS·macOS 빌드, 위젯 스냅샷, 함수 테스트)를 통과해야 한다. PR에 Notion 토큰·팀 ID·`Local.xcconfig`가
+섞이지 않게 주의한다. 새 문자열은 `Localizable.xcstrings`에 한국어 번역을 같이 넣는다.
 
 ## 참고
 
