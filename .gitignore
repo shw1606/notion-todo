@@ -13,3 +13,4 @@ xcuserdata/
 DerivedData/
 *.xcuserstate
 apps/Config/Local.xcconfig
+.probe/

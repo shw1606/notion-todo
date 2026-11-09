@@ -2,6 +2,20 @@
 
 새 결정은 맨 위에 추가. 날짜는 절대값으로 쓴다.
 
+## 2026-11-09 — 뷰 정의를 읽어 data source 쿼리 1회로 조회한다
+
+**결정:** 위젯은 뷰 쿼리(`/views/{id}/queries`)를 쓰지 않는다. 뷰 정의(`GET /v1/views/{id}`)를
+읽어 `filter`와 `quick_filters`를 AND로 합치고 `sorts`와 함께 `POST /v1/data_sources/{id}/query`로
+보낸다. 뷰 정의는 캐시하고, 위젯 갱신마다 data source 쿼리 1회만 보낸다.
+
+**근거 (`scripts/probe-views.mjs` 실측, OAuth 토큰):**
+- Notion UI에서 만든 필터는 `filter`가 아닌 `quick_filters`에 저장됐다.
+- `"me"`는 로그인 사용자로, `"today"`는 오늘 날짜로 해석되어 기대한 항목만 걸렸다. 뷰 기반 설계의
+  전제가 성립한다. ("today"의 날짜 경계 재계산은 2026-11-10 재확인)
+- 뷰 쿼리 결과는 페이지 ID만 줘서 항목 N개면 요청이 N+1회다. data source 쿼리는 같은 필터
+  (`"me"`·`"today"` 포함)를 받고 속성까지 한 번에 준다.
+- 완료 속성 추론도 `filter`와 `quick_filters`를 모두 봐야 한다.
+
 ## 2026-11-08 — 속성 매핑 대신 Notion 뷰 기반 위젯 + OAuth 로그인
 
 **결정:**
