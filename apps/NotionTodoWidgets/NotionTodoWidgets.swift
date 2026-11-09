@@ -29,8 +29,10 @@ struct TodoListWidget: Widget {
 
     static var families: [WidgetFamily] {
         var families: [WidgetFamily] = [.systemSmall, .systemMedium, .systemLarge, .systemExtraLarge]
-        // 세로형 초대형은 iOS·macOS 27 SDK(Xcode 27, Swift 6.3+)에만 있다.
-        #if compiler(>=6.3)
+        // 세로형 초대형은 iOS·macOS 27 SDK에서 쓸 수 있다. 컴파일러 버전이 아니라 SDK(WidgetKit) 버전으로 가른다 —
+        // Xcode 26.6(Swift 6.3) SDK에는 이 값이 있지만 iOS·macOS에서는 쓸 수 없게 표시돼 있다.
+        // 749 = 확인한 iOS·macOS 27.2 SDK의 WidgetKit.
+        #if canImport(WidgetKit, _version: 749)
             if #available(iOS 27.0, macOS 27.0, *) { families.append(.systemExtraLargePortrait) }
         #endif
         #if os(iOS)

@@ -29,7 +29,7 @@ final class WidgetSnapshotTests: XCTestCase {
             Size(name: "rectangular", family: .accessoryRectangular, size: CGSize(width: 172, height: 76), margin: 0),
             Size(name: "inline", family: .accessoryInline, size: CGSize(width: 260, height: 22), margin: 0),
         ]
-        #if compiler(>=6.3)
+        #if canImport(WidgetKit, _version: 749)
             if #available(iOS 27.0, *) {
                 sizes.insert(
                     Size(name: "extraLargePortrait", family: .systemExtraLargePortrait,

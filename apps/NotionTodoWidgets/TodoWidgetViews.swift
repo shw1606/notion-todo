@@ -93,7 +93,7 @@ struct TodoListWidgetContent: View {
         case .systemMedium: list(capacity: 4, columns: 1)
         case .systemSmall: list(capacity: 3, columns: 1)
         default:
-            #if compiler(>=6.3)
+            #if canImport(WidgetKit, _version: 749)  // NotionTodoWidgets.swift의 families 참고
                 if #available(iOS 27.0, macOS 27.0, *), family == .systemExtraLargePortrait {
                     list(capacity: 14, columns: 1)
                 } else {

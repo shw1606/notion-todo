@@ -25,7 +25,8 @@
 - **리스트 순서 바꾸기(`reorderable`)는 뺐다.** Notion API로는 뷰의 수동 정렬 순서를 바꿀 수 없다.
 - **기본 뷰**: "첫 번째 뷰"가 아니라 할 일을 보여주는 뷰를 고른다 (API 목록 순서 ≠ 탭 순서).
 - **완료로 거르지 않는 뷰**는 체크해도 항목이 남고 아래로 내려간다 (`filtersByCompletion`).
-- **세로형 초대형 위젯**은 Xcode 27(Swift 6.3+)에서만 컴파일된다 — Xcode 26으로도 나머지는 빌드된다.
+- **세로형 초대형 위젯**은 iOS·macOS 27 SDK(WidgetKit 749+, Xcode 27.2에서 확인)로 빌드할 때만 들어간다 —
+  Xcode 26으로도 나머지는 빌드된다(CI는 Xcode 26.6).
 - **제어 위젯·위젯 `+`는 `OpenComposerIntent` 대신 `OpenURLIntent`(딥 링크 `notiontodo://compose`)**로 앱을 연다.
   위젯 확장만으로 동작하고 앱 쪽 인텐트 등록이 필요 없다.
 - **`widgetAccentedRenderingMode`는 쓰지 않는다.** 위젯 아이콘이 모두 SF Symbol이라 `widgetAccentable()`로 충분하다
