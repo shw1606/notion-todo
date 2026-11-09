@@ -1,0 +1,17 @@
+{
+  "name": "notion-todo-auth",
+  "private": true,
+  "type": "module",
+  "description": "Stateless Notion OAuth token exchange for Notion Todo (Cloudflare Worker)",
+  "scripts": {
+    "test": "node --test \"test/*.test.ts\"",
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "^4"
+  },
+  "engines": {
+    "node": ">=22.18"
+  }
+}
