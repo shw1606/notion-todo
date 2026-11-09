@@ -91,7 +91,7 @@ final class AppModel {
     func open(viewId: String) async {
         currentViewId = viewId
         await repository.rememberLastView(viewId)
-        currentView = await repository.store.view(viewId)
+        currentView = try? await repository.resolvedView(viewId)
         if let cached = await repository.cachedItems(viewId) { items = cached.items } else { items = [] }
         await refresh()
     }
@@ -102,7 +102,7 @@ final class AppModel {
         defer { isRefreshing = false }
         do {
             let snapshot = try await repository.fetchItems(viewId)
-            currentView = await repository.store.view(viewId)
+            currentView = try await repository.resolvedView(viewId)
             guard currentViewId == viewId else { return }
             items = snapshot.items
             isOffline = false

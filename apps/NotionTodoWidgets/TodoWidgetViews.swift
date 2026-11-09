@@ -13,6 +13,8 @@ struct WidgetTodoRow: View {
     var isWritable: Bool
     var font: Font = .subheadline
     var lineLimit: Int = 1
+    /// 글자 크기(Dynamic Type)에 맞춰 커진다.
+    @ScaledMetric(relativeTo: .subheadline) private var diameter: CGFloat = 15
 
     var body: some View {
         if isWritable, let viewId, !item.isLocalOnly {
@@ -31,13 +33,14 @@ struct WidgetTodoRow: View {
         HStack(alignment: .firstTextBaseline, spacing: 6) {
             Group {
                 if isWritable {
-                    CheckCircle(isDone: item.isDone, isPending: item.isPending, diameter: 15)
+                    CheckCircle(isDone: item.isDone, isPending: item.isPending, diameter: diameter)
                 } else {
-                    Circle().frame(width: 5, height: 5).padding(.horizontal, 5)
+                    Circle().frame(width: diameter / 3, height: diameter / 3).frame(width: diameter)
                 }
             }
             .widgetAccentable()
-            .alignmentGuide(.firstTextBaseline) { $0[VerticalAlignment.center] + 4 }
+            // 원의 중심을 글자 몸통 높이에 맞춘다.
+            .alignmentGuide(.firstTextBaseline) { $0[VerticalAlignment.center] + diameter * 0.3 }
             Text(item.title)
                 .font(font)
                 .strikethrough(item.isDone)
@@ -58,13 +61,23 @@ struct TodoListWidgetView: View {
     var entry: TodoEntry
 
     var body: some View {
-        Group {
-            switch entry.state {
-            case .ready: content
-            default: StatusMessageView(entry: entry)
-            }
+        TodoListWidgetContent(entry: entry, family: family, showsBackground: showsBackground)
+            .containerBackground(.background, for: .widget)
+    }
+}
+
+/// 크기를 인자로 받아 스냅샷 테스트에서도 그릴 수 있게 한다 (`widgetFamily`는 환경에서 읽기 전용).
+struct TodoListWidgetContent: View {
+    var entry: TodoEntry
+    var family: WidgetFamily
+    var showsBackground: Bool = true
+    @Environment(\.dynamicTypeSize) private var typeSize
+
+    var body: some View {
+        switch entry.state {
+        case .ready: content
+        default: StatusMessageView(entry: entry, family: family)
         }
-        .containerBackground(.background, for: .widget)
     }
 
     @ViewBuilder var content: some View {
@@ -90,8 +103,19 @@ struct TodoListWidgetView: View {
     /// StandBy처럼 배경 없이 크게 보이는 곳에서는 글자를 키운다.
     var rowFont: Font { showsBackground ? .subheadline : .title3 }
 
+    /// 큰 글자에서는 같은 공간에 들어가는 줄이 줄어든다.
+    func scaled(_ capacity: Int) -> Int {
+        let factor: Double = switch typeSize {
+        case ...DynamicTypeSize.large: 1
+        case .xLarge, .xxLarge: 0.85
+        case .xxxLarge: 0.75
+        default: 0.5
+        }
+        return max(1, Int((Double(capacity) * factor).rounded(.down)))
+    }
+
     func list(capacity: Int, columns: Int) -> some View {
-        let items = Array(entry.displayItems.prefix(capacity))
+        let items = Array(entry.displayItems.prefix(scaled(capacity)))
         let overflow = entry.items.count - items.count
         return VStack(alignment: .leading, spacing: isSmall ? 6 : 8) {
             header
@@ -177,16 +201,18 @@ struct TodoListWidgetView: View {
     #if os(iOS)
         // 잠금화면: 단색으로 그려진다. 색 대신 모양으로 구분한다.
         var rectangular: some View {
-            let items = Array(entry.displayItems.prefix(3))
-            return VStack(alignment: .leading, spacing: 1) {
+            // 높이가 세 줄뿐이다: 3개 이하면 3줄, 넘치면 2줄 + "+N개 더".
+            let all = entry.displayItems
+            let items = Array(all.prefix(all.count > 3 ? 2 : 3))
+            return VStack(alignment: .leading, spacing: 0) {
                 if items.isEmpty {
                     Label("All done", systemImage: "sparkles").font(.headline)
                 } else {
                     ForEach(items) { item in
                         WidgetTodoRow(item: item, viewId: entry.viewId, isWritable: entry.isWritable, font: .body)
                     }
-                    if entry.items.count > items.count {
-                        Text("+\(entry.items.count - items.count) more").font(.caption2).foregroundStyle(.secondary)
+                    if all.count > items.count {
+                        Text("+\(all.count - items.count) more").font(.caption).foregroundStyle(.secondary)
                     }
                 }
             }
@@ -206,8 +232,8 @@ struct TodoListWidgetView: View {
 // MARK: - 상태 메시지
 
 struct StatusMessageView: View {
-    @Environment(\.widgetFamily) var family
     var entry: TodoEntry
+    var family: WidgetFamily
 
     var body: some View {
         let (icon, message, url) = content
@@ -257,9 +283,19 @@ struct CountWidgetView: View {
     var entry: TodoEntry
 
     var body: some View {
+        CountWidgetContent(entry: entry, family: family)
+            .containerBackground(.background, for: .widget)
+    }
+}
+
+struct CountWidgetContent: View {
+    var entry: TodoEntry
+    var family: WidgetFamily
+
+    var body: some View {
         Group {
             if entry.state != .ready {
-                StatusMessageView(entry: entry)
+                StatusMessageView(entry: entry, family: family)
             } else {
                 switch family {
                 #if os(iOS)
@@ -271,6 +307,7 @@ struct CountWidgetView: View {
                                 Image(systemName: "checklist").font(.caption2)
                             }
                         }
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .accessibilityLabel(Text("\(entry.remaining) left"))
                 #endif
                 default:
@@ -289,6 +326,5 @@ struct CountWidgetView: View {
             }
         }
         .widgetURL(DeepLink.compose(viewId: entry.viewId))
-        .containerBackground(.background, for: .widget)
     }
 }

@@ -109,6 +109,40 @@ targets:
         NTOAuthClientID: $(NT_OAUTH_CLIENT_ID)
         NTAuthBaseURL: $(NT_AUTH_BASE_URL)
 
+  NotionTodoWidgetsTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: NotionTodoWidgetsTests
+      - path: NotionTodoWidgets/TodoWidgetViews.swift
+      - path: NotionTodoWidgets/TodoTimeline.swift
+      - path: Shared/TodoIntents.swift
+    dependencies:
+      - package: NotionTodoKit
+        product: NotionKit
+      - package: NotionTodoKit
+        product: TodoCore
+      - package: NotionTodoKit
+        product: DesignSystem
+      - sdk: WidgetKit.framework
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: $(BUNDLE_ID_PREFIX).notiontodo.widgettests
+        GENERATE_INFOPLIST_FILE: YES
+
+  NotionTodoUITests:
+    type: bundle.ui-testing
+    supportedDestinations: [iOS, macOS]
+    sources:
+      - path: NotionTodoUITests
+    dependencies:
+      - target: NotionTodo
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: $(BUNDLE_ID_PREFIX).notiontodo.uitests
+        TEST_TARGET_NAME: NotionTodo
+        GENERATE_INFOPLIST_FILE: YES
+
 schemes:
   NotionTodo:
     build:
@@ -119,8 +153,18 @@ schemes:
       config: Debug
     test:
       config: Debug
+      targets:
+        - NotionTodoUITests
     archive:
       config: Release
+  WidgetSnapshots:
+    build:
+      targets:
+        NotionTodoWidgetsTests: [test]
+    test:
+      config: Debug
+      targets:
+        - NotionTodoWidgetsTests
   NotionTodoWidgets:
     build:
       targets:

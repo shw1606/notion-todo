@@ -142,9 +142,17 @@ public struct GlassComposer<Field: Hashable>: View {
             HStack(spacing: Spacing.xs) {
                 TextField(placeholder ?? String(localized: "Add a memo…", bundle: .module), text: $text, axis: .vertical)
                     .lineLimit(1...4)
+                    .textFieldStyle(.plain)
                     .focused(focus, equals: field)
                     .submitLabel(.done)
                     .onSubmit(submit)
+                    // 여러 줄 입력 필드는 iOS에서 Return이 줄바꿈이 된다 → Return은 언제나 "추가".
+                    .onChange(of: text) { _, newValue in
+                        guard newValue.contains("\n") else { return }
+                        text = newValue.replacingOccurrences(of: "\n", with: "")
+                        submit()
+                    }
+                    .accessibilityIdentifier("composer")
                     .padding(.horizontal, Spacing.m)
                     .padding(.vertical, Spacing.s)
                     .frame(minHeight: Spacing.rowMinHeight)
@@ -198,7 +206,6 @@ public struct UndoToast: View {
         .padding(.horizontal, Spacing.m)
         .padding(.vertical, Spacing.s)
         .glassEffect(.regular, in: .capsule)
-        .accessibilityElement(children: .combine)
     }
 }
 

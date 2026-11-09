@@ -14,10 +14,14 @@ public struct SharedStore: Sendable {
 
     /// App Group 컨테이너. 그룹이 없거나(서명 없는 빌드·테스트) 쓸 수 없으면 앱 전용 Application Support로 대체한다.
     public static func appGroup(_ identifier: String?) -> SharedStore {
+        // macOS는 권한이 없어도 그룹 경로를 돌려주므로 실제로 쓸 수 있는지 확인한다.
         if let identifier,
             let url = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: identifier)
         {
-            return SharedStore(root: url.appending(path: "NotionTodo", directoryHint: .isDirectory))
+            let root = url.appending(path: "NotionTodo", directoryHint: .isDirectory)
+            if (try? FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)) != nil {
+                return SharedStore(root: root)
+            }
         }
         let support = URL.applicationSupportDirectory.appending(path: "NotionTodo", directoryHint: .isDirectory)
         return SharedStore(root: support)

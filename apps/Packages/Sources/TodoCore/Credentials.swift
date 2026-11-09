@@ -55,20 +55,35 @@ public struct KeychainCredentialStore: CredentialStore {
         self.accessGroup = accessGroup
     }
 
-    func baseQuery(group: String?) -> [String: Any] {
+    /// 시도 순서: 공유 그룹 → 그룹 없음 → (macOS, 서명 없는 개발 빌드) 기존 로그인 키체인.
+    struct Slot {
+        var group: String?
+        var dataProtection: Bool
+    }
+
+    var slots: [Slot] {
+        var slots = [Slot(group: nil, dataProtection: true)]
+        if let accessGroup { slots.insert(Slot(group: accessGroup, dataProtection: true), at: 0) }
+        #if os(macOS)
+            slots.append(Slot(group: nil, dataProtection: false))
+        #endif
+        return slots
+    }
+
+    func baseQuery(_ slot: Slot) -> [String: Any] {
         var query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: service,
             kSecAttrAccount as String: account,
-            kSecUseDataProtectionKeychain as String: true,
         ]
-        if let group { query[kSecAttrAccessGroup as String] = group }
+        if slot.dataProtection { query[kSecUseDataProtectionKeychain as String] = true }
+        if let group = slot.group { query[kSecAttrAccessGroup as String] = group }
         return query
     }
 
     public func load() -> Credentials? {
-        for group in candidateGroups {
-            var query = baseQuery(group: group)
+        for slot in slots {
+            var query = baseQuery(slot)
             query[kSecReturnData as String] = true
             query[kSecMatchLimit as String] = kSecMatchLimitOne
             var result: CFTypeRef?
@@ -82,8 +97,8 @@ public struct KeychainCredentialStore: CredentialStore {
     public func save(_ credentials: Credentials) throws {
         let data = try JSONEncoder().encode(credentials)
         var lastStatus: OSStatus = errSecSuccess
-        for group in candidateGroups {
-            let query = baseQuery(group: group)
+        for slot in slots {
+            let query = baseQuery(slot)
             let attributes: [String: Any] = [
                 kSecValueData as String: data,
                 kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlock,
@@ -94,17 +109,15 @@ public struct KeychainCredentialStore: CredentialStore {
             }
             if status == errSecSuccess { return }
             lastStatus = status
-            // 공유 그룹 권한이 없는 빌드(서명 없음·테스트)면 그룹 없이 다시 시도한다.
+            // 공유 그룹·데이터 보호 키체인 권한이 없는 빌드(서명 없음·테스트)면 다음 칸으로 넘어간다.
             guard status == errSecMissingEntitlement else { break }
         }
         throw KeychainError(status: lastStatus)
     }
 
     public func delete() {
-        for group in candidateGroups { SecItemDelete(baseQuery(group: group) as CFDictionary) }
+        for slot in slots { SecItemDelete(baseQuery(slot) as CFDictionary) }
     }
-
-    var candidateGroups: [String?] { accessGroup == nil ? [nil] : [accessGroup, nil] }
 }
 
 public struct KeychainError: Error, Equatable {

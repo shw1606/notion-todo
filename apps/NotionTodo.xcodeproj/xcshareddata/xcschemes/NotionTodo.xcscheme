@@ -53,6 +53,17 @@
          </BuildableReference>
       </MacroExpansion>
       <Testables>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "D6B141EB81A4AA3B38102366"
+               BuildableName = "NotionTodoUITests.xctest"
+               BlueprintName = "NotionTodoUITests"
+               ReferencedContainer = "container:NotionTodo.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
       <CommandLineArguments>
       </CommandLineArguments>

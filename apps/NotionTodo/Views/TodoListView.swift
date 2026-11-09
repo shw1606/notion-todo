@@ -190,17 +190,18 @@ struct TodoRow: View {
     @State private var draft = ""
     @FocusState private var editorFocused: Bool
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @ScaledMetric(relativeTo: .body) private var circle: CGFloat = Spacing.checkDiameter
 
     var body: some View {
         HStack(alignment: .firstTextBaseline, spacing: Spacing.s) {
             if isWritable {
                 Button(action: onToggle) {
-                    CheckCircle(isDone: item.isDone, isPending: item.isPending)
-                        .frame(width: Spacing.rowMinHeight, height: Spacing.rowMinHeight)
+                    CheckCircle(isDone: item.isDone, isPending: item.isPending, diameter: circle)
+                        .frame(width: max(Spacing.rowMinHeight, circle), height: max(Spacing.rowMinHeight, circle))
                         .contentShape(.rect)
                 }
                 .buttonStyle(.plain)
-                .alignmentGuide(.firstTextBaseline) { $0[VerticalAlignment.center] + 5 }
+                .alignmentGuide(.firstTextBaseline) { $0[VerticalAlignment.center] + circle * 0.27 }
                 .sensoryFeedback(.success, trigger: item.isDone) { _, done in done }
                 .accessibilityLabel(item.accessibilityDescription)
                 .accessibilityHint(Text(item.isDone ? "Marks as not done" : "Marks as done"))

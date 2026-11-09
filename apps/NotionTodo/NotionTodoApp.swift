@@ -1,4 +1,5 @@
 import AppIntents
+import DesignSystem
 import SwiftUI
 import TodoCore
 
@@ -14,6 +15,7 @@ struct NotionTodoApp: App {
         WindowGroup(id: "main") {
             RootView()
                 .environment(model)
+                .tint(.memoAccent)
                 .task { await model.start() }
                 .onOpenURL { model.handle(url: $0) }
                 .onChange(of: scenePhase) { _, phase in
@@ -29,12 +31,14 @@ struct NotionTodoApp: App {
             Settings {
                 SettingsView()
                     .environment(model)
+                    .tint(.memoAccent)
                     .frame(width: 460)
             }
 
             MenuBarExtra(isInserted: $showsMenuBarExtra) {
                 MenuBarQuickAdd()
                     .environment(model)
+                    .tint(.memoAccent)
                     .task { if model.phase == .launching { await model.start() } }
             } label: {
                 Label("Notion Todo", systemImage: "checklist")
@@ -69,7 +73,6 @@ struct NotionTodoShortcuts: AppShortcutsProvider {
             phrases: [
                 "Add a memo in \(.applicationName)",
                 "Write down in \(.applicationName)",
-                "\(.applicationName)에 메모 추가",
             ],
             shortTitle: "Add Memo",
             systemImageName: "square.and.pencil")

@@ -1,0 +1,36 @@
+{
+  "sourceLanguage": "en",
+  "version": "1.0",
+  "strings": {
+    "Add Memo": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "메모 추가"
+          }
+        }
+      }
+    },
+    "Add a memo in ${applicationName}": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${applicationName}에 메모 추가"
+          }
+        }
+      }
+    },
+    "Write down in ${applicationName}": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${applicationName}에 적어줘"
+          }
+        }
+      }
+    }
+  }
+}

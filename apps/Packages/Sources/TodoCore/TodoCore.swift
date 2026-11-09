@@ -45,7 +45,18 @@ public final class TodoServices: Sendable {
             auth: auth)
     }
 
-    public static let shared = TodoServices(configuration: .fromBundle())
+    public static let shared: TodoServices = {
+        #if DEBUG
+            // 개발·UI 테스트: NT_DEV_TOKEN이 있으면 Keychain을 건드리지 않는다.
+            // (서명이 바뀐 개발 빌드가 로그인 키체인을 읽으면 macOS가 허용 창을 띄우고 멈춘다.)
+            if let token = ProcessInfo.processInfo.environment["NT_DEV_TOKEN"], !token.isEmpty {
+                return TodoServices(
+                    configuration: .fromBundle(),
+                    credentials: InMemoryCredentialStore(Credentials(kind: .internalToken, accessToken: token)))
+            }
+        #endif
+        return TodoServices(configuration: .fromBundle())
+    }()
 
     public var isSignedIn: Bool {
         get async { await auth.credentials != nil }

@@ -1,0 +1,406 @@
+{
+  "sourceLanguage": "en",
+  "version": "1.0",
+  "strings": {
+    "%lld left": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld개 남음"
+          }
+        }
+      }
+    },
+    "+%lld more": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "+%lld개 더"
+          }
+        }
+      }
+    },
+    "Add ${text} to ${view}": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${view}에 ${text} 추가"
+          }
+        }
+      }
+    },
+    "Add Memo": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "메모 추가"
+          }
+        }
+      }
+    },
+    "Add memo": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "메모 추가"
+          }
+        }
+      }
+    },
+    "Added “%@”.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“%@” 추가했어요."
+          }
+        }
+      }
+    },
+    "Adds a memo to your Notion todo view without opening the app.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "앱을 열지 않고 Notion 할 일 뷰에 메모를 추가합니다."
+          }
+        }
+      }
+    },
+    "All done": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "다 했어요"
+          }
+        }
+      }
+    },
+    "Book a dentist appointment": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "치과 예약하기"
+          }
+        }
+      }
+    },
+    "Buy toothpaste": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "치약 사기"
+          }
+        }
+      }
+    },
+    "Call mom": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "엄마께 전화"
+          }
+        }
+      }
+    },
+    "Choose View": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "뷰 선택"
+          }
+        }
+      }
+    },
+    "Choose a database in the app": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "앱에서 DB를 고르세요"
+          }
+        }
+      }
+    },
+    "Done": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "완료"
+          }
+        }
+      }
+    },
+    "How many memos are left in a view.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "뷰에 남은 메모 개수를 보여줍니다."
+          }
+        }
+      }
+    },
+    "Marks as done": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "완료로 표시"
+          }
+        }
+      }
+    },
+    "Marks as not done": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "미완료로 표시"
+          }
+        }
+      }
+    },
+    "Memo": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "메모"
+          }
+        }
+      }
+    },
+    "Memo ID": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "메모 ID"
+          }
+        }
+      }
+    },
+    "Memos": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "메모"
+          }
+        }
+      }
+    },
+    "Memos Left": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "남은 메모"
+          }
+        }
+      }
+    },
+    "More in Notion": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notion에 더 있음"
+          }
+        }
+      }
+    },
+    "Notion View": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notion 뷰"
+          }
+        }
+      }
+    },
+    "Open Notion Todo and choose a database first.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "먼저 Notion Todo를 열어 DB를 고르세요."
+          }
+        }
+      }
+    },
+    "Opens Notion Todo ready to write.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "바로 적을 수 있게 Notion Todo를 엽니다."
+          }
+        }
+      }
+    },
+    "Pick the Notion view this widget shows.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이 위젯에 보여줄 Notion 뷰를 고르세요."
+          }
+        }
+      }
+    },
+    "Refresh": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "새로고침"
+          }
+        }
+      }
+    },
+    "Return the parcel": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "택배 반품 접수"
+          }
+        }
+      }
+    },
+    "Sign in again": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "다시 로그인하세요"
+          }
+        }
+      }
+    },
+    "Sign in to Notion": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notion에 로그인하세요"
+          }
+        }
+      }
+    },
+    "To do": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "할 일"
+          }
+        }
+      }
+    },
+    "Toggle Memo": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "메모 체크"
+          }
+        }
+      }
+    },
+    "Try again": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "다시 시도"
+          }
+        }
+      }
+    },
+    "Untitled": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "제목 없음"
+          }
+        }
+      }
+    },
+    "View": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "뷰"
+          }
+        }
+      }
+    },
+    "View ID": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "뷰 ID"
+          }
+        }
+      }
+    },
+    "View not found — edit the widget to choose again": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "뷰를 찾을 수 없어요 — 위젯 편집에서 다시 고르세요"
+          }
+        }
+      }
+    },
+    "What do you want to write down?": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "무엇을 적을까요?"
+          }
+        }
+      }
+    },
+    "Your Notion view, always in sight. Tap a circle to check it off.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notion 뷰를 늘 보이는 곳에. 원을 눌러 체크하세요."
+          }
+        }
+      }
+    },
+    "left": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "남음"
+          }
+        }
+      }
+    }
+  }
+}

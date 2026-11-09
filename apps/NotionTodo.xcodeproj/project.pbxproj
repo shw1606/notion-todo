@@ -12,23 +12,35 @@
 		124B7270308E8503B3AD6446 /* NotionKit in Frameworks */ = {isa = PBXBuildFile; productRef = 0B968FE8CE47FDA8ECF13A7C /* NotionKit */; };
 		17E41E16BB00E9A9D886F941 /* TodoCore in Frameworks */ = {isa = PBXBuildFile; productRef = F5197A8CEB38D2C4DFF4FD84 /* TodoCore */; };
 		1A102FA9EFAD6839B0690F5C /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C28404D1372E4033E95E347 /* SettingsView.swift */; };
+		1F754A828E08A86EC08794F9 /* TodoWidgetViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD959318D2C3729924EC8E58 /* TodoWidgetViews.swift */; };
 		210ECB750738C50FEC1D5D3B /* AppModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A43775608ACD04140B6CC1E6 /* AppModel.swift */; };
+		220ACAE725CCC20018A66DAA /* NotionTodoUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C4BA5ED94CE2DFB12C2AC6B /* NotionTodoUITests.swift */; };
+		22C431C22F5880F52C7E3BAE /* DesignSystem in Frameworks */ = {isa = PBXBuildFile; productRef = BE1F3A22BD95D6F0521A8E83 /* DesignSystem */; };
+		256083E65E74AEB0A2E9169C /* AppShortcuts.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = BDB0EADFD1686A1ECC7AF107 /* AppShortcuts.xcstrings */; };
+		2C0696D1A3848D5A697A1A51 /* TodoCore in Frameworks */ = {isa = PBXBuildFile; productRef = 2F6CE33597C11BB98032C7FB /* TodoCore */; };
+		375E6208CF555F4C7C104BCE /* TodoTimeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A0989A02429E511B1F343B5 /* TodoTimeline.swift */; };
 		446D84AC17A9173A938BD903 /* NotionKit in Frameworks */ = {isa = PBXBuildFile; productRef = A8197FE39C124817C958C5CE /* NotionKit */; };
+		457FD2DC4725C379BCCF844D /* TodoIntents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FFB2531943E063055F4DF99 /* TodoIntents.swift */; };
+		490C53B80F0AE67FF724FEFC /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F7CADFDEDB3E07E2DADDF92 /* WidgetKit.framework */; };
 		5C49C62A0C5DFE8813D69008 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F7CADFDEDB3E07E2DADDF92 /* WidgetKit.framework */; };
+		5FFB851EC0190293CD765B0E /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 4768B94959C2F35C54E0A395 /* Localizable.xcstrings */; };
 		605E36D7E474CBA74BB70A51 /* TodoIntents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FFB2531943E063055F4DF99 /* TodoIntents.swift */; };
 		6324F2BC405860D21B3C3CA5 /* TodoWidgetViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD959318D2C3729924EC8E58 /* TodoWidgetViews.swift */; };
 		6C6C88F8E0A3630834DB589E /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BF53798B065AB3B62581E998 /* SwiftUI.framework */; };
 		810524589B9254D4945DA88B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 93E6444F078877D6AB3C4F8A /* Assets.xcassets */; };
 		817E134FFEE33EF288573E36 /* TodoListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BF0FDF31911E1FC32F38236 /* TodoListView.swift */; };
+		86F31789015B900C93B78BD4 /* WidgetSnapshotTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2D60D3D37B5827DE3329547 /* WidgetSnapshotTests.swift */; };
 		8BB626F68CB62BA7F796C24F /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D19626ACC436E82F05BEAAB /* OnboardingView.swift */; };
 		8FA9E7F4E7A5119812C1887A /* NotionTodoWidgets.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF58F42C99348F02515063A7 /* NotionTodoWidgets.swift */; };
 		9721A2F433F3B19B9765A6DA /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6D6249021F9C0855F5E4DAC /* RootView.swift */; };
 		9BCF4A07B8E38695A6F8408D /* MenuBarQuickAdd.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0B035636997FBA3808A74C0 /* MenuBarQuickAdd.swift */; };
 		9DA3F736F1FE14BAD47757E8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 27B1432CE1D0B38E6AD2360F /* Assets.xcassets */; };
 		CCECE85386361FDC85015E39 /* DesignSystem in Frameworks */ = {isa = PBXBuildFile; productRef = E54BB5E33EEA8F0FCC59E375 /* DesignSystem */; };
+		DD2896249C9A24E04F3FD117 /* NotionKit in Frameworks */ = {isa = PBXBuildFile; productRef = 979A18EB4D0E5E62F14FF1F8 /* NotionKit */; };
 		E4DEC51BBB78CE77925FA2F9 /* NotionTodoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = E71D3A6B2DE021F26B9EB17F /* NotionTodoApp.swift */; };
 		E56B1CA78356A0929980C659 /* NotionTodoWidgets.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 57DEE1145E64C1DAEACA18E1 /* NotionTodoWidgets.appex */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		F2A91F34BEB0746897F2BA1C /* TodoTimeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A0989A02429E511B1F343B5 /* TodoTimeline.swift */; };
+		F76C629373088C02CB101754 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 34B7899F53059F159ABEC497 /* Localizable.xcstrings */; };
 		FF2250E173AFE6193E84F34F /* TodoIntents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FFB2531943E063055F4DF99 /* TodoIntents.swift */; };
 /* End PBXBuildFile section */
 
@@ -39,6 +51,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = 862F36886D23004D17068DB0;
 			remoteInfo = NotionTodoWidgets;
+		};
+		88FBF8A7CCC0CF625E54EE05 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = C143C07B06E989732EB30832 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F19D57C2E4E54E59D15E4D73;
+			remoteInfo = NotionTodo;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -57,13 +76,18 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		0C4BA5ED94CE2DFB12C2AC6B /* NotionTodoUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotionTodoUITests.swift; sourceTree = "<group>"; };
 		27B1432CE1D0B38E6AD2360F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		30294F27F6832C5309A176EB /* NotionTodo.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = NotionTodo.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		34B7899F53059F159ABEC497 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		3FFB2531943E063055F4DF99 /* TodoIntents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoIntents.swift; sourceTree = "<group>"; };
+		4028EEA648228DDA48381500 /* NotionTodoWidgetsTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = NotionTodoWidgetsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		4768B94959C2F35C54E0A395 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		4F7CADFDEDB3E07E2DADDF92 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		57DEE1145E64C1DAEACA18E1 /* NotionTodoWidgets.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = NotionTodoWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		679C43E59967A0AB018E2328 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		6C28404D1372E4033E95E347 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		7A0754D7ED1F61D9673E5DCF /* NotionTodoUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = NotionTodoUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		7A0989A02429E511B1F343B5 /* TodoTimeline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoTimeline.swift; sourceTree = "<group>"; };
 		7BF0FDF31911E1FC32F38236 /* TodoListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoListView.swift; sourceTree = "<group>"; };
 		7D19626ACC436E82F05BEAAB /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
@@ -72,7 +96,9 @@
 		93E6444F078877D6AB3C4F8A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		A43775608ACD04140B6CC1E6 /* AppModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppModel.swift; sourceTree = "<group>"; };
 		B0B035636997FBA3808A74C0 /* MenuBarQuickAdd.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarQuickAdd.swift; sourceTree = "<group>"; };
+		BDB0EADFD1686A1ECC7AF107 /* AppShortcuts.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = AppShortcuts.xcstrings; sourceTree = "<group>"; };
 		BF53798B065AB3B62581E998 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		C2D60D3D37B5827DE3329547 /* WidgetSnapshotTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetSnapshotTests.swift; sourceTree = "<group>"; };
 		CE96DAE813B6F20333C1B3DE /* NotionTodoWidgets-iOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "NotionTodoWidgets-iOS.entitlements"; sourceTree = "<group>"; };
 		CF3D1E02BC83241D56CF4163 /* NotionTodo-iOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "NotionTodo-iOS.entitlements"; sourceTree = "<group>"; };
 		D2956E2138385AB51D61C703 /* NotionTodoWidgets-macOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "NotionTodoWidgets-macOS.entitlements"; sourceTree = "<group>"; };
@@ -92,6 +118,17 @@
 				446D84AC17A9173A938BD903 /* NotionKit in Frameworks */,
 				17E41E16BB00E9A9D886F941 /* TodoCore in Frameworks */,
 				028C3E332337BB25C63A7809 /* DesignSystem in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3430273B26620CDA9BA94485 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DD2896249C9A24E04F3FD117 /* NotionKit in Frameworks */,
+				2C0696D1A3848D5A697A1A51 /* TodoCore in Frameworks */,
+				22C431C22F5880F52C7E3BAE /* DesignSystem in Frameworks */,
+				490C53B80F0AE67FF724FEFC /* WidgetKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -115,6 +152,7 @@
 			children = (
 				93E6444F078877D6AB3C4F8A /* Assets.xcassets */,
 				679C43E59967A0AB018E2328 /* Info.plist */,
+				4768B94959C2F35C54E0A395 /* Localizable.xcstrings */,
 				CE96DAE813B6F20333C1B3DE /* NotionTodoWidgets-iOS.entitlements */,
 				D2956E2138385AB51D61C703 /* NotionTodoWidgets-macOS.entitlements */,
 				DF58F42C99348F02515063A7 /* NotionTodoWidgets.swift */,
@@ -124,12 +162,22 @@
 			path = NotionTodoWidgets;
 			sourceTree = "<group>";
 		};
+		0A93C1C518A8159B5C224BAA /* NotionTodoUITests */ = {
+			isa = PBXGroup;
+			children = (
+				0C4BA5ED94CE2DFB12C2AC6B /* NotionTodoUITests.swift */,
+			);
+			path = NotionTodoUITests;
+			sourceTree = "<group>";
+		};
 		0CBA054CC04C7E9FFC7CFE43 = {
 			isa = PBXGroup;
 			children = (
 				C77F1A6C79969FEC2A35D004 /* Config */,
 				D31C1F9B8070098EF787726D /* NotionTodo */,
+				0A93C1C518A8159B5C224BAA /* NotionTodoUITests */,
 				025CC6E900F7CD78DD96327C /* NotionTodoWidgets */,
+				B33991F83C3C61FD1AF0A9FE /* NotionTodoWidgetsTests */,
 				B04312E3DB8F6E495F44C78E /* Packages */,
 				DDE026541EB896C1FB1DD81C /* Shared */,
 				65DF3FE0C8AB68DA922B24C8 /* Frameworks */,
@@ -150,7 +198,9 @@
 			isa = PBXGroup;
 			children = (
 				30294F27F6832C5309A176EB /* NotionTodo.app */,
+				7A0754D7ED1F61D9673E5DCF /* NotionTodoUITests.xctest */,
 				57DEE1145E64C1DAEACA18E1 /* NotionTodoWidgets.appex */,
+				4028EEA648228DDA48381500 /* NotionTodoWidgetsTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -161,6 +211,14 @@
 				F805361B4DE95A8C882A2289 /* Packages */,
 			);
 			path = Packages;
+			sourceTree = "<group>";
+		};
+		B33991F83C3C61FD1AF0A9FE /* NotionTodoWidgetsTests */ = {
+			isa = PBXGroup;
+			children = (
+				C2D60D3D37B5827DE3329547 /* WidgetSnapshotTests.swift */,
+			);
+			path = NotionTodoWidgetsTests;
 			sourceTree = "<group>";
 		};
 		C77F1A6C79969FEC2A35D004 /* Config */ = {
@@ -176,8 +234,10 @@
 			children = (
 				DCC95BBF6B4FD32F1039C00D /* Views */,
 				A43775608ACD04140B6CC1E6 /* AppModel.swift */,
+				BDB0EADFD1686A1ECC7AF107 /* AppShortcuts.xcstrings */,
 				27B1432CE1D0B38E6AD2360F /* Assets.xcassets */,
 				7EDAF344C2B901D2CD84086E /* Info.plist */,
+				34B7899F53059F159ABEC497 /* Localizable.xcstrings */,
 				CF3D1E02BC83241D56CF4163 /* NotionTodo-iOS.entitlements */,
 				93BB2B46D33ADFE6783A6206 /* NotionTodo-macOS.entitlements */,
 				E71D3A6B2DE021F26B9EB17F /* NotionTodoApp.swift */,
@@ -230,6 +290,45 @@
 			productReference = 57DEE1145E64C1DAEACA18E1 /* NotionTodoWidgets.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
+		AF6B37C4033D18F010CB6098 /* NotionTodoWidgetsTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 62E77655CBECC8EB1870ED05 /* Build configuration list for PBXNativeTarget "NotionTodoWidgetsTests" */;
+			buildPhases = (
+				3251E5443C31B553FA579719 /* Sources */,
+				3430273B26620CDA9BA94485 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = NotionTodoWidgetsTests;
+			packageProductDependencies = (
+				979A18EB4D0E5E62F14FF1F8 /* NotionKit */,
+				2F6CE33597C11BB98032C7FB /* TodoCore */,
+				BE1F3A22BD95D6F0521A8E83 /* DesignSystem */,
+			);
+			productName = NotionTodoWidgetsTests;
+			productReference = 4028EEA648228DDA48381500 /* NotionTodoWidgetsTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		D6B141EB81A4AA3B38102366 /* NotionTodoUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 6363C921455C78D3D72C84A2 /* Build configuration list for PBXNativeTarget "NotionTodoUITests" */;
+			buildPhases = (
+				ABD3819A782D69C1BA63382A /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				B4F546481D5AFA42FAAFB7A5 /* PBXTargetDependency */,
+			);
+			name = NotionTodoUITests;
+			packageProductDependencies = (
+			);
+			productName = NotionTodoUITests;
+			productReference = 7A0754D7ED1F61D9673E5DCF /* NotionTodoUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 		F19D57C2E4E54E59D15E4D73 /* NotionTodo */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = D6CB1BCD6D28F2F0CD7C1C9A /* Build configuration list for PBXNativeTarget "NotionTodo" */;
@@ -267,6 +366,15 @@
 						DevelopmentTeam = "";
 						ProvisioningStyle = Automatic;
 					};
+					AF6B37C4033D18F010CB6098 = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Automatic;
+					};
+					D6B141EB81A4AA3B38102366 = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Automatic;
+						TestTargetID = F19D57C2E4E54E59D15E4D73;
+					};
 					F19D57C2E4E54E59D15E4D73 = {
 						DevelopmentTeam = "";
 						ProvisioningStyle = Automatic;
@@ -279,6 +387,7 @@
 			knownRegions = (
 				Base,
 				en,
+				ko,
 			);
 			mainGroup = 0CBA054CC04C7E9FFC7CFE43;
 			minimizedProjectReferenceProxies = 1;
@@ -291,7 +400,9 @@
 			projectRoot = "";
 			targets = (
 				F19D57C2E4E54E59D15E4D73 /* NotionTodo */,
+				D6B141EB81A4AA3B38102366 /* NotionTodoUITests */,
 				862F36886D23004D17068DB0 /* NotionTodoWidgets */,
+				AF6B37C4033D18F010CB6098 /* NotionTodoWidgetsTests */,
 			);
 		};
 /* End PBXProject section */
@@ -302,6 +413,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				810524589B9254D4945DA88B /* Assets.xcassets in Resources */,
+				5FFB851EC0190293CD765B0E /* Localizable.xcstrings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -309,13 +421,34 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				256083E65E74AEB0A2E9169C /* AppShortcuts.xcstrings in Resources */,
 				9DA3F736F1FE14BAD47757E8 /* Assets.xcassets in Resources */,
+				F76C629373088C02CB101754 /* Localizable.xcstrings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		3251E5443C31B553FA579719 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				457FD2DC4725C379BCCF844D /* TodoIntents.swift in Sources */,
+				375E6208CF555F4C7C104BCE /* TodoTimeline.swift in Sources */,
+				1F754A828E08A86EC08794F9 /* TodoWidgetViews.swift in Sources */,
+				86F31789015B900C93B78BD4 /* WidgetSnapshotTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		ABD3819A782D69C1BA63382A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				220ACAE725CCC20018A66DAA /* NotionTodoUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		E11C50C8D2BD40418EE89FD3 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -349,6 +482,11 @@
 			isa = PBXTargetDependency;
 			target = 862F36886D23004D17068DB0 /* NotionTodoWidgets */;
 			targetProxy = 33B4F8130DC26B6DAF01DC74 /* PBXContainerItemProxy */;
+		};
+		B4F546481D5AFA42FAAFB7A5 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F19D57C2E4E54E59D15E4D73 /* NotionTodo */;
+			targetProxy = 88FBF8A7CCC0CF625E54EE05 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -417,11 +555,47 @@
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = auto;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		1A5693FE8E79F1A9013D8D93 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "$(BUNDLE_ID_PREFIX).notiontodo.widgettests";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		1D42344046D5612B956747E4 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "$(BUNDLE_ID_PREFIX).notiontodo.uitests";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = NotionTodo;
 			};
 			name = Debug;
 		};
@@ -538,7 +712,6 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = auto;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
@@ -568,6 +741,27 @@
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		C4ABD4D2BAE063549DD14719 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "$(BUNDLE_ID_PREFIX).notiontodo.uitests";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = NotionTodo;
 			};
 			name = Release;
 		};
@@ -602,6 +796,22 @@
 			};
 			name = Debug;
 		};
+		EB3B9A10D392905A36E91F2C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "$(BUNDLE_ID_PREFIX).notiontodo.widgettests";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -610,6 +820,24 @@
 			buildConfigurations = (
 				05801C948F1B4417EE2A9F42 /* Debug */,
 				8DF79C1F6120709FCA629AB4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		62E77655CBECC8EB1870ED05 /* Build configuration list for PBXNativeTarget "NotionTodoWidgetsTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EB3B9A10D392905A36E91F2C /* Debug */,
+				1A5693FE8E79F1A9013D8D93 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		6363C921455C78D3D72C84A2 /* Build configuration list for PBXNativeTarget "NotionTodoUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1D42344046D5612B956747E4 /* Debug */,
+				C4ABD4D2BAE063549DD14719 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
@@ -650,9 +878,21 @@
 			isa = XCSwiftPackageProductDependency;
 			productName = DesignSystem;
 		};
+		2F6CE33597C11BB98032C7FB /* TodoCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = TodoCore;
+		};
+		979A18EB4D0E5E62F14FF1F8 /* NotionKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = NotionKit;
+		};
 		A8197FE39C124817C958C5CE /* NotionKit */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = NotionKit;
+		};
+		BE1F3A22BD95D6F0521A8E83 /* DesignSystem */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = DesignSystem;
 		};
 		E54BB5E33EEA8F0FCC59E375 /* DesignSystem */ = {
 			isa = XCSwiftPackageProductDependency;
