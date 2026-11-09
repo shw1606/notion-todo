@@ -37,11 +37,11 @@
                     GlassComposer(text: $model.composerText, focus: $focus, field: .main) { model.add() }
                         .padding(.horizontal, -Spacing.m)
                 } else {
-                    Text("Open Notion Todo to sign in.").foregroundStyle(.secondary)
+                    Text("Open Todo Widget to sign in.").foregroundStyle(.secondary)
                 }
                 Divider()
                 HStack {
-                    Button("Open Notion Todo") {
+                    Button("Open Todo Widget") {
                         NSApp.activate()
                         openWindow(id: "main")
                     }

@@ -18,6 +18,7 @@
 		22C431C22F5880F52C7E3BAE /* DesignSystem in Frameworks */ = {isa = PBXBuildFile; productRef = BE1F3A22BD95D6F0521A8E83 /* DesignSystem */; };
 		256083E65E74AEB0A2E9169C /* AppShortcuts.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = BDB0EADFD1686A1ECC7AF107 /* AppShortcuts.xcstrings */; };
 		2C0696D1A3848D5A697A1A51 /* TodoCore in Frameworks */ = {isa = PBXBuildFile; productRef = 2F6CE33597C11BB98032C7FB /* TodoCore */; };
+		35B33993D30FB31C68137E4E /* InfoPlist.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 1AB4B88A728E94D0A24F4556 /* InfoPlist.xcstrings */; };
 		375E6208CF555F4C7C104BCE /* TodoTimeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A0989A02429E511B1F343B5 /* TodoTimeline.swift */; };
 		446D84AC17A9173A938BD903 /* NotionKit in Frameworks */ = {isa = PBXBuildFile; productRef = A8197FE39C124817C958C5CE /* NotionKit */; };
 		457FD2DC4725C379BCCF844D /* TodoIntents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FFB2531943E063055F4DF99 /* TodoIntents.swift */; };
@@ -35,6 +36,7 @@
 		9721A2F433F3B19B9765A6DA /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6D6249021F9C0855F5E4DAC /* RootView.swift */; };
 		9BCF4A07B8E38695A6F8408D /* MenuBarQuickAdd.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0B035636997FBA3808A74C0 /* MenuBarQuickAdd.swift */; };
 		9DA3F736F1FE14BAD47757E8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 27B1432CE1D0B38E6AD2360F /* Assets.xcassets */; };
+		C59600002AF4D96C70414EF7 /* InfoPlist.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = DC516DFF70E3377E9E17463D /* InfoPlist.xcstrings */; };
 		CCECE85386361FDC85015E39 /* DesignSystem in Frameworks */ = {isa = PBXBuildFile; productRef = E54BB5E33EEA8F0FCC59E375 /* DesignSystem */; };
 		DD2896249C9A24E04F3FD117 /* NotionKit in Frameworks */ = {isa = PBXBuildFile; productRef = 979A18EB4D0E5E62F14FF1F8 /* NotionKit */; };
 		E4DEC51BBB78CE77925FA2F9 /* NotionTodoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = E71D3A6B2DE021F26B9EB17F /* NotionTodoApp.swift */; };
@@ -77,6 +79,7 @@
 
 /* Begin PBXFileReference section */
 		0C4BA5ED94CE2DFB12C2AC6B /* NotionTodoUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotionTodoUITests.swift; sourceTree = "<group>"; };
+		1AB4B88A728E94D0A24F4556 /* InfoPlist.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = InfoPlist.xcstrings; sourceTree = "<group>"; };
 		27B1432CE1D0B38E6AD2360F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		30294F27F6832C5309A176EB /* NotionTodo.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = NotionTodo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		34B7899F53059F159ABEC497 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
@@ -103,6 +106,7 @@
 		CF3D1E02BC83241D56CF4163 /* NotionTodo-iOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "NotionTodo-iOS.entitlements"; sourceTree = "<group>"; };
 		D2956E2138385AB51D61C703 /* NotionTodoWidgets-macOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "NotionTodoWidgets-macOS.entitlements"; sourceTree = "<group>"; };
 		D86569F57497EDC3B877AF15 /* Base.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Base.xcconfig; sourceTree = "<group>"; };
+		DC516DFF70E3377E9E17463D /* InfoPlist.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = InfoPlist.xcstrings; sourceTree = "<group>"; };
 		DF58F42C99348F02515063A7 /* NotionTodoWidgets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotionTodoWidgets.swift; sourceTree = "<group>"; };
 		E71D3A6B2DE021F26B9EB17F /* NotionTodoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotionTodoApp.swift; sourceTree = "<group>"; };
 		F6D6249021F9C0855F5E4DAC /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
@@ -152,6 +156,7 @@
 			children = (
 				93E6444F078877D6AB3C4F8A /* Assets.xcassets */,
 				679C43E59967A0AB018E2328 /* Info.plist */,
+				DC516DFF70E3377E9E17463D /* InfoPlist.xcstrings */,
 				4768B94959C2F35C54E0A395 /* Localizable.xcstrings */,
 				CE96DAE813B6F20333C1B3DE /* NotionTodoWidgets-iOS.entitlements */,
 				D2956E2138385AB51D61C703 /* NotionTodoWidgets-macOS.entitlements */,
@@ -237,6 +242,7 @@
 				BDB0EADFD1686A1ECC7AF107 /* AppShortcuts.xcstrings */,
 				27B1432CE1D0B38E6AD2360F /* Assets.xcassets */,
 				7EDAF344C2B901D2CD84086E /* Info.plist */,
+				1AB4B88A728E94D0A24F4556 /* InfoPlist.xcstrings */,
 				34B7899F53059F159ABEC497 /* Localizable.xcstrings */,
 				CF3D1E02BC83241D56CF4163 /* NotionTodo-iOS.entitlements */,
 				93BB2B46D33ADFE6783A6206 /* NotionTodo-macOS.entitlements */,
@@ -413,6 +419,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				810524589B9254D4945DA88B /* Assets.xcassets in Resources */,
+				C59600002AF4D96C70414EF7 /* InfoPlist.xcstrings in Resources */,
 				5FFB851EC0190293CD765B0E /* Localizable.xcstrings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -423,6 +430,7 @@
 			files = (
 				256083E65E74AEB0A2E9169C /* AppShortcuts.xcstrings in Resources */,
 				9DA3F736F1FE14BAD47757E8 /* Assets.xcassets in Resources */,
+				35B33993D30FB31C68137E4E /* InfoPlist.xcstrings in Resources */,
 				F76C629373088C02CB101754 /* Localizable.xcstrings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -605,8 +613,9 @@
 				"CODE_SIGN_ENTITLEMENTS[sdk=iphone*]" = "NotionTodoWidgets/NotionTodoWidgets-iOS.entitlements";
 				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = "NotionTodoWidgets/NotionTodoWidgets-macOS.entitlements";
 				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
+				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = NotionTodoWidgets/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Notion Todo";
+				INFOPLIST_KEY_CFBundleDisplayName = "Todo Widget";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -633,19 +642,21 @@
 				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = "NotionTodo/NotionTodo-macOS.entitlements";
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
+				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = NotionTodo/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Notion Todo";
+				INFOPLIST_KEY_CFBundleDisplayName = "Todo Widget";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
-				INFOPLIST_KEY_UIApplicationSupportsMultipleScenes = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphone*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsMultipleScenes[sdk=iphone*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphone*]" = YES;
+				"INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad[sdk=iphone*]" = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				"INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone[sdk=iphone*]" = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BUNDLE_ID_PREFIX).notiontodo";
-				PRODUCT_NAME = "Notion Todo";
+				PRODUCT_NAME = "Todo Widget for Notion";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
 				SUPPORTS_MACCATALYST = NO;
@@ -725,8 +736,9 @@
 				"CODE_SIGN_ENTITLEMENTS[sdk=iphone*]" = "NotionTodoWidgets/NotionTodoWidgets-iOS.entitlements";
 				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = "NotionTodoWidgets/NotionTodoWidgets-macOS.entitlements";
 				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
+				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = NotionTodoWidgets/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Notion Todo";
+				INFOPLIST_KEY_CFBundleDisplayName = "Todo Widget";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -774,19 +786,21 @@
 				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = "NotionTodo/NotionTodo-macOS.entitlements";
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
+				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = NotionTodo/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Notion Todo";
+				INFOPLIST_KEY_CFBundleDisplayName = "Todo Widget";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
-				INFOPLIST_KEY_UIApplicationSupportsMultipleScenes = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphone*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsMultipleScenes[sdk=iphone*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphone*]" = YES;
+				"INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad[sdk=iphone*]" = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				"INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone[sdk=iphone*]" = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BUNDLE_ID_PREFIX).notiontodo";
-				PRODUCT_NAME = "Notion Todo";
+				PRODUCT_NAME = "Todo Widget for Notion";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
 				SUPPORTS_MACCATALYST = NO;

@@ -1,6 +1,6 @@
-# notion-todo
+# Todo Widget for Notion
 
-Notion 데이터베이스를 단일 진실 소스로 쓰는 오픈소스 투두 앱. **iPhone · iPad · Mac** 세 플랫폼에서
+Notion 데이터베이스를 단일 진실 소스로 쓰는 오픈소스 투두 앱 (저장소 이름 `notion-todo`). **iPhone · iPad · Mac** 세 플랫폼에서
 동작하고, 세 플랫폼 모두 홈화면/데스크톱 위젯에서 바로 체크할 수 있다.
 
 > **EN:** An open-source todo app backed by your own Notion database, with native SwiftUI +

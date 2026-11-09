@@ -244,22 +244,22 @@
         }
       }
     },
-    "Open Notion Todo and choose a database first.": {
+    "Open Todo Widget and choose a database first.": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "먼저 Notion Todo를 열어 DB를 고르세요."
+            "value": "먼저 할 일 위젯을 열어 DB를 고르세요."
           }
         }
       }
     },
-    "Opens Notion Todo ready to write.": {
+    "Opens Todo Widget ready to write.": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "바로 적을 수 있게 Notion Todo를 엽니다."
+            "value": "바로 적을 수 있게 할 일 위젯을 엽니다."
           }
         }
       }

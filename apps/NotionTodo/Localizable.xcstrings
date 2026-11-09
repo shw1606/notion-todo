@@ -291,12 +291,12 @@
         }
       }
     },
-    "Control-click the desktop, choose Edit Widgets, and drag Notion Todo out.": {
+    "Control-click the desktop, choose Edit Widgets, and drag Todo Widget out.": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "데스크탑을 Control-클릭해 ‘위젯 편집’을 고르고, Notion Todo를 끌어다 놓으세요."
+            "value": "데스크탑을 Control-클릭해 ‘위젯 편집’을 고르고, ‘할 일 위젯’을 끌어다 놓으세요."
           }
         }
       }
@@ -431,12 +431,12 @@
         }
       }
     },
-    "Finish in your browser. Notion Todo comes back when you allow access.": {
+    "Finish in your browser. You’ll come back here when you allow access.": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "브라우저에서 마무리하세요. 액세스를 허용하면 Notion Todo로 돌아와요."
+            "value": "브라우저에서 마무리하세요. 액세스를 허용하면 이 앱으로 돌아와요."
           }
         }
       }
@@ -614,9 +614,6 @@
     "Notion": {
       "shouldTranslate": false
     },
-    "Notion Todo": {
-      "shouldTranslate": false
-    },
     "Notion View": {
       "localizations": {
         "ko": {
@@ -697,32 +694,32 @@
         }
       }
     },
-    "Open Notion Todo": {
+    "Open Todo Widget": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Notion Todo 열기"
+            "value": "할 일 위젯 열기"
           }
         }
       }
     },
-    "Open Notion Todo and choose a database first.": {
+    "Open Todo Widget and choose a database first.": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "먼저 Notion Todo를 열어 DB를 고르세요."
+            "value": "먼저 할 일 위젯을 열어 DB를 고르세요."
           }
         }
       }
     },
-    "Open Notion Todo to sign in.": {
+    "Open Todo Widget to sign in.": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Notion Todo를 열어 로그인하세요."
+            "value": "할 일 위젯을 열어 로그인하세요."
           }
         }
       }
@@ -997,6 +994,16 @@
         }
       }
     },
+    "Todo Widget": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "할 일 위젯"
+          }
+        }
+      }
+    },
     "Toggle Memo": {
       "localizations": {
         "ko": {
@@ -1017,12 +1024,12 @@
         }
       }
     },
-    "Touch and hold the Home Screen, tap Edit → Add Widget, and choose Notion Todo.": {
+    "Touch and hold the Home Screen, tap Edit → Add Widget, and choose Todo Widget.": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "홈 화면을 길게 누르고 편집 → 위젯 추가에서 Notion Todo를 고르세요."
+            "value": "홈 화면을 길게 누르고 편집 → 위젯 추가에서 ‘할 일 위젯’을 고르세요."
           }
         }
       }

@@ -6,12 +6,12 @@ Apple Developer Program 계정과 Notion·Vercel 계정이 필요하다. 코드 
 ## 1. 로그인 함수 배포
 
 [auth/README.md](../auth/README.md)대로 Notion public integration을 만들고 Vercel에 배포한다(Cloudflare Workers도 된다).
-integration 이름(`Notion Todo`)·아이콘·사용자 정보 권한(이메일 제외)을 맞춘다 — 연결할 때 Notion 동의 화면에 보인다.
+integration 이름(`Todo Widget for Notion`)·아이콘·사용자 정보 권한(이메일 제외)을 맞춘다 — 연결할 때 Notion 동의 화면에 보인다.
 배포 후 `https://<auth 호스트>/callback?code=x&state=y`가 `notiontodo://oauth?code=x&state=y`로 302를 돌려주는지 확인한다.
 
 **완료 (2026-11-09):** `https://notion-todo-auth.vercel.app` (Vercel 프로젝트 `notion-todo-auth`). 콜백 302, PKCE 거부,
 Notion이 client 인증을 받아들이는 것(가짜 code에 `invalid_client`가 아닌 "Invalid code")까지 확인. Notion integration은
-이름 `Notion Todo`·앱 아이콘·리다이렉트 URI(이 주소와 `http://localhost:8787/callback`)·이메일 제외로 설정했다.
+이름 `Todo Widget for Notion`·앱 아이콘·리다이렉트 URI(이 주소와 `http://localhost:8787/callback`)·이메일 제외로 설정했다.
 
 ## 2. 서명 설정
 
@@ -36,13 +36,14 @@ Notion이 client 인증을 받아들이는 것(가짜 code에 `invalid_client`�
 - [ ] Mac 기본 브라우저가 Safari일 때(인증 창)와 Chrome일 때(새 탭 → 앱 열기) 모두 연결된다. 취소하면 갇히지 않는다
 - [ ] "오늘" 필터 뷰 위젯이 자정 직후 갱신된다
 - [ ] 제어 센터 "메모 추가" → 앱이 입력 바에 커서를 둔 채 열린다
-- [ ] Siri "Notion Todo에 메모 추가" → 앱을 열지 않고 추가된다
+- [ ] Siri "할 일 위젯에 메모 추가" → 앱을 열지 않고 추가된다
 - [ ] Mac 메뉴 막대에서 추가·체크, 창 닫은 뒤에도 아이콘 유지
 
 ## 4. TestFlight
 
 1. Xcode → Product → Archive (iOS, macOS 각각). 버전은 `project.yml`의 `MARKETING_VERSION`.
-2. App Store Connect에 앱을 만들고 업로드한다.
+2. App Store Connect에 앱을 만들고 업로드한다. 앱 이름은 `Todo Widget for Notion`(홈 화면에는 `Todo Widget`,
+   한국어 기기에서는 `할 일 위젯`).
 3. **앱 개인정보**: "데이터를 수집하지 않음" — 메모는 기기와 사용자의 Notion 사이에서만 오가고, 토큰 교환 함수는
    아무것도 저장하지 않는다. 분석·추적 SDK 없음.
 4. **수출 규정**: 표준 HTTPS만 사용 → `ITSAppUsesNonExemptEncryption = NO`(Info.plist에 이미 들어 있음).

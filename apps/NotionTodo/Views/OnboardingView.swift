@@ -88,7 +88,7 @@ struct WelcomeStep: View {
                     PrimaryButton(title: "Connect Notion", systemImage: "link", isWorking: isWorking, action: connect)
                     VStack(spacing: Spacing.xs) {
                         if waitsForBrowser {
-                            Text("Finish in your browser. Notion Todo comes back when you allow access.")
+                            Text("Finish in your browser. You’ll come back here when you allow access.")
                                 .font(.footnote)
                                 .foregroundStyle(.secondary)
                                 .multilineTextAlignment(.center)
@@ -398,7 +398,7 @@ struct WidgetGuideStep: View {
                 #if os(macOS)
                     guide(
                         "menubar.dock.rectangle", "Desktop",
-                        "Control-click the desktop, choose Edit Widgets, and drag Notion Todo out.")
+                        "Control-click the desktop, choose Edit Widgets, and drag Todo Widget out.")
                     guide(
                         "bell.badge", "Notification Center",
                         "Click the date and time in the menu bar, then Edit Widgets at the bottom.")
@@ -409,7 +409,7 @@ struct WidgetGuideStep: View {
                     let isPad = UIDevice.current.userInterfaceIdiom == .pad
                     guide(
                         isPad ? "apps.ipad" : "apps.iphone", "Home Screen",
-                        "Touch and hold the Home Screen, tap Edit → Add Widget, and choose Notion Todo.")
+                        "Touch and hold the Home Screen, tap Edit → Add Widget, and choose Todo Widget.")
                     guide(
                         isPad ? "lock.ipad" : "lock.iphone", "Lock Screen",
                         "Touch and hold the Lock Screen, tap Customize → Lock Screen, then add Memos. You can check items off without unlocking.")

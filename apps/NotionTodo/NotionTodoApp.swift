@@ -35,7 +35,7 @@ struct NotionTodoApp: App {
                     .tint(.memoAccent)
                     .task { if utilityModel.phase == .launching { await utilityModel.start() } }
             } label: {
-                Label("Notion Todo", systemImage: "checklist")
+                Label("Todo Widget", systemImage: "checklist")
             }
             .menuBarExtraStyle(.window)
         #endif

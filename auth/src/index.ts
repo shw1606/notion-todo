@@ -109,10 +109,10 @@ function callback(request: Request, env: Env): Response {
 
 /** 앱으로 넘길 주소가 있으면 그리로 보낸다(302). 본문은 브라우저로 직접 열렸을 때만 보인다. */
 function callbackPage(location?: string): Response {
-  const link = location ? `<p><a href="${escapeHTML(location)}">Open Notion Todo · 앱 열기</a></p>` : "";
+  const link = location ? `<p><a href="${escapeHTML(location)}">Open the app · 앱 열기</a></p>` : "";
   const html = `<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width">
-<title>Notion Todo</title><body style="font:17px -apple-system,system-ui;padding:2rem;max-width:32rem;margin:auto">
-<h1>Notion Todo</h1><p>Return to the app to finish signing in. You can close this page.</p>
+<title>Todo Widget for Notion</title><body style="font:17px -apple-system,system-ui;padding:2rem;max-width:32rem;margin:auto">
+<h1>Todo Widget for Notion</h1><p>Return to the app to finish signing in. You can close this page.</p>
 <p lang="ko">앱으로 돌아가 로그인을 마치세요. 이 페이지는 닫아도 됩니다.</p>${link}</body>`;
   const headers: Record<string, string> = { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store" };
   if (location) Object.assign(headers, { Location: location, "Referrer-Policy": "no-referrer" });

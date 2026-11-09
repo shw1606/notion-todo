@@ -2,6 +2,18 @@
 
 새 결정은 맨 위에 추가. 날짜는 절대값으로 쓴다.
 
+## 2026-11-09 — 앱 이름: Todo Widget for Notion
+
+**결정:** App Store·Mac 앱·Notion 동의 화면의 이름은 `Todo Widget for Notion`, 홈 화면 이름은 `Todo Widget`
+(한국어 기기는 `할 일 위젯`, `InfoPlist.xcstrings`).
+
+- 노션 연동이 이름에서 바로 보이게 "… for Notion" 형식을 쓴다. App Store에 같은 형식이 많고(Widget for Notion 등),
+  미국·한국 스토어에 같은 이름은 없었다. 노션 브랜드 가이드는 제품 이름에 "Notion"을 넣지 말라고 하므로 요청을 받으면 바꾼다.
+- 이전 이름 "Notion Todo"는 "Notion"이 앞에 오고 스토어의 "NotionTodos"와도 비슷했다.
+- 번들 ID·`notiontodo://`·저장소 이름 같은 내부 식별자는 그대로 둔다. 바꾸면 설치된 앱의 로그인과 위젯이 끊긴다.
+- 함께 고친 것: 앱·위젯 타깃에 `GENERATE_INFOPLIST_FILE`이 없어서 `project.yml`의 `INFOPLIST_KEY_*`(표시 이름·실행 화면·
+  iPad 여러 창·화면 방향·앱 카테고리)가 Info.plist에 하나도 들어가지 않고 있었다. iOS 전용 키는 `[sdk=iphone*]`로 묶었다.
+
 ## 2026-11-09 — 앱 아이콘: 붓으로 그린 체크박스
 
 **결정:** 노션 일러스트처럼 붓으로 그린 체크박스로 바꾼다. 노션의 종이색(`#F7F6F3`)·글자색(`#37352F`)을 쓰고,

@@ -146,7 +146,7 @@ enum AddMemoError: Error, CustomLocalizedStringResourceConvertible {
     case noView
 
     var localizedStringResource: LocalizedStringResource {
-        "Open Notion Todo and choose a database first."
+        "Open Todo Widget and choose a database first."
     }
 }
 

@@ -70,7 +70,7 @@ struct AddMemoControl: ControlWidget {
             }
         }
         .displayName("Add Memo")
-        .description("Opens Notion Todo ready to write.")
+        .description("Opens Todo Widget ready to write.")
     }
 }
 

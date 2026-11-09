@@ -73,7 +73,7 @@ struct ViewSidebar: View {
                 }
             }
         }
-        .navigationTitle("Notion Todo")
+        .navigationTitle("Todo Widget")
         .refreshable { await model.refreshCatalog() }
         .toolbar {
             #if os(iOS)
