@@ -2,6 +2,14 @@
 
 새 결정은 맨 위에 추가. 날짜는 절대값으로 쓴다.
 
+## 2026-11-09 — 최소 OS는 iOS·iPadOS·macOS 26
+
+**결정:** 배포 하한을 iOS 26 / iPadOS 26 / macOS 26으로 한다. 27 전용 기능(`systemExtraLargePortrait`,
+리스트 `reorderable`)은 `#available`로만 켠다.
+
+**근거:** Liquid Glass와 위젯 tinted/clear 외형이 26에서 시작한다. 하한을 맞추면 디자인을 한 벌로 유지하고
+구버전 분기 코드가 없다.
+
 ## 2026-11-09 — 잠금 상태에서도 위젯 체크를 허용한다 (체크만)
 
 **결정:** 완료 토글 인텐트(`ToggleTodoIntent`)만 `authenticationPolicy = .alwaysAllowed`로 둬서 잠금

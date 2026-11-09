@@ -1,0 +1,20 @@
+{
+  "object": "view",
+  "id": "bbf9bc65-7c8e-41c0-a414-e5f5154cb14c",
+  "parent": {
+    "type": "database_id",
+    "database_id": "b507c490-b6c1-4670-996f-8b853b44f5df"
+  },
+  "data_source_id": "ececeb73-0aed-4440-936a-9ea90253dc3c",
+  "name": "Default view",
+  "type": "table",
+  "created_time": "2026-11-09T02:25:51.698+00:00",
+  "last_edited_time": "2026-11-09T02:25:51.698+00:00",
+  "url": "https://app.notion.com/p/b507c490b6c14670996f8b853b44f5df?v=bbf9bc657c8e41c0a414e5f5154cb14c",
+  "filter": null,
+  "sorts": null,
+  "quick_filters": null,
+  "configuration": {
+    "type": "table"
+  }
+}

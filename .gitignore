@@ -14,3 +14,7 @@ DerivedData/
 *.xcuserstate
 apps/Config/Local.xcconfig
 .probe/
+.build/
+.build-dd/
+apps/Packages/.build/
+.swiftpm/

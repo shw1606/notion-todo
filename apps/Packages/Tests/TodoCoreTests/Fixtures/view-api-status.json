@@ -1,0 +1,25 @@
+{
+  "object": "view",
+  "id": "413e485b-4fdb-8155-b546-000c1ccad166",
+  "parent": {
+    "type": "database_id",
+    "database_id": "b507c490-b6c1-4670-996f-8b853b44f5df"
+  },
+  "data_source_id": "ececeb73-0aed-4440-936a-9ea90253dc3c",
+  "name": "미완료 (API로 생성)",
+  "type": "table",
+  "created_time": "2026-11-09T02:39:29.182+00:00",
+  "last_edited_time": "2026-11-09T02:39:29.182+00:00",
+  "url": "https://app.notion.com/p/b507c490b6c14670996f8b853b44f5df?v=413e485b4fdb8155b546000c1ccad166",
+  "filter": {
+    "property": "BpXx",
+    "status": {
+      "does_not_equal": "Done"
+    }
+  },
+  "sorts": null,
+  "quick_filters": null,
+  "configuration": {
+    "type": "table"
+  }
+}

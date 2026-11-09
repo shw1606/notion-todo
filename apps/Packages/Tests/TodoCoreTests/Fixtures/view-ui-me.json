@@ -1,0 +1,29 @@
+{
+  "object": "view",
+  "id": "413e485b-4fdb-80b8-89c9-000ca211b905",
+  "parent": {
+    "type": "database_id",
+    "database_id": "b507c490-b6c1-4670-996f-8b853b44f5df"
+  },
+  "data_source_id": "ececeb73-0aed-4440-936a-9ea90253dc3c",
+  "name": "Untitled",
+  "type": "table",
+  "created_time": "2026-11-09T02:26:46.689+00:00",
+  "last_edited_time": "2026-11-09T02:27:05.716+00:00",
+  "url": "https://app.notion.com/p/b507c490b6c14670996f8b853b44f5df?v=413e485b4fdb80b889c9000ca211b905",
+  "filter": null,
+  "sorts": null,
+  "quick_filters": {
+    "iXlT": {
+      "people": {
+        "contains": "me"
+      }
+    }
+  },
+  "configuration": {
+    "type": "table",
+    "subtasks": {
+      "toggle_column_id": "title"
+    }
+  }
+}

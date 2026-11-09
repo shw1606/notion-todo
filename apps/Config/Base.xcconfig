@@ -1,0 +1,17 @@
+// 공용 빌드 설정. 개인 값(팀 ID·번들 ID 접두사·OAuth)은 Local.xcconfig에 둔다 (커밋 안 함).
+// Local.xcconfig.example을 복사해서 시작한다.
+
+BUNDLE_ID_PREFIX = io.github.notiontodo.dev
+DEVELOPMENT_TEAM =
+
+// Notion public integration client ID (secret은 앱에 넣지 않는다 — auth/ 함수에만 있다)
+NT_OAUTH_CLIENT_ID =
+// 토큰 교환 함수 주소. xcconfig에서 //는 주석이라 https:/$()/ 로 쓴다.
+NT_AUTH_BASE_URL =
+// 위 주소의 호스트. HTTPS 로그인 콜백용 Associated Domains(webcredentials)에 들어간다.
+NT_AUTH_HOST = notion-todo-auth.invalid
+
+#include? "Local.xcconfig"
+
+NT_APP_GROUP_ID = group.$(BUNDLE_ID_PREFIX).notiontodo
+NT_KEYCHAIN_GROUP = $(AppIdentifierPrefix)$(BUNDLE_ID_PREFIX).notiontodo

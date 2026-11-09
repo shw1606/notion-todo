@@ -1,0 +1,30 @@
+{
+  "object": "view",
+  "id": "413e485b-4fdb-81f7-b194-000cee8130c5",
+  "parent": {
+    "type": "database_id",
+    "database_id": "b41d0c41-906d-40ce-93a9-7e93b4a9bcce"
+  },
+  "data_source_id": "7e50ccab-8210-469b-b9d6-6374506907be",
+  "name": "완료함",
+  "type": "table",
+  "created_time": "2026-11-09T02:39:49.091+00:00",
+  "last_edited_time": "2026-11-09T02:39:49.091+00:00",
+  "url": "https://app.notion.com/p/b41d0c41906d40ce93a97e93b4a9bcce?v=413e485b4fdb81f7b194000cee8130c5",
+  "filter": {
+    "property": ";QFf",
+    "checkbox": {
+      "equals": true
+    }
+  },
+  "sorts": [
+    {
+      "property": "aUz[",
+      "direction": "descending"
+    }
+  ],
+  "quick_filters": null,
+  "configuration": {
+    "type": "table"
+  }
+}

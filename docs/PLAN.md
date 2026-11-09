@@ -33,10 +33,10 @@ iPhone·iPad·Mac 앱 하나(멀티플랫폼 타깃)와 위젯 확장 하나로,
 - 여러 Notion 계정 동시 로그인, 공유·협업 기능, 리치 텍스트 편집
 - 서드파티 분석/트래킹 SDK
 
-### 최소 OS — 제안: iOS·iPadOS·macOS 26
+### 최소 OS — 확정: iOS·iPadOS·macOS 26 (2026-11-09)
 Liquid Glass와 위젯의 tinted/clear 외형이 26에서 시작한다. 26을 하한으로 두면 디자인 분기 없이 한 벌로 간다.
 27 전용 기능(`systemExtraLargePortrait`, 리스트 `reorderable`)은 `#available(iOS 27, macOS 27, *)`로만 켠다.
-→ 확정 시 DECISIONS에 기록하고 README 열린 결정을 닫는다.
+→ DECISIONS 2026-11-09 기록.
 
 ---
 

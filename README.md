@@ -237,7 +237,7 @@ docs/          설계·결정 기록
 
 - [x] 클라이언트: 네이티브 SwiftUI + WidgetKit (2026-11-08)
 - [x] 오픈소스, iPhone·iPad·Mac 지원 (2026-11-08)
-- [ ] 최소 OS 버전 — 제안: iOS·iPadOS·macOS 26 (Liquid Glass 기준, [PLAN](docs/PLAN.md) 1장)
+- [x] 최소 OS: iOS·iPadOS·macOS 26 (Liquid Glass 기준, 2026-11-09)
 - [ ] 배포 채널 — App Store / TestFlight 공개 베타 / 소스 빌드만
 - [x] 속성 매핑 없이 Notion 뷰 기반 위젯 + OAuth 로그인 (2026-11-08)
 - [ ] 토큰 교환 함수 호스팅 — Cloudflare Workers / Vercel Functions 등

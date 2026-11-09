@@ -1,0 +1,12 @@
+// Local.xcconfig로 복사해서 자기 값으로 채운다. Local.xcconfig는 .gitignore에 들어 있다.
+
+// Apple Developer 팀 ID (Xcode → Settings → Accounts에서 확인)
+DEVELOPMENT_TEAM = ABCDE12345
+// 번들 ID 접두사. 앱은 <접두사>.notiontodo, 위젯은 <접두사>.notiontodo.widgets
+BUNDLE_ID_PREFIX = com.example
+
+// "Notion으로 로그인"을 쓰려면: auth/ 함수를 배포하고 Notion public integration을 만든 뒤 채운다.
+// 비워 두면 앱은 internal integration 토큰 직접 입력만 제공한다.
+NT_OAUTH_CLIENT_ID =
+NT_AUTH_BASE_URL = https:/$()/notion-todo-auth.example.workers.dev
+NT_AUTH_HOST = notion-todo-auth.example.workers.dev

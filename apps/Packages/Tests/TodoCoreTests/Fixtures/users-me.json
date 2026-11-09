@@ -1,0 +1,22 @@
+{
+  "object": "user",
+  "id": "413e485b-4fdb-81be-b34c-00277ede04e0",
+  "name": "notion-todo",
+  "type": "bot",
+  "bot": {
+    "owner": {
+      "type": "user",
+      "user": {
+        "object": "user",
+        "id": "00000000-0000-4000-8000-000000000001",
+        "name": "Tester",
+        "type": "person"
+      }
+    },
+    "workspace_name": "Test Space",
+    "workspace_id": "307f9a70-ce73-49b2-8617-92fd4a34bb25",
+    "workspace_limits": {
+      "max_file_upload_size_in_bytes": 5368709120
+    }
+  }
+}
