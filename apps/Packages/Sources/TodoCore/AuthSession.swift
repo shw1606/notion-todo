@@ -84,7 +84,7 @@ public actor AuthSession: NotionTokenProvider {
     let session: URLSession
     private var refreshing: Task<String?, Error>?
 
-    public init(store: any CredentialStore, config: OAuthConfig?, session: URLSession = .shared) {
+    public init(store: any CredentialStore, config: OAuthConfig?, session: URLSession = .notion) {
         self.store = store
         self.config = config
         self.session = session

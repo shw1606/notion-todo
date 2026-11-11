@@ -176,13 +176,28 @@ public actor TodoRepository {
     @discardableResult
     public func fetchItems(_ viewId: String) async throws -> ItemsSnapshot {
         await flushPending()
-        let view = try await resolvedView(viewId)
-        let response = try await client.query(dataSourceId: view.dataSourceId, body: view.queryBody())
+        var view = try await resolvedView(viewId)
+        let response: ListResponse<Page>
+        do {
+            response = try await query(view)
+        } catch NotionError.http(400, _, _) where Date.now.timeIntervalSince(view.resolvedAt) > 60 {
+            // 캐시한 뷰 정의가 낡았다 (그 사이 Notion에서 속성을 지웠거나 필터를 고쳤다). 다시 읽고 한 번 더 묻는다.
+            // 방금 읽은 정의로도 거절되는 뷰는 다시 읽어도 같으므로, 그런 뷰에서 요청이 불어나지 않게 1분에 한 번만 한다.
+            view = try await resolvedView(viewId, refresh: true)
+            response = try await query(view)
+        }
         let snapshot = ItemsSnapshot(
             viewId: viewId, items: response.results.filter { $0.inTrash != true }.map(view.item(from:)),
             hasMore: response.hasMore, fetchedAt: .now)
         try? store.save(items: snapshot)
-        return applyPending(snapshot)
+        let shown = applyPending(snapshot)
+        pruneLayout(viewId, keeping: Set(shown.items.map(\.id)))
+        return shown
+    }
+
+    private func query(_ view: ResolvedView) async throws -> ListResponse<Page> {
+        try await client.query(
+            dataSourceId: view.dataSourceId, body: view.queryBody(), properties: view.queryPropertyIds)
     }
 
     func applyPending(_ snapshot: ItemsSnapshot) -> ItemsSnapshot {
@@ -211,6 +226,33 @@ public actor TodoRepository {
             }
         }
         return result
+    }
+
+    // MARK: 배치 (순서·섹션)
+
+    /// 뷰의 로컬 배치. 사용자가 순서를 바꾸거나 섹션을 만든 적이 없으면 빈 배치다.
+    public func layout(_ viewId: String) -> ViewLayout { store.layout(viewId) ?? ViewLayout() }
+
+    /// 저장된 배치에 변경을 적용하고 결과를 돌려준다. 앱·위젯 확장이 같은 파일을 쓰므로 통째로 덮어쓰지 않고
+    /// 변경만 적용한다.
+    @discardableResult
+    public func updateLayout(_ viewId: String, _ change: @Sendable (inout ViewLayout) -> Void) -> ViewLayout {
+        let stored = layout(viewId)
+        var changed = stored
+        change(&changed)
+        guard changed != stored else { return stored }
+        if changed.isEmpty { store.removeLayout(viewId) } else { try? store.save(layout: changed, viewId: viewId) }
+        return changed
+    }
+
+    /// 캐시된 항목을 사용자가 정한 순서대로 (위젯·메뉴 막대).
+    public func orderedItems(_ snapshot: ItemsSnapshot) -> [TodoItem] {
+        layout(snapshot.viewId).ordered(snapshot.items)
+    }
+
+    func pruneLayout(_ viewId: String, keeping ids: Set<String>) {
+        guard store.layout(viewId) != nil else { return }
+        updateLayout(viewId) { $0.prune(keeping: ids) }
     }
 
     // MARK: 쓰기
@@ -323,6 +365,9 @@ public actor TodoRepository {
             let page = try await client.createPage(
                 dataSourceId: view.dataSourceId, properties: view.createProperties(title: title, ownerUserId: owner))
             replaceCachedItem(viewId: op.viewId, localId: localId, with: view.item(from: page))
+            if let layout = store.layout(op.viewId), layout.allIds.contains(localId) {
+                updateLayout(op.viewId) { $0.replace(itemId: localId, with: page.id) }
+            }
         case .rename(let pageId, let title):
             _ = try await client.updatePage(pageId, properties: view.titlePatch(title))
             updateCachedItem(viewId: op.viewId, pageId: pageId) { $0.title = title }

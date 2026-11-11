@@ -29,6 +29,10 @@ final class AppModel {
     var currentViewId: String?
     var currentView: ResolvedView?
     var items: [TodoItem] = []
+    /// 지금 뷰의 로컬 배치(순서·섹션). 이 기기에만 저장한다.
+    var layout = ViewLayout()
+    /// 이름을 고치는 중인 섹션. 새 섹션을 만들면 바로 이름을 적게 한다.
+    var editingSectionId: UUID?
     var isRefreshing = false
     var isOffline = false
     var lastError: String?
@@ -64,6 +68,7 @@ final class AppModel {
         observers = [
             observe(.notionTodoSessionChanged) { await $0.start() },
             observe(.notionTodoCatalogChanged) { await $0.reloadCatalog() },
+            observe(.notionTodoLayoutChanged) { await $0.reloadLayout() },
         ]
     }
 
@@ -166,16 +171,26 @@ final class AppModel {
 
     /// 네트워크를 기다리지 않고 마지막 캐시로 먼저 그린다.
     private func showCached(_ viewId: String) async {
+        let isSameView = currentViewId == viewId
         currentViewId = viewId
         await repository.rememberLastView(viewId)
-        currentView = await repository.store.view(viewId)
-        items = await repository.cachedItems(viewId)?.items ?? []
+        let view = await repository.store.view(viewId)
+        let cached = await repository.cachedItems(viewId)?.items ?? []
+        let stored = await repository.layout(viewId)
+        guard currentViewId == viewId else { return }
+        currentView = view
+        items = cached
+        // 같은 뷰에 저장 중인 변경이 있으면 그 저장이 끝날 때 맞춘다 (`changeLayout`).
+        if !isSameView || layoutWrites == 0 { layout = stored }
+        if !isSameView { editingSectionId = nil }
     }
 
     func refresh() async {
         guard let viewId = currentViewId else { return }
         isRefreshing = true
         defer { isRefreshing = false }
+        let shown = items
+        let wasOffline = isOffline
         do {
             let snapshot = try await repository.fetchItems(viewId)
             currentView = try await repository.resolvedView(viewId)
@@ -184,14 +199,21 @@ final class AppModel {
             lastFetchedAt = snapshot.fetchedAt
             isOffline = false
             lastError = nil
+            // 조회하면서 저장소가 배치를 고쳤을 수 있다 (오프라인으로 만든 항목의 ID 바뀜, 사라진 항목 정리).
+            await reloadLayout()
+            // 위젯은 같은 캐시를 읽는다. 달라진 게 없으면 다시 그리게 하지 않는다: 다시 그릴 때마다 위젯 확장이 떠서
+            // Notion을 한 번 더 조회한다 (앱을 앞으로 가져올 때마다 일어나던 일).
+            if snapshot.items != shown || wasOffline { reloadWidgets() }
         } catch {
             handle(error)
+            // 오프라인이면 위젯도 보여 줄 새 내용이 없다. 그 밖의 오류(연결 끊김 등)는 위젯 안내가 바뀐다.
+            if (error as? NotionError)?.isOffline != true { reloadWidgets() }
         }
-        reloadWidgets()
     }
 
-    /// 화면에 보여줄 순서: 안 한 일 먼저, 체크한 일(완료로 거르지 않는 뷰에서 남는 것)은 아래로.
-    var displayItems: [TodoItem] {
+    /// 목록에 그릴 줄: 섹션 밖 항목 → 섹션(머리·항목) 순, 사용자가 정한 순서대로.
+    /// 완료로 거르지 않는 뷰에서 남는 체크한 일은 묶음 안에서 아래로 내린다.
+    var rows: [LayoutRow] {
         let filtersByCompletion = currentView?.filtersByCompletion ?? true
         let showsDone = currentView?.showsDone ?? false
         let visible = items.filter { item in
@@ -199,15 +221,104 @@ final class AppModel {
             let belongs = item.isDone == showsDone
             return belongs || lingering.contains(item.id)
         }
-        if filtersByCompletion { return visible }
-        return visible.enumerated().sorted { a, b in
-            a.element.isDone == b.element.isDone ? a.offset < b.offset : !a.element.isDone
-        }.map(\.element)
+        return layout.rows(for: visible, doneLast: !filtersByCompletion)
     }
+
+    /// 화면에 보이는 항목만, 보이는 순서대로 (메뉴 막대 빠른 기록).
+    var displayItems: [TodoItem] { rows.compactMap(\.item) }
 
     var isWritable: Bool { currentView?.completion.isWritable ?? false }
 
     var currentSummary: ViewSummary? { catalog.first { $0.id == currentViewId } ?? currentView?.summary }
+
+    // MARK: 순서·섹션 (이 기기에만 저장, Notion에는 보내지 않는다)
+
+    /// 아직 저장소에 반영 중인 배치 변경 수.
+    private var layoutWrites = 0
+
+    /// 화면의 배치를 바로 바꾸고, 같은 변경을 저장소(App Group 파일)에도 적용한다.
+    private func changeLayout(_ change: @escaping @Sendable (inout ViewLayout) -> Void) {
+        guard let viewId = currentViewId else { return }
+        change(&layout)
+        layoutWrites += 1
+        Task {
+            let stored = await repository.updateLayout(viewId, change)
+            layoutWrites -= 1
+            // 저장소 쪽이 기준이다 (위젯 확장이 그사이 항목 ID를 바꿨을 수 있다).
+            if layoutWrites == 0, currentViewId == viewId { layout = stored }
+            NotificationCenter.default.post(name: .notionTodoLayoutChanged, object: self)
+            reloadWidgets()
+        }
+    }
+
+    /// 다른 창이 배치를 바꿨거나 저장소가 고쳤을 때 다시 읽는다.
+    private func reloadLayout() async {
+        guard let viewId = currentViewId, layoutWrites == 0 else { return }
+        let stored = await repository.layout(viewId)
+        if currentViewId == viewId, layoutWrites == 0 { layout = stored }
+    }
+
+    /// 목록에서 줄을 끌어 옮겼다.
+    func moveRows(from source: IndexSet, to destination: Int) {
+        let rows = self.rows
+        changeLayout { $0.move(rows: rows, fromOffsets: source, toOffset: destination) }
+    }
+
+    /// 항목을 섹션으로 보낸다. nil이면 섹션 밖으로.
+    func move(_ item: TodoItem, toSection sectionId: UUID?) {
+        let visibleIds = rows.compactMap { $0.item?.id }
+        withAnimation(Motion.preferred) {
+            changeLayout { $0.move(itemId: item.id, toSection: sectionId, visibleIds: visibleIds) }
+        }
+    }
+
+    /// 목록 맨 아래에 새 섹션을 만들고 바로 이름을 적게 한다. 이름을 적지 않으면 "새 섹션"으로 보인다 (`displayTitle`).
+    func addSection() {
+        let section = LayoutSection(title: "", tint: layout.nextTint)
+        // 줄을 넣기 전에 정한다. 넣은 뒤에 정하면 iPad에서는 새 줄이 이미 그려진 뒤라 입력란으로 바뀌지 않는다.
+        editingSectionId = section.id
+        withAnimation(Motion.preferred) {
+            changeLayout { $0.sections.append(section) }
+        }
+    }
+
+    func renameSection(_ id: UUID, to title: String) {
+        let text = title.trimmingCharacters(in: .whitespacesAndNewlines)
+        changeLayout { $0.updateSection(id, title: text) }
+    }
+
+    func setTint(_ tint: SectionTint, forSection id: UUID) {
+        changeLayout { $0.updateSection(id, tint: tint) }
+    }
+
+    func moveSection(_ id: UUID, by offset: Int) {
+        withAnimation(Motion.preferred) {
+            changeLayout { $0.moveSection(id, by: offset) }
+        }
+    }
+
+    /// 섹션만 없앤다. 담겨 있던 항목은 섹션 밖으로 나온다.
+    func removeSection(_ id: UUID) {
+        if editingSectionId == id { editingSectionId = nil }
+        withAnimation(Motion.preferred) {
+            changeLayout { $0.removeSection(id) }
+        }
+    }
+
+    /// 사용자가 정한 순서와 Notion 뷰의 정렬이 다르다.
+    var canResetOrder: Bool {
+        var reset = layout
+        reset.resetOrder(notionOrder: items.map(\.id))
+        return reset != layout
+    }
+
+    /// 정한 순서를 버리고 Notion 뷰의 정렬로 돌아간다. 섹션은 그대로 둔다.
+    func resetOrder() {
+        let notionOrder = items.map(\.id)
+        withAnimation(Motion.preferred) {
+            changeLayout { $0.resetOrder(notionOrder: notionOrder) }
+        }
+    }
 
     // MARK: 쓰기
 
@@ -225,6 +336,7 @@ final class AppModel {
             try? await Task.sleep(for: Motion.removalDelay)
             guard !Task.isCancelled else { return }
             withAnimation(Motion.preferred) { _ = self?.lingering.remove(item.id) }
+            self?.removalTasks[item.id] = nil
         }
         undo = UndoAction(message: done ? String(localized: "Checked “\(item.title)”") : String(localized: "Unchecked")) {
             [weak self] in
@@ -254,6 +366,7 @@ final class AppModel {
                 try await repository.add(viewId: viewId, title: text)
                 if let cached = await repository.cachedItems(viewId), currentViewId == viewId {
                     withAnimation(Motion.preferred) { items = cached.items }
+                    await reloadLayout()
                 }
             } catch {
                 items.removeAll { $0.id == placeholder.id }
@@ -394,6 +507,8 @@ final class AppModel {
         credentials = nil
         catalog = []
         items = []
+        layout = ViewLayout()
+        editingSectionId = nil
         currentViewId = nil
         currentView = nil
         phase = .onboarding
@@ -430,4 +545,5 @@ final class AppModel {
 extension Notification.Name {
     static let notionTodoSessionChanged = Notification.Name("NotionTodoSessionChanged")
     static let notionTodoCatalogChanged = Notification.Name("NotionTodoCatalogChanged")
+    static let notionTodoLayoutChanged = Notification.Name("NotionTodoLayoutChanged")
 }

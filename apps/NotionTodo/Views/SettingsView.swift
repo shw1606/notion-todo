@@ -62,14 +62,21 @@ struct SettingsView: View {
                         WidgetCenter.shared.reloadAllTimelines()
                     }
                 }
-                #if os(macOS)
-                    Toggle("Show in menu bar", isOn: $showsMenuBarExtra)
-                #endif
             } header: {
                 Text("Widgets")
             } footer: {
                 Text("Widgets refresh every 15–60 minutes as the system allows. Changes you make in this app or in a widget show up right away.")
             }
+
+            #if os(macOS)
+                Section {
+                    Toggle("Show icon in menu bar", isOn: $showsMenuBarExtra)
+                } header: {
+                    Text("Menu Bar")
+                } footer: {
+                    Text("The menu bar icon opens a quick memo box. Turn this off to hide the icon — the app and widgets keep working, and you can turn it back on here.")
+                }
+            #endif
 
             Section("About") {
                 Link("Source code on GitHub", destination: URL(string: "https://github.com/shw1606/notion-todo")!)
@@ -98,7 +105,7 @@ struct SettingsView: View {
                 }
             }
         } message: {
-            Text("Cached memos on this device will be removed. Your Notion data stays as it is.")
+            Text("Cached memos, your custom order and sections on this device will be removed. Your Notion data stays as it is.")
         }
     }
 }

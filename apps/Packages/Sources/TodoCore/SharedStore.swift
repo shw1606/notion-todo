@@ -34,6 +34,7 @@ public struct SharedStore: Sendable {
 
     func viewURL(_ id: String) -> URL { url("views/\(Self.safe(id)).json") }
     func itemsURL(_ id: String) -> URL { url("items/\(Self.safe(id)).json") }
+    func layoutURL(_ id: String) -> URL { url("layouts/\(Self.safe(id)).json") }
     var catalogURL: URL { url("catalog.json") }
     var pendingURL: URL { url("pending.json") }
     var settingsURL: URL { url("settings.json") }
@@ -70,6 +71,13 @@ public struct SharedStore: Sendable {
 
     public func items(_ viewId: String) -> ItemsSnapshot? { read(ItemsSnapshot.self, at: itemsURL(viewId)) }
     public func save(items: ItemsSnapshot) throws { try write(items, at: itemsURL(items.viewId)) }
+
+    /// 뷰의 로컬 배치(순서·섹션). 없으면 nil.
+    public func layout(_ viewId: String) -> ViewLayout? { read(ViewLayout.self, at: layoutURL(viewId)) }
+    public func save(layout: ViewLayout, viewId: String) throws { try write(layout, at: layoutURL(viewId)) }
+    public func removeLayout(_ viewId: String) { remove(at: layoutURL(viewId)) }
+    /// 모든 뷰의 배치를 지운다 (개발·UI 테스트).
+    public func removeAllLayouts() { remove(at: url("layouts")) }
 
     public func catalog() -> ViewCatalog? { read(ViewCatalog.self, at: catalogURL) }
     public func save(catalog: ViewCatalog) throws { try write(catalog, at: catalogURL) }

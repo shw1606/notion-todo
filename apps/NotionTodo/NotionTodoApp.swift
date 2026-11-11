@@ -11,6 +11,13 @@ struct NotionTodoApp: App {
         @AppStorage("showsMenuBarExtra") private var showsMenuBarExtra = true
     #endif
 
+    #if DEBUG && os(macOS)
+        init() {
+            // 개발용: 창을 PNG로 적는다 (`DevSnapshot`). 앱이 다 뜬 뒤에 시작한다.
+            DispatchQueue.main.async { DevSnapshot.startIfRequested() }
+        }
+    #endif
+
     var body: some Scene {
         WindowGroup(id: "main") {
             WindowRoot()
@@ -79,6 +86,9 @@ struct AppCommands: Commands {
                 .disabled(model?.phase != .ready)
             Button("New Window") { openWindow(id: "main") }
                 .keyboardShortcut("n", modifiers: [.command, .option])
+            Button("New Section") { model?.addSection() }
+                .keyboardShortcut("n", modifiers: [.command, .shift])
+                .disabled(model?.phase != .ready)
         }
         CommandGroup(after: .toolbar) {
             Button("Refresh") { Task { await model?.refresh() } }

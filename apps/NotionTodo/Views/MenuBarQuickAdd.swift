@@ -7,6 +7,8 @@
     struct MenuBarQuickAdd: View {
         @Environment(AppModel.self) private var model
         @Environment(\.openWindow) private var openWindow
+        @Environment(\.openSettings) private var openSettings
+        @AppStorage("showsMenuBarExtra") private var showsMenuBarExtra = true
         @FocusState private var focus: ComposerField?
 
         var body: some View {
@@ -46,7 +48,22 @@
                         openWindow(id: "main")
                     }
                     Spacer()
-                    Button("Quit") { NSApp.terminate(nil) }
+                    // 아이콘을 숨기면 이 창도 닫힌다. 다시 켜는 곳은 설정의 "메뉴 막대".
+                    Menu {
+                        Button("Settings…") {
+                            NSApp.activate()
+                            openSettings()
+                        }
+                        Button("Hide Menu Bar Icon") { showsMenuBarExtra = false }
+                        Divider()
+                        Button("Quit") { NSApp.terminate(nil) }
+                    } label: {
+                        Image(systemName: "ellipsis.circle")
+                    }
+                    .menuStyle(.borderlessButton)
+                    .menuIndicator(.hidden)
+                    .fixedSize()
+                    .accessibilityLabel(Text("More"))
                 }
                 .buttonStyle(.borderless)
             }

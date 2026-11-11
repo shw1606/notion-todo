@@ -161,12 +161,22 @@
         }
       }
     },
-    "Cached memos on this device will be removed. Your Notion data stays as it is.": {
+    "Blue": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "이 기기에 저장된 메모 캐시가 지워집니다. Notion 데이터는 그대로 남아요."
+            "value": "파랑"
+          }
+        }
+      }
+    },
+    "Cached memos, your custom order and sections on this device will be removed. Your Notion data stays as it is.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이 기기에 저장된 메모 캐시와 직접 정한 순서·섹션이 지워집니다. Notion 데이터는 그대로 남아요."
           }
         }
       }
@@ -247,6 +257,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "메뉴 막대의 날짜와 시간을 클릭하고 맨 아래 ‘위젯 편집’을 누르세요."
+          }
+        }
+      }
+    },
+    "Color": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "색"
           }
         }
       }
@@ -391,6 +411,16 @@
         }
       }
     },
+    "Delete Section": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "섹션 삭제"
+          }
+        }
+      }
+    },
     "Deleted “%@”": {
       "localizations": {
         "ko": {
@@ -431,6 +461,16 @@
         }
       }
     },
+    "Drag memos here.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "메모를 여기로 끌어다 놓으세요."
+          }
+        }
+      }
+    },
     "Edit": {
       "localizations": {
         "ko": {
@@ -447,6 +487,36 @@
           "stringUnit": {
             "state": "translated",
             "value": "브라우저에서 마무리하세요. 액세스를 허용하면 이 앱으로 돌아와요."
+          }
+        }
+      }
+    },
+    "Gray": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "회색"
+          }
+        }
+      }
+    },
+    "Green": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "초록"
+          }
+        }
+      }
+    },
+    "Hide Menu Bar Icon": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "메뉴 막대 아이콘 숨기기"
           }
         }
       }
@@ -581,6 +651,16 @@
         }
       }
     },
+    "Menu Bar": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "메뉴 막대"
+          }
+        }
+      }
+    },
     "Menu bar": {
       "localizations": {
         "ko": {
@@ -591,12 +671,62 @@
         }
       }
     },
+    "More": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "더 보기"
+          }
+        }
+      }
+    },
+    "Move Down": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "아래로 이동"
+          }
+        }
+      }
+    },
+    "Move Up": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "위로 이동"
+          }
+        }
+      }
+    },
+    "Move to Section": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "섹션으로 이동"
+          }
+        }
+      }
+    },
     "New Memo": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
             "value": "새 메모"
+          }
+        }
+      }
+    },
+    "New Section": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "새 섹션"
           }
         }
       }
@@ -617,6 +747,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "새 메모 DB"
+          }
+        }
+      }
+    },
+    "No Section": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "섹션 없음"
           }
         }
       }
@@ -774,6 +914,16 @@
         }
       }
     },
+    "Organize": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "정리"
+          }
+        }
+      }
+    },
     "Paste it here": {
       "localizations": {
         "ko": {
@@ -810,6 +960,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "페이지는 안 골라도 돼요. Notion에 할 일 DB가 이미 있다면 그 페이지에 체크하세요."
+          }
+        }
+      }
+    },
+    "Pink": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "분홍"
+          }
+        }
+      }
+    },
+    "Purple": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "보라"
           }
         }
       }
@@ -894,6 +1064,46 @@
         }
       }
     },
+    "Rename": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이름 바꾸기"
+          }
+        }
+      }
+    },
+    "Reset to Notion Order": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notion 순서로 되돌리기"
+          }
+        }
+      }
+    },
+    "Section name": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "섹션 이름"
+          }
+        }
+      }
+    },
+    "Section options, %@": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "섹션 옵션, %@"
+          }
+        }
+      }
+    },
     "Select pages, then Allow access": {
       "localizations": {
         "ko": {
@@ -914,12 +1124,22 @@
         }
       }
     },
-    "Show in menu bar": {
+    "Settings…": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "메뉴 막대에 표시"
+            "value": "설정…"
+          }
+        }
+      }
+    },
+    "Show icon in menu bar": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "메뉴 막대에 아이콘 표시"
           }
         }
       }
@@ -1004,6 +1224,16 @@
         }
       }
     },
+    "The menu bar icon opens a quick memo box. Turn this off to hide the icon — the app and widgets keep working, and you can turn it back on here.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "메뉴 막대 아이콘을 누르면 빠른 메모 창이 열립니다. 끄면 아이콘이 숨겨지고, 앱과 위젯은 그대로 동작합니다. 여기서 다시 켤 수 있어요."
+          }
+        }
+      }
+    },
     "There’s no page to put it in. In Notion, add a page to your integration under ••• → Connections, then try again.": {
       "localizations": {
         "ko": {
@@ -1070,6 +1300,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "토큰"
+          }
+        }
+      }
+    },
+    "Touch and hold a memo, then drag it here.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "메모를 길게 눌러 여기로 끌어다 놓으세요."
           }
         }
       }
@@ -1250,6 +1490,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "적어 두고,\n위젯에서 체크하세요."
+          }
+        }
+      }
+    },
+    "Yellow": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "노랑"
           }
         }
       }

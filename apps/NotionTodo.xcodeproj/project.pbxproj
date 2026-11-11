@@ -35,6 +35,7 @@
 		8FA9E7F4E7A5119812C1887A /* NotionTodoWidgets.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF58F42C99348F02515063A7 /* NotionTodoWidgets.swift */; };
 		9721A2F433F3B19B9765A6DA /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6D6249021F9C0855F5E4DAC /* RootView.swift */; };
 		9BCF4A07B8E38695A6F8408D /* MenuBarQuickAdd.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0B035636997FBA3808A74C0 /* MenuBarQuickAdd.swift */; };
+		9BE7ACBB022784F18EA6FD08 /* DevSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5273A81108AA68ADF0869AE2 /* DevSnapshot.swift */; };
 		9DA3F736F1FE14BAD47757E8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 27B1432CE1D0B38E6AD2360F /* Assets.xcassets */; };
 		C59600002AF4D96C70414EF7 /* InfoPlist.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = DC516DFF70E3377E9E17463D /* InfoPlist.xcstrings */; };
 		CCECE85386361FDC85015E39 /* DesignSystem in Frameworks */ = {isa = PBXBuildFile; productRef = E54BB5E33EEA8F0FCC59E375 /* DesignSystem */; };
@@ -87,6 +88,7 @@
 		4028EEA648228DDA48381500 /* NotionTodoWidgetsTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = NotionTodoWidgetsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		4768B94959C2F35C54E0A395 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		4F7CADFDEDB3E07E2DADDF92 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		5273A81108AA68ADF0869AE2 /* DevSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DevSnapshot.swift; sourceTree = "<group>"; };
 		57DEE1145E64C1DAEACA18E1 /* NotionTodoWidgets.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = NotionTodoWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		679C43E59967A0AB018E2328 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		6C28404D1372E4033E95E347 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
@@ -241,6 +243,7 @@
 				A43775608ACD04140B6CC1E6 /* AppModel.swift */,
 				BDB0EADFD1686A1ECC7AF107 /* AppShortcuts.xcstrings */,
 				27B1432CE1D0B38E6AD2360F /* Assets.xcassets */,
+				5273A81108AA68ADF0869AE2 /* DevSnapshot.swift */,
 				7EDAF344C2B901D2CD84086E /* Info.plist */,
 				1AB4B88A728E94D0A24F4556 /* InfoPlist.xcstrings */,
 				34B7899F53059F159ABEC497 /* Localizable.xcstrings */,
@@ -473,6 +476,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				210ECB750738C50FEC1D5D3B /* AppModel.swift in Sources */,
+				9BE7ACBB022784F18EA6FD08 /* DevSnapshot.swift in Sources */,
 				9BCF4A07B8E38695A6F8408D /* MenuBarQuickAdd.swift in Sources */,
 				E4DEC51BBB78CE77925FA2F9 /* NotionTodoApp.swift in Sources */,
 				8BB626F68CB62BA7F796C24F /* OnboardingView.swift in Sources */,
@@ -705,11 +709,13 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEPLOYMENT_POSTPROCESSING = YES;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = s;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
@@ -723,9 +729,11 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRIP_INSTALLED_PRODUCT = YES;
+				STRIP_STYLE = all;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_OPTIMIZATION_LEVEL = "-Osize";
 				SWIFT_VERSION = 6.0;
 			};
 			name = Release;

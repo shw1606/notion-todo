@@ -24,6 +24,17 @@ settings:
     ENABLE_USER_SCRIPT_SANDBOXING: YES
     DEAD_CODE_STRIPPING: YES
     CODE_SIGN_STYLE: Automatic
+  configs:
+    Release:
+      # 앱 용량 (DECISIONS 2026-11-11). 실행 파일이 번들의 98%이고 그 2/3가 기호 표였다.
+      # 아카이브가 아닌 Release 빌드(로컬 설치용)에서도 기호를 떼어 낸다. 기호는 dSYM에 남는다.
+      DEPLOYMENT_POSTPROCESSING: YES
+      STRIP_INSTALLED_PRODUCT: YES
+      STRIP_STYLE: all
+      DEBUG_INFORMATION_FORMAT: dwarf-with-dsym
+      # 화면 몇 개짜리 앱이라 속도보다 크기를 고른다.
+      SWIFT_OPTIMIZATION_LEVEL: -Osize
+      GCC_OPTIMIZATION_LEVEL: s
 
 packages:
   NotionTodoKit:

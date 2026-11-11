@@ -89,10 +89,11 @@ struct TodoTimelineProvider: AppIntentTimelineProvider {
         }
         let view = await repository.store.view(viewId) ?? cachedView
         guard let snapshot else { return isOffline ? offlineEmpty(view) : .state(.viewMissing) }
+        // 앱에서 정한 순서대로 (섹션 머리는 그리지 않고 순서만 따른다).
         return TodoEntry(
             date: .now, state: .ready, viewId: viewId, viewName: view?.name ?? configuration.view?.name ?? "",
-            isWritable: view?.completion.isWritable ?? false, items: snapshot.items, hasMore: snapshot.hasMore,
-            isOffline: isOffline, fetchedAt: snapshot.fetchedAt)
+            isWritable: view?.completion.isWritable ?? false, items: await repository.orderedItems(snapshot),
+            hasMore: snapshot.hasMore, isOffline: isOffline, fetchedAt: snapshot.fetchedAt)
     }
 
     func offlineEmpty(_ view: ResolvedView?) -> TodoEntry {

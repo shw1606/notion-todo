@@ -29,6 +29,21 @@ public struct StaticTokenProvider: NotionTokenProvider {
     public func refreshAfterUnauthorized(failedToken: String) async throws -> String? { nil }
 }
 
+extension URLSession {
+    /// Notion API·로그인 서버에 쓰는 세션. 받은 내용은 앱이 App Group 파일로 직접 캐시하므로 HTTP 캐시·쿠키·
+    /// 자격 저장소를 모두 끈다. `URLSession.shared`는 응답을 디스크(Cache.db)에 쌓아 수 MB가 되고,
+    /// 그 캐시가 메모리도 잡는다.
+    public static let notion: URLSession = {
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.urlCache = nil
+        configuration.requestCachePolicy = .reloadIgnoringLocalCacheData
+        configuration.httpCookieStorage = nil
+        configuration.httpShouldSetCookies = false
+        configuration.urlCredentialStorage = nil
+        return URLSession(configuration: configuration)
+    }()
+}
+
 public final class NotionClient: Sendable {
     public static let apiVersion = "2026-03-11"
 
@@ -39,7 +54,7 @@ public final class NotionClient: Sendable {
 
     public init(
         tokens: any NotionTokenProvider,
-        session: URLSession = .shared,
+        session: URLSession = .notion,
         baseURL: URL = URL(string: "https://api.notion.com/v1")!,
         maxRetries: Int = 3
     ) {
@@ -180,9 +195,14 @@ extension NotionClient {
         try await send("GET", "views/\(id)")
     }
 
-    /// `body`는 filter·sorts·page_size를 담은 쿼리 본문.
-    public func query(dataSourceId: String, body: JSONValue) async throws -> ListResponse<Page> {
-        try await send("POST", "data_sources/\(dataSourceId)/query", body: body)
+    /// `body`는 filter·sorts·page_size를 담은 쿼리 본문. `properties`(속성 ID)를 주면 페이지마다 그 속성 값만 받는다.
+    /// 속성이 많은 DB는 응답이 몇 배 작아져, 메모리가 빠듯한 위젯 확장에서 디코딩할 양이 준다.
+    public func query(dataSourceId: String, body: JSONValue, properties: [String] = []) async throws
+        -> ListResponse<Page>
+    {
+        try await send(
+            "POST", "data_sources/\(dataSourceId)/query",
+            query: properties.map { URLQueryItem(name: "filter_properties", value: $0) }, body: body)
     }
 
     public func createPage(dataSourceId: String, properties: JSONValue) async throws -> Page {

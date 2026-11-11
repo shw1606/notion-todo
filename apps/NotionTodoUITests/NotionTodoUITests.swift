@@ -1,6 +1,7 @@
 import XCTest
 
-/// 핵심 흐름 (PLAN 6.1): 추가 → 체크 → 실행 취소 / 뷰 전환 / 오프라인 추가 후 복구 / 첫 실행 연결 / DB 더하고 빼기.
+/// 핵심 흐름 (PLAN 6.1): 추가 → 체크 → 실행 취소 / 뷰 전환 / 오프라인 추가 후 복구 / 첫 실행 연결 / DB 더하고 빼기 /
+/// 순서 바꾸기와 섹션.
 /// iPhone·Mac 공용. 실제 Notion 테스트 DB에 쓴다. `TEST_RUNNER_NT_DEV_TOKEN`이 없으면 건너뛴다.
 final class NotionTodoUITests: XCTestCase {
     var app: XCUIApplication!
@@ -158,7 +159,8 @@ final class NotionTodoUITests: XCTestCase {
             // DB 줄의 레이블 = "DB 이름, 체크하면 바뀌는 것".
             let rows = app.buttons.matching(
                 NSPredicate(format: "label CONTAINS 'Checking off' OR label CONTAINS 'depends on the view'"))
-            XCTAssertTrue(rows.firstMatch.waitForExistence(timeout: 20), "고를 DB가 하나 이상 있어야 한다")
+            try XCTSkipUnless(
+                rows.firstMatch.waitForExistence(timeout: 20), "메모 DB 말고 체크할 칸이 있는 DB가 연결에 하나 더 있어야 한다")
             XCTAssertFalse(rows.allElementsBoundByIndex.contains { $0.label.hasPrefix("할 일 메모") }, "고른 DB는 다시 나오지 않는다")
             let row = rows.firstMatch
             let title = try XCTUnwrap(row.label.components(separatedBy: ", ").first)
@@ -182,7 +184,192 @@ final class NotionTodoUITests: XCTestCase {
         #endif
     }
 
+    /// 줄을 끌어 순서를 바꾸면 다시 열어도 그대로이고, 섹션을 만들어 메모를 담고 섹션째 옮길 수 있다.
+    /// 순서와 섹션은 기기에만 남는다.
+    func testReorderAndSections() throws {
+        #if os(iOS)
+            relaunchWithoutLayouts()
+            let stamp = Int(Date().timeIntervalSince1970)
+            let first = "순서 가 \(stamp)"
+            let second = "순서 나 \(stamp)"
+            for title in [first, second] {
+                press(composer)
+                composer.typeText(title + "\n")
+                XCTAssertTrue(app.staticTexts[title].firstMatch.waitForExistence(timeout: 10))
+                // Notion에 올라가 ID가 정해질 때까지 기다린다 (대기 중인 줄은 고칠 수 없다).
+                XCTAssertTrue(wait(checkButton(title), "value != %@", "Waiting to sync", timeout: 20))
+            }
+            let a = app.staticTexts[first].firstMatch
+            let b = app.staticTexts[second].firstMatch
+            XCTAssertLessThan(b.frame.minY, a.frame.minY, "새 메모는 맨 위에 온다")
+
+            // 먼저 적은 메모를 길게 눌러 맨 위로 끈다.
+            drag(a, above: b)
+            XCTAssertTrue(waitUntil(timeout: 5) { a.frame.minY < b.frame.minY }, "끌어 놓은 순서대로 보여야 한다")
+            attachScreenshot("1 reordered")
+
+            // 다시 열어도 (Notion에서 새로 받아도) 정한 순서가 남는다.
+            app.terminate()
+            app.launch()
+            XCTAssertTrue(a.waitForExistence(timeout: 20))
+            sleep(4)  // 새로 받은 목록으로 바뀔 시간
+            XCTAssertLessThan(a.frame.minY, b.frame.minY, "정한 순서는 기기에 저장된다")
+
+            // 섹션을 만들고 이름을 적는다. 빈 섹션에는 끌어다 놓으라는 안내가 보인다.
+            let header = addSection("묶음 \(stamp)")
+            let hint = app.staticTexts["Touch and hold a memo, then drag it here."].firstMatch
+            XCTAssertTrue(hint.waitForExistence(timeout: 5))
+            attachScreenshot("2 empty section")
+
+            // 빈 섹션에 끌어 놓으면 섹션에 들어간다.
+            drag(a, below: hint)
+            XCTAssertTrue(waitUntil(timeout: 5) { a.frame.minY > header.frame.minY }, "섹션에 넣은 메모는 섹션 머리 아래에 온다")
+            XCTAssertLessThan(b.frame.minY, header.frame.minY, "나머지는 섹션 밖에 남는다")
+            XCTAssertTrue(waitForDisappearance(hint, timeout: 3), "메모가 들어가면 안내는 사라진다")
+
+            // 다른 메모는 섹션 안 메모 아래에 놓는다.
+            drag(b, below: a)
+            XCTAssertTrue(waitUntil(timeout: 5) { b.frame.minY > a.frame.minY }, "섹션 안에서도 놓은 자리에 온다")
+            attachScreenshot("3 section with memos")
+
+            // 섹션 안 메모를 섹션 머리 위로 끌면 섹션 밖으로 나온다.
+            drag(a, above: header)
+            XCTAssertTrue(waitUntil(timeout: 5) { a.frame.minY < header.frame.minY }, "섹션 밖으로 끌어낼 수 있다")
+            XCTAssertGreaterThan(b.frame.minY, header.frame.minY)
+
+            // 섹션 머리를 끌면 섹션이 담긴 메모와 함께 옮겨 간다.
+            let other = addSection("묶음 둘 \(stamp)")
+            XCTAssertGreaterThan(other.frame.minY, b.frame.minY, "새 섹션은 맨 아래에 생긴다")
+            drag(other, above: header)
+            XCTAssertTrue(waitUntil(timeout: 5) { other.frame.minY < header.frame.minY }, "머리를 끌면 섹션 순서가 바뀐다")
+            XCTAssertGreaterThan(b.frame.minY, header.frame.minY, "섹션에 담긴 메모는 섹션을 따라간다")
+            attachScreenshot("4 two sections")
+
+            // 섹션은 섹션 밖 메모 사이로 들어가지 않는다: 그런 자리에 놓으면 제자리로 돌아온다.
+            drag(other, above: a)
+            sleep(2)
+            XCTAssertGreaterThan(other.frame.minY, a.frame.minY, "섹션은 섹션 밖 메모 아래에 남는다")
+            XCTAssertLessThan(other.frame.minY, header.frame.minY)
+
+            // 정리: 섹션을 지우면 메모는 섹션 밖으로 나온다. 그다음 메모를 지운다.
+            removeTestSections()
+            XCTAssertTrue(waitForDisappearance(header, timeout: 5))
+            XCTAssertFalse(other.exists)
+            XCTAssertTrue(a.exists && b.exists, "섹션을 지워도 메모는 남는다")
+            for row in [a, b] {
+                row.swipeLeft()
+                let button = app.buttons["Delete"].firstMatch
+                XCTAssertTrue(button.waitForExistence(timeout: 3))
+                button.tap()
+                XCTAssertTrue(waitForDisappearance(row, timeout: 5))
+            }
+            sleep(6)  // 실행 취소 구간(4초)이 지나 휴지통 요청이 나갈 때까지
+        #else
+            throw XCTSkip("Mac의 끌어 옮기기는 아직 UI 테스트가 없다")
+        #endif
+    }
+
+    /// 문맥 메뉴의 "Move to Section". 문맥 메뉴가 열려 있는 동안 XCUITest가 앱이 쉬기를 60초씩 기다려 4분쯤 걸리므로
+    /// `TEST_RUNNER_NT_SLOW_UI=1`일 때만 돌린다.
+    func testMoveToSectionFromContextMenu() throws {
+        #if os(iOS)
+            try XCTSkipUnless(ProcessInfo.processInfo.environment["NT_SLOW_UI"] == "1", "느린 테스트: TEST_RUNNER_NT_SLOW_UI=1로 켠다")
+            relaunchWithoutLayouts()
+            let stamp = Int(Date().timeIntervalSince1970)
+            let title = "순서 가 \(stamp)"
+            press(composer)
+            composer.typeText(title + "\n")
+            let memo = app.staticTexts[title].firstMatch
+            XCTAssertTrue(memo.waitForExistence(timeout: 10))
+            XCTAssertTrue(wait(checkButton(title), "value != %@", "Waiting to sync", timeout: 20))
+
+            let sectionTitle = "묶음 \(stamp)"
+            let header = addSection(sectionTitle)
+
+            memo.press(forDuration: 1.0)
+            let moveMenu = app.buttons["Move to Section"].firstMatch
+            XCTAssertTrue(moveMenu.waitForExistence(timeout: 5))
+            moveMenu.tap()
+            let target = app.buttons[sectionTitle].firstMatch
+            XCTAssertTrue(target.waitForExistence(timeout: 5))
+            target.tap()
+            XCTAssertTrue(waitUntil(timeout: 5) { memo.frame.minY > header.frame.minY }, "메뉴로 고른 섹션에 들어간다")
+
+            removeTestSections()
+            XCTAssertTrue(waitForDisappearance(header, timeout: 5))
+            memo.swipeLeft()
+            let button = app.buttons["Delete"].firstMatch
+            XCTAssertTrue(button.waitForExistence(timeout: 3))
+            button.tap()
+            XCTAssertTrue(waitForDisappearance(memo, timeout: 5))
+            sleep(6)  // 실행 취소 구간(4초)이 지나 휴지통 요청이 나갈 때까지
+        #else
+            throw XCTSkip("iOS에서만 돌린다")
+        #endif
+    }
+
     // MARK: 도우미
+
+    #if os(iOS)
+        /// 줄을 길게 눌러 위쪽에 있는 다른 줄 바로 위에 놓는다.
+        func drag(_ row: XCUIElement, above other: XCUIElement) { drag(row, onto: other, dy: -12) }
+
+        /// 줄을 길게 눌러 아래쪽에 있는 다른 줄 바로 아래에 놓는다.
+        func drag(_ row: XCUIElement, below other: XCUIElement) { drag(row, onto: other, dy: 12) }
+
+        /// `row`와 `other`는 줄의 제목 글자다. 놓는 자리는 `other` 줄의 위쪽 절반(dy < 0)이나 아래쪽 절반(dy > 0).
+        /// 누르는 시간이 길면 문맥 메뉴가 다 펼쳐져 끌기가 메뉴 고르기로 바뀌므로 줄이 들리자마자 움직인다.
+        private func drag(_ row: XCUIElement, onto other: XCUIElement, dy: CGFloat) {
+            let from = row.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
+            let to = other.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).withOffset(CGVector(dx: 0, dy: dy))
+            from.press(forDuration: 0.6, thenDragTo: to, withVelocity: .slow, thenHoldForDuration: 0.8)
+        }
+    #endif
+
+    /// 툴바의 정리 메뉴로 섹션을 만들고 이름을 적는다. 섹션 머리의 제목 글자를 돌려준다.
+    @discardableResult
+    func addSection(_ title: String) -> XCUIElement {
+        app.buttons["Organize"].firstMatch.tap()
+        app.buttons["New Section"].firstMatch.tap()
+        let nameField = app.textFields["section-name"].firstMatch
+        XCTAssertTrue(nameField.waitForExistence(timeout: 5), "새 섹션은 바로 이름을 적게 한다")
+        nameField.typeText(title + "\n")
+        let header = app.staticTexts[title].firstMatch
+        XCTAssertTrue(header.waitForExistence(timeout: 5), "적은 이름이 섹션 머리에 보인다")
+        return header
+    }
+
+    /// 기기에만 있는 순서·섹션을 지우고 다시 연다. 실패한 실행이 남긴 섹션은 Notion 쪽을 정리해도 없어지지 않는다.
+    func relaunchWithoutLayouts() {
+        app.terminate()
+        app.launchEnvironment["NT_DEV_RESET_LAYOUTS"] = "1"
+        app.launch()
+        // 이 뒤에 다시 열 때는 지우지 않는다 (저장된 순서가 남는지 본다).
+        app.launchEnvironment["NT_DEV_RESET_LAYOUTS"] = nil
+        XCTAssertTrue(composer.waitForExistence(timeout: 20))
+    }
+
+    /// 테스트가 만든 섹션("묶음 …")을 섹션 머리의 ••• 메뉴로 지운다.
+    func removeTestSections() {
+        let options = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Section options, 묶음 "))
+        for _ in 0..<10 {
+            guard options.firstMatch.waitForExistence(timeout: 1) else { return }
+            options.firstMatch.tap()
+            let delete = app.buttons["Delete Section"].firstMatch
+            XCTAssertTrue(delete.waitForExistence(timeout: 3))
+            delete.tap()
+            sleep(1)
+        }
+    }
+
+    func waitUntil(timeout: TimeInterval, _ condition: () -> Bool) -> Bool {
+        let deadline = Date.now.addingTimeInterval(timeout)
+        while Date.now < deadline {
+            if condition() { return true }
+            usleep(200_000)
+        }
+        return condition()
+    }
 
     /// 시작할 목록 화면: 이 앱이 만든 메모 DB가 골라져 있는지 보고 시작 → 위젯 안내 → 목록.
     /// 메모 DB가 없으면 새로 만들지 않고 실패한다.

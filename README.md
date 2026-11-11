@@ -63,7 +63,7 @@ Notion 데이터베이스를 단일 진실 소스로 쓰는 오픈소스 투두 
 
 | 필요한 것 | 결정 방법 | 사용자 입력 |
 |---|---|---|
-| 표시 항목·순서 | 뷰에 저장된 `filter`·`quick_filters`·`sorts`로 data source 쿼리 (제약 9번) | 위젯 편집에서 뷰 선택 |
+| 표시 항목·순서 | 뷰에 저장된 `filter`·`quick_filters`·`sorts`로 data source 쿼리 (제약 9번). 앱에서 줄을 끌어 정한 순서가 있으면 그 순서(기기에만 저장) | 위젯 편집에서 뷰 선택 |
 | 제목 | DB의 title 속성 (항상 정확히 하나) | 없음 |
 | 완료 토글 대상 | 뷰 필터가 참조하는 status/checkbox 속성 | 없음 |
 | 기한 | 뷰 정렬·필터에 쓰인 date 속성, 없으면 유일한 date 속성 | 없음 |
@@ -239,7 +239,9 @@ cd auth && npm test                                # 토큰 교환 함수
 
 # 실제 Notion에 붙는 테스트 (테스트용 토큰과 DB 필요)
 NT_LIVE_TOKEN=<토큰> swift test --package-path apps/Packages --filter Live
-# UI 테스트 5개: 추가→체크→실행 취소 / 뷰 전환 / 오프라인 추가 후 복구 / 첫 실행 연결 / DB 더하고 빼기(iOS만). iOS는 -destination 'id=<시뮬레이터>'
+# UI 테스트 6개: 추가→체크→실행 취소 / 뷰 전환 / 오프라인 추가 후 복구 / 첫 실행 연결 / DB 더하고 빼기(iOS만) /
+# 끌어서 순서 바꾸기와 섹션(iOS만). iOS는 -destination 'id=<시뮬레이터>'
+# 문맥 메뉴의 "섹션으로 이동"은 4분쯤 걸려서 TEST_RUNNER_NT_SLOW_UI=1일 때만 돈다.
 TEST_RUNNER_NT_DEV_TOKEN=<토큰> xcodebuild test -project apps/NotionTodo.xcodeproj -scheme NotionTodo \
   -destination 'platform=macOS' CODE_SIGN_IDENTITY=- CODE_SIGN_STYLE=Manual DEVELOPMENT_TEAM= CODE_SIGN_ENTITLEMENTS=
 
@@ -251,12 +253,16 @@ TEST_RUNNER_SNAPSHOT_DIR=/tmp/widget-snapshots xcodebuild test -project apps/Not
 디버그 빌드는 `NT_DEV_TOKEN` 환경 변수가 있으면 그 토큰으로 바로 로그인한다(Keychain을 쓰지 않음). UI 테스트가 이 경로를 쓴다.
 `NT_DEV_SIGNED_OUT=1`이면 로그인하지 않은 상태로 온보딩부터 시작하고, 연결해도 메모리에만 둔다.
 `NT_DEV_OFFLINE=1`을 함께 주면 모든 요청이 "인터넷 연결 없음"으로 실패한다(오프라인 UI 테스트용).
+`NT_DEV_RESET_LAYOUTS=1`은 기기에만 있는 순서·섹션을 지우고 시작한다. `NT_DEV_STORE_DIR=<폴더>`는 App Group 대신
+그 폴더를 저장소로 쓰고, Mac에서 `NT_DEV_SNAPSHOT_DIR=<폴더>`를 주면 떠 있는 창을 1초마다 PNG로 적는다
+(화면을 볼 수 없을 때 모양 확인용).
 
 ## 사용 흐름
 
 1. Notion으로 로그인 → 앱에서 쓸 할 일 DB 고르기 (없으면 새 메모 DB를 만들어 준다)
 2. 위젯 추가 → (원하면) 위젯 편집에서 Notion 뷰 선택
 3. 끝 — 속성 지정 없음
+4. (원하면) 앱에서 줄을 끌어 순서를 정하고, 색 카드 섹션으로 묶는다. 이 배치는 기기에만 저장되고 Notion은 그대로다
 
 ## 설정
 

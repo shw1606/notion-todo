@@ -7,7 +7,7 @@ import Testing
 /// URLSession 요청을 가로채 Notion을 흉내 낸다.
 final class MockNotion: URLProtocol, @unchecked Sendable {
     nonisolated(unsafe) static var handler: (@Sendable (URLRequest, Data?) -> (Int, JSONValue))?
-    nonisolated(unsafe) static var requests: [(method: String, path: String, body: JSONValue?)] = []
+    nonisolated(unsafe) static var requests: [(method: String, path: String, body: JSONValue?, query: [URLQueryItem])] = []
     static let lock = NSLock()
 
     override class func canInit(with request: URLRequest) -> Bool { true }
@@ -17,7 +17,8 @@ final class MockNotion: URLProtocol, @unchecked Sendable {
         let body = request.httpBody ?? request.httpBodyStream.map(Self.read)
         let decoded = body.flatMap { try? JSONDecoder().decode(JSONValue.self, from: $0) }
         Self.lock.withLock {
-            Self.requests.append((request.httpMethod ?? "", request.url?.path ?? "", decoded))
+            let query = request.url.flatMap { URLComponents(url: $0, resolvingAgainstBaseURL: false)?.queryItems } ?? []
+            Self.requests.append((request.httpMethod ?? "", request.url?.path ?? "", decoded, query))
         }
         guard let handler = Self.lock.withLock({ Self.handler }) else {
             client?.urlProtocol(self, didFailWithError: URLError(.notConnectedToInternet))
@@ -166,6 +167,52 @@ final class MockNotion: URLProtocol, @unchecked Sendable {
         #expect(store.pending().count == 1)
     }
 
+    /// 쿼리는 항목을 만드는 데 읽는 속성만 받는다 (응답이 작아진다).
+    @Test func fetchAsksOnlyForPropertiesItReads() async throws {
+        let json = try JSONDecoder().decode(JSONValue.self, from: Fixture.data("query-memo"))
+        MockNotion.reset { _, _ in (200, json) }
+        try await repository.fetchItems(view.id)
+        let query = try #require(MockNotion.requests.first { $0.path.hasSuffix("/query") })
+        #expect(query.query.allSatisfy { $0.name == "filter_properties" })
+        #expect(query.query.map(\.value) == ["title", "%3BQFf"])
+    }
+
+    /// 캐시한 뷰가 가리키는 속성이 Notion에서 지워졌으면 400이 온다. 뷰를 다시 읽고 한 번 더 묻는다.
+    @Test func staleViewIsResolvedAgainWhenQueryIsRejected() async throws {
+        var stale = view
+        stale.datePropertyId = "gone"
+        stale.resolvedAt = .now.addingTimeInterval(-600)
+        try store.save(view: stale)
+        let todo = try JSONDecoder().decode(JSONValue.self, from: Fixture.data("view-memo-todo"))
+        let schema = try JSONDecoder().decode(JSONValue.self, from: Fixture.data("data-source-memo"))
+        let pages = try JSONDecoder().decode(JSONValue.self, from: Fixture.data("query-memo"))
+        let viewId = view.id
+        let memoId = view.dataSourceId
+        MockNotion.reset { request, _ in
+            let url = request.url?.absoluteString ?? ""
+            switch request.url?.path ?? "" {
+            case "/v1/views/\(viewId)": return (200, todo)
+            case "/v1/data_sources/\(memoId)": return (200, schema)
+            default:
+                return url.contains("filter_properties=gone")
+                    ? (400, ["code": "validation_error", "message": "invalid attribute: gone"]) : (200, pages)
+            }
+        }
+        let snapshot = try await repository.fetchItems(view.id)
+        #expect(snapshot.items.count == 2)
+        #expect(store.view(view.id)?.datePropertyId == view.datePropertyId)
+        #expect(MockNotion.requests.filter { $0.path.hasSuffix("/query") }.count == 2)
+    }
+
+    /// 방금 읽은 뷰 정의로도 거절되면 다시 읽지 않고 오류를 그대로 올린다.
+    @Test func freshViewIsNotResolvedAgain() async throws {
+        MockNotion.reset { _, _ in (400, ["code": "validation_error", "message": "bad filter"]) }
+        await #expect(throws: NotionError.http(status: 400, code: "validation_error", message: "bad filter")) {
+            try await repository.fetchItems(view.id)
+        }
+        #expect(MockNotion.requests.count == 1)
+    }
+
     @Test func readOnlyViewRejectsToggle() async throws {
         var readOnly = view
         readOnly.id = "ro"
@@ -236,6 +283,57 @@ final class MockNotion: URLProtocol, @unchecked Sendable {
         await repository.removeDatabase("other-ds")
         #expect(await repository.cachedCatalog() == [view.summary])
         #expect(await repository.defaultViewId() == view.id)
+    }
+
+    // MARK: 배치 (순서·섹션)
+
+    /// 오프라인으로 만든 항목을 섹션에 넣어 두면, Notion에 올라가 ID가 바뀌어도 그 자리에 남는다.
+    @Test func layoutFollowsItemWhenOfflineCreateSyncs() async throws {
+        MockNotion.reset(nil)
+        let local = try await repository.add(viewId: view.id, title: "우유")
+        let section = LayoutSection(title: "장보기", tint: .green)
+        let visible = try #require(await repository.cachedItems(view.id)).items.map(\.id)
+        await repository.updateLayout(view.id) {
+            $0.sections.append(section)
+            $0.move(itemId: local.id, toSection: section.id, visibleIds: visible)
+        }
+        #expect(store.layout(view.id)?.sections.first?.itemIds == [local.id])
+
+        MockNotion.reset { _, _ in (200, ["object": "page", "id": "new-page", "properties": [:]]) }
+        await repository.flushPending()
+        let layout = try #require(store.layout(view.id))
+        #expect(layout.sections.first?.itemIds == ["new-page"])
+        #expect(layout.itemIds == ["p1"])
+        let ordered = await repository.orderedItems(try #require(await repository.cachedItems(view.id)))
+        #expect(ordered.map(\.id) == ["p1", "new-page"], "위젯·메뉴 막대도 같은 순서: 섹션 밖 → 섹션")
+    }
+
+    /// 배치가 비면 파일도 지운다. 변경이 없으면 쓰지 않는다.
+    @Test func emptyLayoutLeavesNoFile() async throws {
+        let section = LayoutSection(title: "오늘", tint: .yellow)
+        let added = await repository.updateLayout(view.id) { $0.sections.append(section) }
+        #expect(added.sections.map(\.title) == ["오늘"])
+        #expect(FileManager.default.fileExists(atPath: store.layoutURL(view.id).path))
+        let removed = await repository.updateLayout(view.id) { $0.removeSection(section.id) }
+        #expect(removed.isEmpty)
+        #expect(!FileManager.default.fileExists(atPath: store.layoutURL(view.id).path))
+        #expect(await repository.layout(view.id) == ViewLayout())
+    }
+
+    /// 조회할 때 뷰에서 사라진 항목을 배치에서 치우되, 50개까지는 남겨 둔다.
+    @Test func fetchPrunesLayoutOnlyWhenManyItemsAreGone() async throws {
+        let pages = try JSONDecoder().decode(JSONValue.self, from: Fixture.data("query-memo"))
+        MockNotion.reset { _, _ in (200, pages) }
+        let fetched = try await repository.fetchItems(view.id).items.map(\.id)
+        let few = (1...5).map { "gone-\($0)" }
+        await repository.updateLayout(view.id) { $0.itemIds = fetched + few }
+        try await repository.fetchItems(view.id)
+        #expect(store.layout(view.id)?.itemIds == fetched + few)
+
+        let many = (1...60).map { "gone-\($0)" }
+        await repository.updateLayout(view.id) { $0.itemIds = fetched + many }
+        try await repository.fetchItems(view.id)
+        #expect(store.layout(view.id)?.itemIds == fetched)
     }
 
     // MARK: 로그인·시작 DB (MockNotion을 같이 쓰므로 이 직렬 묶음 안에 둔다)

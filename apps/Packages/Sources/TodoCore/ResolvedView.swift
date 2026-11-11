@@ -84,6 +84,13 @@ public struct ResolvedView: Codable, Hashable, Sendable, Identifiable {
         if let sorts, let array = sorts.arrayValue, !array.isEmpty { body["sorts"] = sorts }
         return .object(body)
     }
+
+    /// 항목을 만드는 데 읽는 속성 (제목·완료·날짜). 쿼리에서 이것만 받는다.
+    public var queryPropertyIds: [String] {
+        var ids = [titlePropertyId]
+        for case let id? in [completion.propertyId, datePropertyId] where !ids.contains(id) { ids.append(id) }
+        return ids
+    }
 }
 
 /// 뷰 고르기 목록에 쓰는 요약.
