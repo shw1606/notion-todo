@@ -11,10 +11,16 @@ struct NotionTodoApp: App {
         @AppStorage("showsMenuBarExtra") private var showsMenuBarExtra = true
     #endif
 
-    #if DEBUG && os(macOS)
+    #if os(macOS)
         init() {
-            // 개발용: 창을 PNG로 적는다 (`DevSnapshot`). 앱이 다 뜬 뒤에 시작한다.
-            DispatchQueue.main.async { DevSnapshot.startIfRequested() }
+            // 앱이 다 뜬 뒤에 시작한다. 떠 있는 메모는 창을 열지 않아도(로그인 항목으로 떠도) 설정대로 뜬다.
+            DispatchQueue.main.async {
+                FloatingNote.shared.start()
+                #if DEBUG
+                    // 개발용: 창을 PNG로 적는다.
+                    DevSnapshot.startIfRequested()
+                #endif
+            }
         }
     #endif
 
@@ -77,6 +83,9 @@ extension FocusedValues {
 struct AppCommands: Commands {
     @FocusedValue(\.appModel) private var model
     @Environment(\.openWindow) private var openWindow
+    #if os(macOS)
+        @AppStorage(FloatingNote.Key.isShown) private var showsFloatingNote = false
+    #endif
 
     var body: some Commands {
         // 메모·미리 알림처럼 ⌘N은 새 메모, 새 창은 ⌥⌘N.
@@ -94,6 +103,11 @@ struct AppCommands: Commands {
             Button("Refresh") { Task { await model?.refresh() } }
                 .keyboardShortcut("r")
                 .disabled(model?.phase != .ready)
+            #if os(macOS)
+                // 스티커의 "상단에 띄우기"와 같은 단축키.
+                Toggle("Floating Note", isOn: $showsFloatingNote)
+                    .keyboardShortcut("f", modifiers: [.command, .option])
+            #endif
         }
     }
 }

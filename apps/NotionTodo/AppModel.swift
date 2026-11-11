@@ -62,13 +62,20 @@ final class AppModel {
 
     var lastFetchedAt: Date?
 
-    init(services: TodoServices = .shared) {
+    /// 자기가 보는 뷰를 따로 기억하는 모델(떠 있는 메모)이면 그 UserDefaults 키. nil이면 창들이 같이 쓰는
+    /// "마지막으로 연 뷰"를 따른다.
+    private let ownViewKey: String?
+
+    init(services: TodoServices = .shared, ownViewKey: String? = nil) {
         self.services = services
-        // 다른 창(또는 메뉴 막대·설정 창)에서 로그인·로그아웃하면 이 창도 다시 시작하고, DB를 더하거나 빼면 목록을 다시 읽는다.
+        self.ownViewKey = ownViewKey
+        // 다른 창(또는 메뉴 막대·설정 창·떠 있는 메모)에서 로그인·로그아웃하면 이 창도 다시 시작하고, DB를 더하거나 빼면
+        // 목록을, 항목이나 배치를 바꾸면 그것을 캐시에서 다시 읽는다.
         observers = [
             observe(.notionTodoSessionChanged) { await $0.start() },
             observe(.notionTodoCatalogChanged) { await $0.reloadCatalog() },
             observe(.notionTodoLayoutChanged) { await $0.reloadLayout() },
+            observe(.notionTodoItemsChanged) { await $0.reloadItems() },
         ]
     }
 
@@ -104,11 +111,16 @@ final class AppModel {
             return
         }
         catalog = await repository.cachedCatalog()
-        if let id = await repository.defaultViewId() {
+        if let id = await initialViewId() {
             await showCached(id)
             phase = .ready
             await refresh()
-            await refreshCatalog()
+            if ownViewKey == nil {
+                await refreshCatalog()
+            } else if let fresh = try? await repository.catalog() {
+                // 창 옆에 사는 모델은 뷰 목록이 낡았을 때만 다시 받는다. 창이 받아 오면 알림으로 같이 바뀐다.
+                catalog = fresh
+            }
         } else {
             await refreshCatalog()
             if let id = catalog.preferredDefault?.id {
@@ -120,6 +132,16 @@ final class AppModel {
         }
     }
 
+    /// 처음 보여 줄 뷰. 자기 뷰를 기억하는 모델은 그 뷰가 아직 고른 DB 안에 있을 때만 그것으로 연다.
+    private func initialViewId() async -> String? {
+        if let ownViewKey, let id = UserDefaults.standard.string(forKey: ownViewKey),
+            catalog.contains(where: { $0.id == id })
+        {
+            return id
+        }
+        return await repository.defaultViewId()
+    }
+
     func becameActive() async {
         guard phase == .ready else { return }
         await refresh()
@@ -129,7 +151,10 @@ final class AppModel {
 
     func refreshCatalog() async {
         do {
+            let shown = catalog
             catalog = try await repository.catalog(refresh: true)
+            // Notion에서 뷰가 늘거나 이름이 바뀌었다 → 다른 창·떠 있는 메모의 뷰 메뉴도 캐시에서 다시 읽게 한다.
+            if catalog != shown { NotificationCenter.default.post(name: .notionTodoCatalogChanged, object: self) }
         } catch {
             handle(error)
         }
@@ -173,7 +198,11 @@ final class AppModel {
     private func showCached(_ viewId: String) async {
         let isSameView = currentViewId == viewId
         currentViewId = viewId
-        await repository.rememberLastView(viewId)
+        if let ownViewKey {
+            UserDefaults.standard.set(viewId, forKey: ownViewKey)
+        } else {
+            await repository.rememberLastView(viewId)
+        }
         let view = await repository.store.view(viewId)
         let cached = await repository.cachedItems(viewId)?.items ?? []
         let stored = await repository.layout(viewId)
@@ -195,15 +224,15 @@ final class AppModel {
             let snapshot = try await repository.fetchItems(viewId)
             currentView = try await repository.resolvedView(viewId)
             guard currentViewId == viewId else { return }
-            items = snapshot.items
+            items = withoutPendingTrash(snapshot.items)
             lastFetchedAt = snapshot.fetchedAt
             isOffline = false
             lastError = nil
             // 조회하면서 저장소가 배치를 고쳤을 수 있다 (오프라인으로 만든 항목의 ID 바뀜, 사라진 항목 정리).
             await reloadLayout()
-            // 위젯은 같은 캐시를 읽는다. 달라진 게 없으면 다시 그리게 하지 않는다: 다시 그릴 때마다 위젯 확장이 떠서
-            // Notion을 한 번 더 조회한다 (앱을 앞으로 가져올 때마다 일어나던 일).
-            if snapshot.items != shown || wasOffline { reloadWidgets() }
+            // 위젯과 다른 창은 같은 캐시를 읽는다. 달라진 게 없으면 다시 그리게 하지 않는다: 다시 그릴 때마다 위젯 확장이
+            // 떠서 Notion을 한 번 더 조회한다 (앱을 앞으로 가져올 때마다 일어나던 일).
+            if items != shown || wasOffline { itemsDidChange() }
         } catch {
             handle(error)
             // 오프라인이면 위젯도 보여 줄 새 내용이 없다. 그 밖의 오류(연결 끊김 등)는 위젯 안내가 바뀐다.
@@ -344,6 +373,7 @@ final class AppModel {
             if let current = self?.items.first(where: { $0.id == item.id }) { self?.toggle(current) }
         }
         scheduleUndoDismiss()
+        itemWrites += 1
         Task {
             do {
                 try await repository.setDone(viewId: viewId, itemId: item.id, done: done)
@@ -351,7 +381,7 @@ final class AppModel {
             } catch {
                 handle(error)
             }
-            reloadWidgets()
+            finishItemWrite()
         }
     }
 
@@ -361,18 +391,19 @@ final class AppModel {
         composerText = ""
         let placeholder = TodoItem(id: "draft-\(UUID().uuidString)", title: text, isDone: currentView?.showsDone ?? false, isPending: true)
         withAnimation(Motion.preferred) { items.insert(placeholder, at: 0) }
+        itemWrites += 1
         Task {
             do {
                 try await repository.add(viewId: viewId, title: text)
                 if let cached = await repository.cachedItems(viewId), currentViewId == viewId {
-                    withAnimation(Motion.preferred) { items = cached.items }
+                    withAnimation(Motion.preferred) { items = withoutPendingTrash(cached.items) }
                     await reloadLayout()
                 }
             } catch {
                 items.removeAll { $0.id == placeholder.id }
                 handle(error)
             }
-            reloadWidgets()
+            finishItemWrite()
         }
     }
 
@@ -383,6 +414,7 @@ final class AppModel {
         else { return }
         items[index].title = text
         items[index].isPending = true
+        itemWrites += 1
         Task {
             do {
                 try await repository.rename(viewId: viewId, itemId: item.id, title: text)
@@ -390,7 +422,7 @@ final class AppModel {
             } catch {
                 handle(error)
             }
-            reloadWidgets()
+            finishItemWrite()
         }
     }
 
@@ -408,7 +440,7 @@ final class AppModel {
             } catch {
                 self.handle(error)
             }
-            self.reloadWidgets()
+            self.itemsDidChange()
         }
         undo = UndoAction(message: String(localized: "Deleted “\(item.title)”")) { [weak self] in
             guard let self else { return }
@@ -418,6 +450,46 @@ final class AppModel {
             self.undo = nil
         }
         scheduleUndoDismiss()
+    }
+
+    // MARK: 다른 창과 맞추기
+
+    /// 저장소에 보내는 중인 항목 변경 수. 그동안은 다른 창의 변경으로 캐시를 다시 읽지 않는다
+    /// (방금 한 체크가 아직 대기열에 없으면 되돌아가 보인다). 끝나면 밀린 것을 한 번 읽는다.
+    private var itemWrites = 0
+    private var missedItemChange = false
+
+    private func finishItemWrite() {
+        itemWrites -= 1
+        itemsDidChange()
+        if itemWrites == 0, missedItemChange {
+            missedItemChange = false
+            Task { await reloadItems() }
+        }
+    }
+
+    /// 이 모델에서 항목이 바뀌었다. 위젯과, 같은 캐시를 읽는 다른 창(메뉴 막대·떠 있는 메모)이 다시 그리게 한다.
+    private func itemsDidChange() {
+        NotificationCenter.default.post(name: .notionTodoItemsChanged, object: self)
+        reloadWidgets()
+    }
+
+    /// 다른 창이 항목을 바꿨거나 새로 받아 왔다 → 네트워크 없이 캐시에서 다시 읽는다.
+    private func reloadItems() async {
+        guard phase == .ready, let viewId = currentViewId else { return }
+        guard itemWrites == 0 else {
+            missedItemChange = true
+            return
+        }
+        guard let cached = await repository.cachedItems(viewId), currentViewId == viewId, itemWrites == 0 else { return }
+        let fresh = withoutPendingTrash(cached.items)
+        if fresh != items { withAnimation(Motion.preferred) { items = fresh } }
+        await reloadLayout()
+    }
+
+    /// 지우는 중(실행 취소 구간)인 항목은 캐시에 아직 있어도 보이지 않게 한다.
+    private func withoutPendingTrash(_ list: [TodoItem]) -> [TodoItem] {
+        pendingTrash.isEmpty ? list : list.filter { pendingTrash[$0.id] == nil }
     }
 
     private func markSettled(_ id: String) {
@@ -546,4 +618,5 @@ extension Notification.Name {
     static let notionTodoSessionChanged = Notification.Name("NotionTodoSessionChanged")
     static let notionTodoCatalogChanged = Notification.Name("NotionTodoCatalogChanged")
     static let notionTodoLayoutChanged = Notification.Name("NotionTodoLayoutChanged")
+    static let notionTodoItemsChanged = Notification.Name("NotionTodoItemsChanged")
 }

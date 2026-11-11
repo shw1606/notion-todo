@@ -263,6 +263,8 @@ TEST_RUNNER_SNAPSHOT_DIR=/tmp/widget-snapshots xcodebuild test -project apps/Not
 2. 위젯 추가 → (원하면) 위젯 편집에서 Notion 뷰 선택
 3. 끝 — 속성 지정 없음
 4. (원하면) 앱에서 줄을 끌어 순서를 정하고, 색 카드 섹션으로 묶는다. 이 배치는 기기에만 저장되고 Notion은 그대로다
+5. (Mac, 원하면) 보기 ▸ `떠 있는 메모`(⌥⌘F)로 할 일을 다른 앱 창 위에 반투명하게 띄워 둔다. 설정에서 불투명도를 고르고,
+   머리를 두 번 클릭하면 스티커처럼 한 줄로 접힌다
 
 ## 설정
 

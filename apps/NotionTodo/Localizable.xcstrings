@@ -21,6 +21,16 @@
         }
       }
     },
+    "A small note that floats above every app, like a sticky note. It’s see-through until you point at it or type in it.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "스티커 메모처럼 작은 메모 창이 모든 앱 위에 떠 있습니다. 평소에는 반투명하고, 포인터를 올리거나 글을 적는 동안에는 또렷해져요."
+          }
+        }
+      }
+    },
     "About": {
       "localizations": {
         "ko": {
@@ -261,6 +271,16 @@
         }
       }
     },
+    "Collapse": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "접기"
+          }
+        }
+      }
+    },
     "Color": {
       "localizations": {
         "ko": {
@@ -481,12 +501,32 @@
         }
       }
     },
+    "Expand": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "펼치기"
+          }
+        }
+      }
+    },
     "Finish in your browser. You’ll come back here when you allow access.": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
             "value": "브라우저에서 마무리하세요. 액세스를 허용하면 이 앱으로 돌아와요."
+          }
+        }
+      }
+    },
+    "Floating Note": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "떠 있는 메모"
           }
         }
       }
@@ -507,6 +547,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "초록"
+          }
+        }
+      }
+    },
+    "Hide Floating Note": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "떠 있는 메모 숨기기"
           }
         }
       }
@@ -557,6 +607,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "메뉴 막대 아이콘으로 언제든 적을 수 있어요. 창을 닫아도 남아 있어요."
+          }
+        }
+      }
+    },
+    "Keep a note on top of other windows": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "다른 창 위에 메모 띄워 두기"
           }
         }
       }
@@ -850,6 +910,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "여기 있는 DB만 앱과 위젯에 보여요. 빼도 Notion의 DB는 그대로예요."
+          }
+        }
+      }
+    },
+    "Opacity": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "불투명도"
           }
         }
       }

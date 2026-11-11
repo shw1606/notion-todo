@@ -31,12 +31,14 @@
 		810524589B9254D4945DA88B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 93E6444F078877D6AB3C4F8A /* Assets.xcassets */; };
 		817E134FFEE33EF288573E36 /* TodoListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BF0FDF31911E1FC32F38236 /* TodoListView.swift */; };
 		86F31789015B900C93B78BD4 /* WidgetSnapshotTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2D60D3D37B5827DE3329547 /* WidgetSnapshotTests.swift */; };
+		8968AB6636D7FD7EFB72D1F9 /* FloatingNote.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA164D7D7617746770BD8EF3 /* FloatingNote.swift */; };
 		8BB626F68CB62BA7F796C24F /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D19626ACC436E82F05BEAAB /* OnboardingView.swift */; };
 		8FA9E7F4E7A5119812C1887A /* NotionTodoWidgets.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF58F42C99348F02515063A7 /* NotionTodoWidgets.swift */; };
 		9721A2F433F3B19B9765A6DA /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6D6249021F9C0855F5E4DAC /* RootView.swift */; };
 		9BCF4A07B8E38695A6F8408D /* MenuBarQuickAdd.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0B035636997FBA3808A74C0 /* MenuBarQuickAdd.swift */; };
 		9BE7ACBB022784F18EA6FD08 /* DevSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5273A81108AA68ADF0869AE2 /* DevSnapshot.swift */; };
 		9DA3F736F1FE14BAD47757E8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 27B1432CE1D0B38E6AD2360F /* Assets.xcassets */; };
+		A53DCAFFB7959FC0E30DF7C7 /* FloatingNoteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC49D2928694D891B71AE0C3 /* FloatingNoteView.swift */; };
 		C59600002AF4D96C70414EF7 /* InfoPlist.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = DC516DFF70E3377E9E17463D /* InfoPlist.xcstrings */; };
 		CCECE85386361FDC85015E39 /* DesignSystem in Frameworks */ = {isa = PBXBuildFile; productRef = E54BB5E33EEA8F0FCC59E375 /* DesignSystem */; };
 		DD2896249C9A24E04F3FD117 /* NotionKit in Frameworks */ = {isa = PBXBuildFile; productRef = 979A18EB4D0E5E62F14FF1F8 /* NotionKit */; };
@@ -100,6 +102,7 @@
 		93BB2B46D33ADFE6783A6206 /* NotionTodo-macOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "NotionTodo-macOS.entitlements"; sourceTree = "<group>"; };
 		93E6444F078877D6AB3C4F8A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		A43775608ACD04140B6CC1E6 /* AppModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppModel.swift; sourceTree = "<group>"; };
+		AA164D7D7617746770BD8EF3 /* FloatingNote.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingNote.swift; sourceTree = "<group>"; };
 		B0B035636997FBA3808A74C0 /* MenuBarQuickAdd.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarQuickAdd.swift; sourceTree = "<group>"; };
 		BDB0EADFD1686A1ECC7AF107 /* AppShortcuts.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = AppShortcuts.xcstrings; sourceTree = "<group>"; };
 		BF53798B065AB3B62581E998 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
@@ -108,6 +111,7 @@
 		CF3D1E02BC83241D56CF4163 /* NotionTodo-iOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "NotionTodo-iOS.entitlements"; sourceTree = "<group>"; };
 		D2956E2138385AB51D61C703 /* NotionTodoWidgets-macOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "NotionTodoWidgets-macOS.entitlements"; sourceTree = "<group>"; };
 		D86569F57497EDC3B877AF15 /* Base.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Base.xcconfig; sourceTree = "<group>"; };
+		DC49D2928694D891B71AE0C3 /* FloatingNoteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingNoteView.swift; sourceTree = "<group>"; };
 		DC516DFF70E3377E9E17463D /* InfoPlist.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = InfoPlist.xcstrings; sourceTree = "<group>"; };
 		DF58F42C99348F02515063A7 /* NotionTodoWidgets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotionTodoWidgets.swift; sourceTree = "<group>"; };
 		E71D3A6B2DE021F26B9EB17F /* NotionTodoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotionTodoApp.swift; sourceTree = "<group>"; };
@@ -244,6 +248,7 @@
 				BDB0EADFD1686A1ECC7AF107 /* AppShortcuts.xcstrings */,
 				27B1432CE1D0B38E6AD2360F /* Assets.xcassets */,
 				5273A81108AA68ADF0869AE2 /* DevSnapshot.swift */,
+				AA164D7D7617746770BD8EF3 /* FloatingNote.swift */,
 				7EDAF344C2B901D2CD84086E /* Info.plist */,
 				1AB4B88A728E94D0A24F4556 /* InfoPlist.xcstrings */,
 				34B7899F53059F159ABEC497 /* Localizable.xcstrings */,
@@ -257,6 +262,7 @@
 		DCC95BBF6B4FD32F1039C00D /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				DC49D2928694D891B71AE0C3 /* FloatingNoteView.swift */,
 				B0B035636997FBA3808A74C0 /* MenuBarQuickAdd.swift */,
 				7D19626ACC436E82F05BEAAB /* OnboardingView.swift */,
 				F6D6249021F9C0855F5E4DAC /* RootView.swift */,
@@ -477,6 +483,8 @@
 			files = (
 				210ECB750738C50FEC1D5D3B /* AppModel.swift in Sources */,
 				9BE7ACBB022784F18EA6FD08 /* DevSnapshot.swift in Sources */,
+				8968AB6636D7FD7EFB72D1F9 /* FloatingNote.swift in Sources */,
+				A53DCAFFB7959FC0E30DF7C7 /* FloatingNoteView.swift in Sources */,
 				9BCF4A07B8E38695A6F8408D /* MenuBarQuickAdd.swift in Sources */,
 				E4DEC51BBB78CE77925FA2F9 /* NotionTodoApp.swift in Sources */,
 				8BB626F68CB62BA7F796C24F /* OnboardingView.swift in Sources */,

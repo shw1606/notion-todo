@@ -9,6 +9,7 @@
         @Environment(\.openWindow) private var openWindow
         @Environment(\.openSettings) private var openSettings
         @AppStorage("showsMenuBarExtra") private var showsMenuBarExtra = true
+        @AppStorage(FloatingNote.Key.isShown) private var showsFloatingNote = false
         @FocusState private var focus: ComposerField?
 
         var body: some View {
@@ -54,6 +55,7 @@
                             NSApp.activate()
                             openSettings()
                         }
+                        Toggle("Floating Note", isOn: $showsFloatingNote)
                         Button("Hide Menu Bar Icon") { showsMenuBarExtra = false }
                         Divider()
                         Button("Quit") { NSApp.terminate(nil) }

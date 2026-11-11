@@ -11,6 +11,8 @@ struct SettingsView: View {
     @State private var addsDatabase = false
     #if os(macOS)
         @AppStorage("showsMenuBarExtra") private var showsMenuBarExtra = true
+        @AppStorage(FloatingNote.Key.isShown) private var showsFloatingNote = false
+        @AppStorage(FloatingNote.Key.opacity) private var floatingNoteOpacity = FloatingNote.defaultOpacity
     #endif
 
     var body: some View {
@@ -69,6 +71,25 @@ struct SettingsView: View {
             }
 
             #if os(macOS)
+                Section {
+                    Toggle("Keep a note on top of other windows", isOn: $showsFloatingNote)
+                    LabeledContent("Opacity") {
+                        HStack(spacing: Spacing.xs) {
+                            Slider(value: $floatingNoteOpacity, in: FloatingNote.opacityRange)
+                                .accessibilityLabel(Text("Opacity"))
+                            Text(floatingNoteOpacity, format: .percent.precision(.fractionLength(0)))
+                                .monospacedDigit()
+                                .foregroundStyle(.secondary)
+                                .frame(width: 44, alignment: .trailing)
+                        }
+                    }
+                    .disabled(!showsFloatingNote)
+                } header: {
+                    Text("Floating Note")
+                } footer: {
+                    Text("A small note that floats above every app, like a sticky note. It’s see-through until you point at it or type in it.")
+                }
+
                 Section {
                     Toggle("Show icon in menu bar", isOn: $showsMenuBarExtra)
                 } header: {
