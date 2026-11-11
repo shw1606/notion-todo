@@ -164,6 +164,16 @@
         }
       }
     },
+    "Last updated %@": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "마지막 갱신 %@"
+          }
+        }
+      }
+    },
     "Marks as done": {
       "localizations": {
         "ko": {

@@ -148,6 +148,10 @@ struct AddMemoIntent: AppIntent {
         guard let viewId = chosen else { throw AddMemoError.noView }
         try await repository.add(viewId: viewId, title: text)
         WidgetCenter.shared.reloadAllTimelines()
+        #if os(iOS)
+            // 잠금 화면 카드에도 올린다 (앱 프로세스에서 돌 때만 된다).
+            await LockScreenCard.sync()
+        #endif
         return .result(dialog: "Added “\(text)”.")
     }
 }

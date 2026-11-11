@@ -179,7 +179,7 @@ apps/
     DesignSystem/          디자인 토큰, 체크 원, Liquid Glass 입력 바
   NotionTodo/            앱 (iPhone·iPad·Mac 멀티플랫폼 타깃)
   NotionTodoWidgets/     위젯 확장 (목록·개수·제어 위젯)
-  Shared/                앱·위젯 공용 앱 인텐트 (체크, 추가, 뷰 선택, 딥링크)
+  Shared/                앱·위젯 공용 앱 인텐트 (체크, 추가, 뷰 선택, 딥링크), 잠금 화면 카드
   NotionTodoUITests/     UI 테스트 (추가 → 체크 → 실행 취소 → 삭제, 실제 Notion)
   NotionTodoWidgetsTests/ 위젯 스냅샷 (크기 × 라이트/다크 × 글자 크기)
 auth/                    OAuth 토큰 교환 함수 (Vercel 배포, Cloudflare Workers 겸용, 무상태)
@@ -239,8 +239,9 @@ cd auth && npm test                                # 토큰 교환 함수
 
 # 실제 Notion에 붙는 테스트 (테스트용 토큰과 DB 필요)
 NT_LIVE_TOKEN=<토큰> swift test --package-path apps/Packages --filter Live
-# UI 테스트 6개: 추가→체크→실행 취소 / 뷰 전환 / 오프라인 추가 후 복구 / 첫 실행 연결 / DB 더하고 빼기(iOS만) /
-# 끌어서 순서 바꾸기와 섹션(iOS만). iOS는 -destination 'id=<시뮬레이터>'
+# UI 테스트 7개: 추가→체크→실행 취소 / 뷰 전환 / 오프라인 추가 후 복구 / 첫 실행 연결 / DB 더하고 빼기(iOS만) /
+# 끌어서 순서 바꾸기와 섹션(iOS만) / 잠금 화면 카드(iPhone만: 설정에서 켜기 → 잠금 화면에서 체크).
+# iOS는 -destination 'id=<시뮬레이터>'
 # 문맥 메뉴의 "섹션으로 이동"은 4분쯤 걸려서 TEST_RUNNER_NT_SLOW_UI=1일 때만 돈다.
 TEST_RUNNER_NT_DEV_TOKEN=<토큰> xcodebuild test -project apps/NotionTodo.xcodeproj -scheme NotionTodo \
   -destination 'platform=macOS' CODE_SIGN_IDENTITY=- CODE_SIGN_STYLE=Manual DEVELOPMENT_TEAM= CODE_SIGN_ENTITLEMENTS=
@@ -256,6 +257,8 @@ TEST_RUNNER_SNAPSHOT_DIR=/tmp/widget-snapshots xcodebuild test -project apps/Not
 `NT_DEV_RESET_LAYOUTS=1`은 기기에만 있는 순서·섹션을 지우고 시작한다. `NT_DEV_STORE_DIR=<폴더>`는 App Group 대신
 그 폴더를 저장소로 쓰고, Mac에서 `NT_DEV_SNAPSHOT_DIR=<폴더>`를 주면 떠 있는 창을 1초마다 PNG로 적는다
 (화면을 볼 수 없을 때 모양 확인용).
+잠금 화면 카드의 시간은 초로 줄여 시험할 수 있다: `NT_DEV_CARD_INTERVAL`(다음 카드를 예약하는 간격, 기본 12시간),
+`NT_DEV_CARD_RENEW_IN_APP`(앱을 열 때 새 카드로 바꾸는 기준, 기본 30분).
 
 ## 사용 흐름
 
@@ -265,6 +268,9 @@ TEST_RUNNER_SNAPSHOT_DIR=/tmp/widget-snapshots xcodebuild test -project apps/Not
 4. (원하면) 앱에서 줄을 끌어 순서를 정하고, 색 카드 섹션으로 묶는다. 이 배치는 기기에만 저장되고 Notion은 그대로다
 5. (Mac, 원하면) 보기 ▸ `떠 있는 메모`(⌥⌘F)로 할 일을 다른 앱 창 위에 반투명하게 띄워 둔다. 설정에서 불투명도를 고르고,
    머리를 두 번 클릭하면 스티커처럼 한 줄로 접힌다
+6. (iPhone, 원하면) 설정 ▸ `잠금 화면 카드`를 켜면 잠금 화면에 가로 전체 폭 카드로 메모 다섯 줄이 뜨고 그 자리에서
+   체크한다. 잠금 화면 위젯보다 훨씬 크다. iOS가 카드를 8~12시간 뒤에 내리기 때문에 새 카드가 이어서 뜨고,
+   하루 반쯤 앱을 열지 않으면 사라졌다가 앱을 열거나 위젯에서 체크하면 다시 뜬다
 
 ## 설정
 

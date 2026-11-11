@@ -112,6 +112,49 @@ final class WidgetSnapshotTests: XCTestCase {
         }
     }
 
+    /// 잠금 화면 카드(실시간 현황). 시스템이 주는 높이는 160pt까지다 — 글자 크기를 키워도 그 안에 들어가야 한다.
+    func testLockScreenCard() throws {
+        let long = (0..<7).map {
+            TodoItem(id: "\($0)", title: "택배 반품 접수 — 편의점 택배로 보내고 송장번호 사진 찍어두기 \($0)", isDone: $0 == 1)
+        }
+        let states: [(String, LockScreenCardState)] = [
+            ("many", Self.cardState(long)),
+            ("few", Self.cardState([
+                TodoItem(id: "a", title: "치약 사기", isDone: false), TodoItem(id: "b", title: "치과 예약", isDone: true),
+            ])),
+            ("empty", Self.cardState([])),
+            ("readonly", Self.cardState(long, isWritable: false)),
+        ]
+        let categories: [(String, DynamicTypeSize)] = [
+            ("default", .large), ("xxl", .xxLarge), ("xxxl", .xxxLarge), ("ax2", .accessibility2),
+        ]
+        for (name, state) in states {
+            for scheme in [ColorScheme.light, .dark] {
+                for (categoryName, category) in name == "many" ? categories : [categories[0]] {
+                    let view = TodoCardView(state: state, isStale: name == "few")
+                        .frame(width: 370)
+                        .background(scheme == .dark ? Color.black.opacity(0.75) : Color.white.opacity(0.8))
+                        .clipShape(.rect(cornerRadius: 24))
+                        .environment(\.colorScheme, scheme)
+                        .environment(\.dynamicTypeSize, category)
+                        .environment(\.locale, Locale(identifier: "ko_KR"))
+                    let renderer = ImageRenderer(content: view)
+                    renderer.scale = 3
+                    let image = try XCTUnwrap(renderer.uiImage)
+                    XCTAssertLessThanOrEqual(image.size.height, 160, "\(name) \(categoryName): 카드 높이를 넘는다")
+                    let file = "card-\(name)-\(scheme == .dark ? "dark" : "light")-\(categoryName).png"
+                    try XCTUnwrap(image.pngData()).write(to: outputDirectory.appending(path: file))
+                }
+            }
+        }
+    }
+
+    static func cardState(_ items: [TodoItem], isWritable: Bool = true) -> LockScreenCardState {
+        LockScreenCardState(
+            viewId: "view", viewName: "할 일", isWritable: isWritable, items: items, hasMore: false,
+            fetchedAt: Date(timeIntervalSince1970: 1_794_000_000))
+    }
+
     func render<V: View>(
         _ name: String, size: Size, scheme: ColorScheme, category: DynamicTypeSize, mode: WidgetRenderingMode? = nil,
         @ViewBuilder _ content: () -> V

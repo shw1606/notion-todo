@@ -70,6 +70,10 @@ struct SettingsView: View {
                 Text("Widgets refresh every 15–60 minutes as the system allows. Changes you make in this app or in a widget show up right away.")
             }
 
+            #if os(iOS)
+                LockScreenCardSettings()
+            #endif
+
             #if os(macOS)
                 Section {
                     Toggle("Keep a note on top of other windows", isOn: $showsFloatingNote)

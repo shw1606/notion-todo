@@ -308,7 +308,94 @@ final class NotionTodoUITests: XCTestCase {
         #endif
     }
 
+    /// 잠금 화면 카드(iPhone): 설정에서 켜면 잠금 화면에 메모가 보이고, 거기서 체크·해제한 것이 앱에 반영된다.
+    func testLockScreenCard() throws {
+        #if os(iOS)
+            try XCTSkipUnless(UIDevice.current.userInterfaceIdiom == .phone, "iPhone에서만 돌린다")
+            XCTAssertTrue(composer.waitForExistence(timeout: 20), "입력 바가 보여야 한다")
+            let title = "UI 테스트 \(Int(Date().timeIntervalSince1970))"
+            press(composer)
+            composer.typeText(title + "\n")
+            let row = app.staticTexts[title].firstMatch
+            XCTAssertTrue(row.waitForExistence(timeout: 10))
+            sleep(4)  // Notion에 만들어질 때까지. 아직 만들어지지 않은 메모는 카드에서 체크할 수 없다.
+
+            setLockScreenCard(true)
+            let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
+            let lock = NSSelectorFromString("pressLockButton")
+            XCUIDevice.shared.perform(lock)
+            sleep(2)
+            XCUIDevice.shared.perform(lock)  // 화면을 다시 켠다 → 잠금 화면
+
+            // 카드의 줄. 레이블 = "제목, Not checked".
+            let card = springboard.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", title)).firstMatch
+            XCTAssertTrue(card.waitForExistence(timeout: 15), "잠금 화면 카드에 방금 적은 메모가 보여야 한다")
+            // 앱의 첫 실시간 현황이면 계속 받을지 묻는 단추가 카드 아래에 붙는다.
+            let allow = springboard.buttons["Allow"].firstMatch
+            if allow.exists { allow.tap() }
+            attachLockScreen("card")
+
+            card.tap()
+            // 체크하면 레이블이 "제목, Checked"로 바뀌거나, 다섯 줄이 찼으면 카드에서 밀려난다.
+            let done = springboard.buttons.matching(NSPredicate(format: "label == %@", "\(title), Checked")).firstMatch
+            let checked = waitUntil(timeout: 15) { done.exists || !card.exists }
+            XCTAssertTrue(checked, "카드에서 누르면 체크된다")
+            attachLockScreen("card checked")
+            // 체크한 메모가 카드에 남아 있으면(다섯 줄이 안 찼을 때) 다시 눌러 되돌린다.
+            let undone = done.exists
+            if undone {
+                done.tap()
+                let open = springboard.buttons.matching(NSPredicate(format: "label == %@", "\(title), Not checked"))
+                XCTAssertTrue(open.firstMatch.waitForExistence(timeout: 15), "다시 누르면 되돌아간다")
+            }
+
+            XCUIDevice.shared.press(.home)
+            app.activate()
+            XCTAssertTrue(composer.waitForExistence(timeout: 20))
+            if undone {
+                XCTAssertTrue(row.waitForExistence(timeout: 15), "되돌린 메모는 목록에 그대로 있다")
+            } else {
+                XCTAssertTrue(waitForDisappearance(row, timeout: 15), "카드에서 체크한 메모는 미완료 뷰에서 빠져야 한다")
+            }
+            setLockScreenCard(false)
+            if undone { try deleteAndWait(row) }
+        #else
+            throw XCTSkip("iOS에서만 돌린다")
+        #endif
+    }
+
     // MARK: 도우미
+
+    #if os(iOS)
+        /// 설정 ▸ 잠금 화면 카드를 켜거나 끈다.
+        func setLockScreenCard(_ isOn: Bool) {
+            let settings = app.buttons["Settings"].firstMatch
+            XCTAssertTrue(settings.waitForExistence(timeout: 10))
+            settings.tap()
+            XCTAssertTrue(app.buttons["Done"].firstMatch.waitForExistence(timeout: 10))
+            // 화면 아래쪽 칸이라 올려야 보인다 (보이기 전에는 요소가 없다).
+            let toggle = app.switches["Show memos on the Lock Screen"].firstMatch
+            for _ in 0..<4 where !(toggle.exists && toggle.isHittable) { app.swipeUp() }
+            XCTAssertTrue(toggle.waitForExistence(timeout: 5), "설정에 잠금 화면 카드 칸이 있어야 한다")
+            // 올린 화면이 멈춘 뒤에 누른다 (움직이는 중의 탭은 스크롤을 멈추는 데 쓰인다). 그래도 안 바뀌면 한 번 더.
+            for _ in 0..<2 where (toggle.value as? String == "1") != isOn {
+                sleep(1)
+                // 줄 가운데가 아니라 스위치 자체를 눌러야 바뀐다.
+                toggle.coordinate(withNormalizedOffset: CGVector(dx: 0.92, dy: 0.5)).tap()
+                _ = waitUntil(timeout: 3) { (toggle.value as? String == "1") == isOn }
+            }
+            XCTAssertEqual(toggle.value as? String == "1", isOn, "스위치가 바뀌어야 한다")
+            app.buttons["Done"].firstMatch.tap()
+            sleep(2)  // 카드를 띄우거나 치울 시간
+        }
+
+        func attachLockScreen(_ name: String) {
+            let attachment = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+            attachment.name = name
+            attachment.lifetime = .keepAlways
+            add(attachment)
+        }
+    #endif
 
     #if os(iOS)
         /// 줄을 길게 눌러 위쪽에 있는 다른 줄 바로 위에 놓는다.

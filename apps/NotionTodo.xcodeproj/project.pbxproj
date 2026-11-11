@@ -20,13 +20,18 @@
 		2C0696D1A3848D5A697A1A51 /* TodoCore in Frameworks */ = {isa = PBXBuildFile; productRef = 2F6CE33597C11BB98032C7FB /* TodoCore */; };
 		35B33993D30FB31C68137E4E /* InfoPlist.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 1AB4B88A728E94D0A24F4556 /* InfoPlist.xcstrings */; };
 		375E6208CF555F4C7C104BCE /* TodoTimeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A0989A02429E511B1F343B5 /* TodoTimeline.swift */; };
+		3C49436BA0A6AE798645764E /* TodoCardActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23813F1BB6921606376D6AD0 /* TodoCardActivity.swift */; };
+		3F6E09F0912CC3E50275B7A8 /* LockScreenCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = E051286C8F6AB22564CDA658 /* LockScreenCard.swift */; };
 		446D84AC17A9173A938BD903 /* NotionKit in Frameworks */ = {isa = PBXBuildFile; productRef = A8197FE39C124817C958C5CE /* NotionKit */; };
+		44D4BB434E49D052A1C65ECD /* card-silence.caf in Resources */ = {isa = PBXBuildFile; fileRef = E60DB2AB4F2368BADB19311F /* card-silence.caf */; platformFilters = (ios, ); };
 		457FD2DC4725C379BCCF844D /* TodoIntents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FFB2531943E063055F4DF99 /* TodoIntents.swift */; };
 		490C53B80F0AE67FF724FEFC /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F7CADFDEDB3E07E2DADDF92 /* WidgetKit.framework */; };
+		50680FE807E5CE290F205F50 /* LockScreenCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = E051286C8F6AB22564CDA658 /* LockScreenCard.swift */; };
 		5C49C62A0C5DFE8813D69008 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F7CADFDEDB3E07E2DADDF92 /* WidgetKit.framework */; };
 		5FFB851EC0190293CD765B0E /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 4768B94959C2F35C54E0A395 /* Localizable.xcstrings */; };
 		605E36D7E474CBA74BB70A51 /* TodoIntents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FFB2531943E063055F4DF99 /* TodoIntents.swift */; };
 		6324F2BC405860D21B3C3CA5 /* TodoWidgetViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD959318D2C3729924EC8E58 /* TodoWidgetViews.swift */; };
+		6345B5C2C05B77FBEC370095 /* LockScreenCardSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFB03AC5AF8F9A68802251B0 /* LockScreenCardSettings.swift */; };
 		6C6C88F8E0A3630834DB589E /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BF53798B065AB3B62581E998 /* SwiftUI.framework */; };
 		810524589B9254D4945DA88B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 93E6444F078877D6AB3C4F8A /* Assets.xcassets */; };
 		817E134FFEE33EF288573E36 /* TodoListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BF0FDF31911E1FC32F38236 /* TodoListView.swift */; };
@@ -39,6 +44,8 @@
 		9BE7ACBB022784F18EA6FD08 /* DevSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5273A81108AA68ADF0869AE2 /* DevSnapshot.swift */; };
 		9DA3F736F1FE14BAD47757E8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 27B1432CE1D0B38E6AD2360F /* Assets.xcassets */; };
 		A53DCAFFB7959FC0E30DF7C7 /* FloatingNoteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC49D2928694D891B71AE0C3 /* FloatingNoteView.swift */; };
+		BED9117AB0860373753C6369 /* TodoCardActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23813F1BB6921606376D6AD0 /* TodoCardActivity.swift */; };
+		C4765EEC8DF71C9FFADB3235 /* LockScreenCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = E051286C8F6AB22564CDA658 /* LockScreenCard.swift */; };
 		C59600002AF4D96C70414EF7 /* InfoPlist.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = DC516DFF70E3377E9E17463D /* InfoPlist.xcstrings */; };
 		CCECE85386361FDC85015E39 /* DesignSystem in Frameworks */ = {isa = PBXBuildFile; productRef = E54BB5E33EEA8F0FCC59E375 /* DesignSystem */; };
 		DD2896249C9A24E04F3FD117 /* NotionKit in Frameworks */ = {isa = PBXBuildFile; productRef = 979A18EB4D0E5E62F14FF1F8 /* NotionKit */; };
@@ -83,6 +90,7 @@
 /* Begin PBXFileReference section */
 		0C4BA5ED94CE2DFB12C2AC6B /* NotionTodoUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotionTodoUITests.swift; sourceTree = "<group>"; };
 		1AB4B88A728E94D0A24F4556 /* InfoPlist.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = InfoPlist.xcstrings; sourceTree = "<group>"; };
+		23813F1BB6921606376D6AD0 /* TodoCardActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoCardActivity.swift; sourceTree = "<group>"; };
 		27B1432CE1D0B38E6AD2360F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		30294F27F6832C5309A176EB /* NotionTodo.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = NotionTodo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		34B7899F53059F159ABEC497 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
@@ -106,6 +114,7 @@
 		B0B035636997FBA3808A74C0 /* MenuBarQuickAdd.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarQuickAdd.swift; sourceTree = "<group>"; };
 		BDB0EADFD1686A1ECC7AF107 /* AppShortcuts.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = AppShortcuts.xcstrings; sourceTree = "<group>"; };
 		BF53798B065AB3B62581E998 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		BFB03AC5AF8F9A68802251B0 /* LockScreenCardSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LockScreenCardSettings.swift; sourceTree = "<group>"; };
 		C2D60D3D37B5827DE3329547 /* WidgetSnapshotTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetSnapshotTests.swift; sourceTree = "<group>"; };
 		CE96DAE813B6F20333C1B3DE /* NotionTodoWidgets-iOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "NotionTodoWidgets-iOS.entitlements"; sourceTree = "<group>"; };
 		CF3D1E02BC83241D56CF4163 /* NotionTodo-iOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "NotionTodo-iOS.entitlements"; sourceTree = "<group>"; };
@@ -114,6 +123,8 @@
 		DC49D2928694D891B71AE0C3 /* FloatingNoteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingNoteView.swift; sourceTree = "<group>"; };
 		DC516DFF70E3377E9E17463D /* InfoPlist.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = InfoPlist.xcstrings; sourceTree = "<group>"; };
 		DF58F42C99348F02515063A7 /* NotionTodoWidgets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotionTodoWidgets.swift; sourceTree = "<group>"; };
+		E051286C8F6AB22564CDA658 /* LockScreenCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LockScreenCard.swift; sourceTree = "<group>"; };
+		E60DB2AB4F2368BADB19311F /* card-silence.caf */ = {isa = PBXFileReference; path = "card-silence.caf"; sourceTree = "<group>"; };
 		E71D3A6B2DE021F26B9EB17F /* NotionTodoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotionTodoApp.swift; sourceTree = "<group>"; };
 		F6D6249021F9C0855F5E4DAC /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
 		F805361B4DE95A8C882A2289 /* Packages */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Packages; path = Packages; sourceTree = SOURCE_ROOT; };
@@ -167,6 +178,7 @@
 				CE96DAE813B6F20333C1B3DE /* NotionTodoWidgets-iOS.entitlements */,
 				D2956E2138385AB51D61C703 /* NotionTodoWidgets-macOS.entitlements */,
 				DF58F42C99348F02515063A7 /* NotionTodoWidgets.swift */,
+				23813F1BB6921606376D6AD0 /* TodoCardActivity.swift */,
 				7A0989A02429E511B1F343B5 /* TodoTimeline.swift */,
 				FD959318D2C3729924EC8E58 /* TodoWidgetViews.swift */,
 			);
@@ -247,6 +259,7 @@
 				A43775608ACD04140B6CC1E6 /* AppModel.swift */,
 				BDB0EADFD1686A1ECC7AF107 /* AppShortcuts.xcstrings */,
 				27B1432CE1D0B38E6AD2360F /* Assets.xcassets */,
+				E60DB2AB4F2368BADB19311F /* card-silence.caf */,
 				5273A81108AA68ADF0869AE2 /* DevSnapshot.swift */,
 				AA164D7D7617746770BD8EF3 /* FloatingNote.swift */,
 				7EDAF344C2B901D2CD84086E /* Info.plist */,
@@ -263,6 +276,7 @@
 			isa = PBXGroup;
 			children = (
 				DC49D2928694D891B71AE0C3 /* FloatingNoteView.swift */,
+				BFB03AC5AF8F9A68802251B0 /* LockScreenCardSettings.swift */,
 				B0B035636997FBA3808A74C0 /* MenuBarQuickAdd.swift */,
 				7D19626ACC436E82F05BEAAB /* OnboardingView.swift */,
 				F6D6249021F9C0855F5E4DAC /* RootView.swift */,
@@ -275,6 +289,7 @@
 		DDE026541EB896C1FB1DD81C /* Shared */ = {
 			isa = PBXGroup;
 			children = (
+				E051286C8F6AB22564CDA658 /* LockScreenCard.swift */,
 				3FFB2531943E063055F4DF99 /* TodoIntents.swift */,
 			);
 			path = Shared;
@@ -441,6 +456,7 @@
 				9DA3F736F1FE14BAD47757E8 /* Assets.xcassets in Resources */,
 				35B33993D30FB31C68137E4E /* InfoPlist.xcstrings in Resources */,
 				F76C629373088C02CB101754 /* Localizable.xcstrings in Resources */,
+				44D4BB434E49D052A1C65ECD /* card-silence.caf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -451,6 +467,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3F6E09F0912CC3E50275B7A8 /* LockScreenCard.swift in Sources */,
+				3C49436BA0A6AE798645764E /* TodoCardActivity.swift in Sources */,
 				457FD2DC4725C379BCCF844D /* TodoIntents.swift in Sources */,
 				375E6208CF555F4C7C104BCE /* TodoTimeline.swift in Sources */,
 				1F754A828E08A86EC08794F9 /* TodoWidgetViews.swift in Sources */,
@@ -470,7 +488,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C4765EEC8DF71C9FFADB3235 /* LockScreenCard.swift in Sources */,
 				8FA9E7F4E7A5119812C1887A /* NotionTodoWidgets.swift in Sources */,
+				BED9117AB0860373753C6369 /* TodoCardActivity.swift in Sources */,
 				FF2250E173AFE6193E84F34F /* TodoIntents.swift in Sources */,
 				F2A91F34BEB0746897F2BA1C /* TodoTimeline.swift in Sources */,
 				6324F2BC405860D21B3C3CA5 /* TodoWidgetViews.swift in Sources */,
@@ -485,6 +505,8 @@
 				9BE7ACBB022784F18EA6FD08 /* DevSnapshot.swift in Sources */,
 				8968AB6636D7FD7EFB72D1F9 /* FloatingNote.swift in Sources */,
 				A53DCAFFB7959FC0E30DF7C7 /* FloatingNoteView.swift in Sources */,
+				50680FE807E5CE290F205F50 /* LockScreenCard.swift in Sources */,
+				6345B5C2C05B77FBEC370095 /* LockScreenCardSettings.swift in Sources */,
 				9BCF4A07B8E38695A6F8408D /* MenuBarQuickAdd.swift in Sources */,
 				E4DEC51BBB78CE77925FA2F9 /* NotionTodoApp.swift in Sources */,
 				8BB626F68CB62BA7F796C24F /* OnboardingView.swift in Sources */,

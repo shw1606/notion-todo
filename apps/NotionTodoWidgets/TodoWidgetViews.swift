@@ -18,16 +18,28 @@ struct WidgetTodoRow: View {
 
     var body: some View {
         if isWritable, let viewId, !item.isLocalOnly {
-            Button(intent: ToggleTodoIntent(itemId: item.id, viewId: viewId, done: !item.isDone)) {
-                label
-            }
-            .buttonStyle(.plain)
-            .accessibilityLabel(item.accessibilityDescription)
-            .accessibilityValue(item.accessibilityStatus)
-            .accessibilityHint(Text(item.isDone ? "Marks as not done" : "Marks as done"))
+            toggle(viewId: viewId)
+                .buttonStyle(.plain)
+                .accessibilityLabel(item.accessibilityDescription)
+                .accessibilityValue(item.accessibilityStatus)
+                .accessibilityHint(Text(item.isDone ? "Marks as not done" : "Marks as done"))
         } else {
             label.accessibilityElement(children: .combine)
         }
+    }
+
+    @ViewBuilder func toggle(viewId: String) -> some View {
+        #if os(iOS)
+            // 잠금 화면 카드를 켜 둔 동안에는 앱 프로세스에서 도는 인텐트로 보낸다. 위젯 확장은 카드를 고칠 수 없어서,
+            // 여기서 체크한 것이 카드에 그대로 남는다.
+            if LockScreenCard.isOn {
+                Button(intent: ToggleCardTodoIntent(itemId: item.id, viewId: viewId, done: !item.isDone)) { label }
+            } else {
+                Button(intent: ToggleTodoIntent(itemId: item.id, viewId: viewId, done: !item.isDone)) { label }
+            }
+        #else
+            Button(intent: ToggleTodoIntent(itemId: item.id, viewId: viewId, done: !item.isDone)) { label }
+        #endif
     }
 
     var label: some View {

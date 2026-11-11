@@ -11,6 +11,16 @@
     "%lld": {
       "shouldTranslate": false
     },
+    "A large card with your memos stays on the Lock Screen, and you can check them off right there. iOS takes a card down after 8 to 12 hours, so a new one takes its place — the screen lights up briefly when it does, never at night. After about a day and a half without opening this app, the card goes away until you open it or check a memo in a widget.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "메모를 담은 큰 카드를 잠금 화면에 띄워 두고 그 자리에서 체크합니다. iOS가 카드를 8~12시간 뒤에 내리기 때문에 새 카드가 그 자리를 잇습니다. 그때 화면이 잠깐 켜지고, 밤에는 켜지지 않습니다. 하루 반쯤 이 앱을 열지 않으면 카드가 사라졌다가, 앱을 열거나 위젯에서 메모를 체크하면 다시 뜹니다."
+          }
+        }
+      }
+    },
     "A personal access token sees what you can see in Notion, so there’s nothing to share. Internal integration tokens work too.": {
       "localizations": {
         "ko": {
@@ -661,6 +671,16 @@
         }
       }
     },
+    "Lock Screen Card": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "잠금 화면 카드"
+          }
+        }
+      }
+    },
     "Looking for your databases…": {
       "localizations": {
         "ko": {
@@ -1214,6 +1234,16 @@
         }
       }
     },
+    "Show memos on the Lock Screen": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "잠금 화면에 메모 띄우기"
+          }
+        }
+      }
+    },
     "Sign Out": {
       "localizations": {
         "ko": {
@@ -1400,6 +1430,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "잠금 화면을 길게 누르고 사용자화 → 잠금 화면에서 ‘메모’ 위젯을 추가하세요. 잠금을 풀지 않고도 체크할 수 있어요."
+          }
+        }
+      }
+    },
+    "Turn on Live Activities in Settings": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "설정에서 실시간 현황 켜기"
           }
         }
       }
@@ -1600,6 +1640,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "데이터는 이 기기와 Notion 사이에서만 오가요. 분석·추적 없음."
+          }
+        }
+      }
+    },
+    "Your memos are still on the Lock Screen.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "메모가 잠금 화면에 그대로 있어요."
           }
         }
       }

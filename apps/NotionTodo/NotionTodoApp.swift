@@ -31,6 +31,9 @@ struct NotionTodoApp: App {
         .commands { AppCommands() }
         #if os(macOS)
             .defaultSize(width: 820, height: 620)
+        #else
+            // 잠금 화면 카드의 내용을 앱을 열지 않는 동안에도 가끔 새로 받는다.
+            .backgroundTask(.appRefresh(LockScreenCard.refreshTaskId)) { await LockScreenCard.backgroundRefresh() }
         #endif
 
         #if os(macOS)

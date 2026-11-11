@@ -46,6 +46,10 @@ targets:
     supportedDestinations: [iOS, macOS]
     sources:
       - path: NotionTodo
+        excludes: ["card-silence.caf"]
+      # 예약한 잠금 화면 카드가 뜰 때의 알림 소리 자리에 넣는 소리 없는 파일 (iPhone·iPad만).
+      - path: NotionTodo/card-silence.caf
+        destinationFilters: [iOS]
       - path: Shared
     dependencies:
       - package: NotionTodoKit
@@ -87,6 +91,11 @@ targets:
         NTOAuthClientID: $(NT_OAUTH_CLIENT_ID)
         NTAuthBaseURL: $(NT_AUTH_BASE_URL)
         ITSAppUsesNonExemptEncryption: false
+        # 잠금 화면 카드 (iPhone·iPad의 실시간 현황). Mac에서는 쓰이지 않는다.
+        NSSupportsLiveActivities: true
+        # 카드 내용을 뒤에서 새로 받는다 (`LockScreenCard.refreshTaskId`).
+        UIBackgroundModes: [fetch]
+        BGTaskSchedulerPermittedIdentifiers: [$(PRODUCT_BUNDLE_IDENTIFIER).card-refresh]
 
   NotionTodoWidgets:
     type: app-extension
@@ -131,7 +140,8 @@ targets:
       - path: NotionTodoWidgetsTests
       - path: NotionTodoWidgets/TodoWidgetViews.swift
       - path: NotionTodoWidgets/TodoTimeline.swift
-      - path: Shared/TodoIntents.swift
+      - path: NotionTodoWidgets/TodoCardActivity.swift
+      - path: Shared
     dependencies:
       - package: NotionTodoKit
         product: NotionKit

@@ -115,6 +115,7 @@ final class AppModel {
             await showCached(id)
             phase = .ready
             await refresh()
+            await renewLockScreenCard()
             if ownViewKey == nil {
                 await refreshCatalog()
             } else if let fresh = try? await repository.catalog() {
@@ -145,6 +146,19 @@ final class AppModel {
     func becameActive() async {
         guard phase == .ready else { return }
         await refresh()
+        await renewLockScreenCard()
+    }
+
+    /// 앱이 앞에 왔다 → 잠금 화면 카드를 새로 띄우거나(없을 때·오래 떠 있었을 때) 내용을 맞춘다 (iPhone·iPad).
+    /// 카드의 뷰가 지금 보는 뷰와 다르면 그 뷰도 받아 온다.
+    private func renewLockScreenCard() async {
+        #if os(iOS)
+            guard ownViewKey == nil, LockScreenCard.isOn else { return }
+            let cardViewId = await LockScreenCard.viewId()
+            await LockScreenCard.sync(
+                start: .ifOlderThan(LockScreenCard.renewInApp), fetch: cardViewId != currentViewId || isOffline)
+            LockScreenCard.scheduleRefresh()
+        #endif
     }
 
     // MARK: 뷰
@@ -232,7 +246,14 @@ final class AppModel {
             await reloadLayout()
             // 위젯과 다른 창은 같은 캐시를 읽는다. 달라진 게 없으면 다시 그리게 하지 않는다: 다시 그릴 때마다 위젯 확장이
             // 떠서 Notion을 한 번 더 조회한다 (앱을 앞으로 가져올 때마다 일어나던 일).
-            if items != shown || wasOffline { itemsDidChange() }
+            if items != shown || wasOffline {
+                itemsDidChange()
+            } else {
+                // 달라진 게 없어도 잠금 화면 카드에는 방금 받아 왔다는 것을 알린다 (카드는 오래된 내용에 시각을 적는다).
+                #if os(iOS)
+                    Task { await LockScreenCard.sync() }
+                #endif
+            }
         } catch {
             handle(error)
             // 오프라인이면 위젯도 보여 줄 새 내용이 없다. 그 밖의 오류(연결 끊김 등)는 위젯 안내가 바뀐다.
@@ -609,8 +630,12 @@ final class AppModel {
         }
     }
 
+    /// 같은 캐시를 읽는 위젯과 잠금 화면 카드를 다시 그리게 한다.
     func reloadWidgets() {
         WidgetCenter.shared.reloadAllTimelines()
+        #if os(iOS)
+            Task { await LockScreenCard.sync() }
+        #endif
     }
 }
 
@@ -618,5 +643,5 @@ extension Notification.Name {
     static let notionTodoSessionChanged = Notification.Name("NotionTodoSessionChanged")
     static let notionTodoCatalogChanged = Notification.Name("NotionTodoCatalogChanged")
     static let notionTodoLayoutChanged = Notification.Name("NotionTodoLayoutChanged")
-    static let notionTodoItemsChanged = Notification.Name("NotionTodoItemsChanged")
+    // `notionTodoItemsChanged`는 Shared/LockScreenCard.swift에 있다 (카드의 체크 인텐트도 보낸다).
 }

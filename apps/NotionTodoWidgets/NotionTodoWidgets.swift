@@ -8,6 +8,9 @@ struct NotionTodoWidgetBundle: WidgetBundle {
         TodoListWidget()
         CountWidget()
         AddMemoControl()
+        #if os(iOS)
+            TodoCardActivity()
+        #endif
     }
 }
 
